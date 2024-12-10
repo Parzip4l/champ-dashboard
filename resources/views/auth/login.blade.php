@@ -10,11 +10,11 @@
                             <div class="d-flex flex-column h-100 justify-content-center">
                                 <div class="auth-logo mb-4">
                                     <a href="{{ route('second', [ 'dashboards' , 'index']) }}" class="logo-dark">
-                                        <img src="/images/logo-dark.png" height="24" alt="logo dark">
+                                        <img src="/images/champortal.png" height="55" alt="logo dark">
                                     </a>
 
                                     <a href="{{ route('second', [ 'dashboards' , 'index']) }}" class="logo-light">
-                                        <img src="/images/logo-light.png" height="24" alt="logo light">
+                                        <img src="/images/champortal.png" height="55" alt="logo light">
                                     </a>
                                 </div>
 
@@ -39,8 +39,6 @@
                                                    value="test@example.com">
                                         </div>
                                         <div class="mb-3">
-                                            <a href="{{ route('second', [ 'auth' , 'reset-password']) }}"
-                                               class="float-end text-muted text-unline-dashed ms-1">Reset password</a>
                                             <label class="form-label" for="example-password">Password</label>
                                             <input type="password" id="example-password" class="form-control"
                                                    placeholder="Enter your password" name="password" value="password">
@@ -57,19 +55,6 @@
                                             <button class="btn btn-soft-primary" type="submit">Sign In</button>
                                         </div>
                                     </form>
-
-                                    <p class="mt-3 fw-semibold no-span">OR sign with</p>
-
-                                    <div class="d-grid gap-2">
-                                        <a href="javascript:void(0);" class="btn btn-soft-dark"><i
-                                                class="bx bxl-google fs-20 me-1"></i> Sign in with Google</a>
-                                        <a href="javascript:void(0);" class="btn btn-soft-primary"><i
-                                                class="bx bxl-facebook fs-20 me-1"></i> Sign in with Facebook</a>
-                                    </div>
-                                </div>
-
-                                <p class="text-danger text-center">Don't have an account? <a href="{{ route('second', [ 'auth' , 'register']) }}"
-                                                                                             class="text-dark fw-bold ms-1">Register</a></p>
                             </div>
                         </div>
                     </div>
