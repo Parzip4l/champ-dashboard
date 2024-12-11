@@ -12,6 +12,19 @@ use App\Models\product\ProductImage;
 
 class ProdukController extends Controller
 {
+
+    public function index()
+    {
+        // Ambil produk dengan pagination
+        $products = Product::with('images')->paginate(10);
+        // Kirim data ke view
+        return view('general.products.list', compact('products'));
+    }
+
+    public function create()
+    {
+        return view('general.products.create');
+    }
     public function store(Request $request)
     {
         $request->validate([

@@ -1,11 +1,11 @@
 <div class="main-nav">
     <!-- Sidebar Logo -->
     <div class="logo-box">
-        <a href="{{ route('second', [ 'dashboards' , 'index']) }}" class="logo-dark">
+        <a href="#" class="logo-dark">
             <img src="/images/champ-sm.png" class="champ-sm" alt="logo sm">
         </a>
 
-        <a href="{{ route('second', [ 'dashboards' , 'index']) }}" class="logo-light">
+        <a href="#" class="logo-light">
             <img src="/images/champ-sm.png" class="champ-sm" alt="logo sm">
         </a>
     </div>
@@ -20,8 +20,8 @@
 
             <li class="menu-title">General</li>
 
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('second', [ 'dashboards' , 'index']) }}">
+            <li class="nav-item active">
+                <a class="nav-link" href="{{route('dashboard.index')}}">
                          <span class="nav-icon">
                               <iconify-icon icon="solar:widget-5-bold-duotone"></iconify-icon>
                          </span>
@@ -40,19 +40,19 @@
                 <div class="collapse" id="sidebarProducts">
                     <ul class="nav sub-navbar-nav">
                     <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'products', 'list'])}}">List</a>
+                            <a class="sub-nav-link" href="{{ route('product.index')}}">List</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'products', 'grid'])}}">Grid</a>
+                            <a class="sub-nav-link" href="#">Grid</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'products', 'detail'])}}">Details</a>
+                            <a class="sub-nav-link" href="#">Details</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'products', 'edit'])}}">Edit</a>
+                            <a class="sub-nav-link" href="#">Edit</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'products', 'create'])}}">Create</a>
+                            <a class="sub-nav-link" href="{{ route('product.create')}}">Create</a>
                         </li>
                     </ul>
                 </div>
@@ -69,13 +69,13 @@
                 <div class="collapse" id="sidebarCategory">
                     <ul class="nav sub-navbar-nav">
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'category', 'list'])}}">List</a>
+                            <a class="sub-nav-link" href="#">List</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'category', 'edit'])}}">Edit</a>
+                            <a class="sub-nav-link" href="#">Edit</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'category', 'create'])}}">Create</a>
+                            <a class="sub-nav-link" href="#">Create</a>
                         </li>
                     </ul>
                 </div>
@@ -93,10 +93,10 @@
                     <ul class="nav sub-navbar-nav">
 
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'inventory', 'warehouse'])}}">Warehouse</a>
+                            <a class="sub-nav-link" href="#">Warehouse</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'inventory', 'received-orders'])}}">Received Orders</a>
+                            <a class="sub-nav-link" href="#">Received Orders</a>
                         </li>
 
                     </ul>
@@ -115,16 +115,16 @@
                     <ul class="nav sub-navbar-nav">
 
                          <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'orders', 'list'])}}">List</a>
+                            <a class="sub-nav-link" href="#">List</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'orders', 'details'])}}">Details</a>
+                            <a class="sub-nav-link" href="#">Details</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'orders', 'cart'])}}">Cart</a>
+                            <a class="sub-nav-link" href="#">Cart</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'orders', 'checkout'])}}">Check Out</a>
+                            <a class="sub-nav-link" href="#">Check Out</a>
                         </li>
                     </ul>
                 </div>
@@ -141,13 +141,13 @@
                 <div class="collapse" id="sidebarPurchases">
                     <ul class="nav sub-navbar-nav">
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'purchase', 'list'])}}">List</a>
+                            <a class="sub-nav-link" href="#">List</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'purchase', 'order'])}}">Order</a>
+                            <a class="sub-nav-link" href="#">Order</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'purchase', 'return'])}}">Return</a>
+                            <a class="sub-nav-link" href="#">Return</a>
                         </li>
                     </ul>
                 </div>
@@ -164,13 +164,13 @@
                 <div class="collapse" id="sidebarAttributes">
                     <ul class="nav sub-navbar-nav">
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'attributes', 'list'])}}">List</a>
+                            <a class="sub-nav-link" href="#">List</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'attributes', 'edit'])}}">Edit</a>
+                            <a class="sub-nav-link" href="#">Edit</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'attributes', 'create'])}}">Create</a>
+                            <a class="sub-nav-link" href="#">Create</a>
                         </li>
                     </ul>
                 </div>
@@ -187,20 +187,20 @@
                 <div class="collapse" id="sidebarInvoice">
                     <ul class="nav sub-navbar-nav">
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'invoice', 'list'])}}">List</a>
+                            <a class="sub-nav-link" href="#">List</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['general', 'invoice', 'details'])}}">Details</a>
+                            <a class="sub-nav-link" href="#">Details</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{route('third', ['general', 'invoice', 'create'])}}">Create</a>
+                            <a class="sub-nav-link" href="#">Create</a>
                         </li>
                     </ul>
                 </div>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="{{ route('second', ['general', 'settings'])}}">
+                <a class="nav-link" href="#">
                          <span class="nav-icon">
                               <iconify-icon icon="solar:settings-bold-duotone"></iconify-icon>
                          </span>
@@ -211,12 +211,37 @@
             <li class="menu-title mt-2">Users</li>
 
             <li class="nav-item">
-                <a class="nav-link" href="{{ route('second', ['users', 'pages-profile'])}}">
+                <a class="nav-link" href="#">
                          <span class="nav-icon">
                               <iconify-icon icon="solar:chat-square-like-bold-duotone"></iconify-icon>
                          </span>
                     <span class="nav-text"> Profile </span>
                 </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link menu-arrow" href="#sidebarUser" data-bs-toggle="collapse" role="button"
+                   aria-expanded="false" aria-controls="sidebarUser">
+                         <span class="nav-icon">
+                              <iconify-icon icon="solar:users-group-two-rounded-bold-duotone"></iconify-icon>
+                         </span>
+                    <span class="nav-text"> User </span>
+                </a>
+                <div class="collapse" id="sidebarUser">
+                    <ul class="nav sub-navbar-nav">
+                        <ul class="nav sub-navbar-nav">
+                            <li class="sub-nav-item">
+                                <a class="sub-nav-link" href="{{route('user.index')}}">List</a>
+                            </li>
+                            <li class="sub-nav-item">
+                                <a class="sub-nav-link" href="#">Edit</a>
+                            </li>
+                            <li class="sub-nav-item">
+                                <a class="sub-nav-link" href="#">Create</a>
+                            </li>
+                        </ul>
+                    </ul>
+                </div>
             </li>
 
             <li class="nav-item">
@@ -231,13 +256,13 @@
                     <ul class="nav sub-navbar-nav">
                         <ul class="nav sub-navbar-nav">
                             <li class="sub-nav-item">
-                                <a class="sub-nav-link" href="{{ route('third', ['users', 'role', 'list'])}}">List</a>
+                                <a class="sub-nav-link" href="#">List</a>
                             </li>
                             <li class="sub-nav-item">
-                                <a class="sub-nav-link" href="{{ route('third', ['users', 'role', 'edit'])}}">Edit</a>
+                                <a class="sub-nav-link" href="#">Edit</a>
                             </li>
                             <li class="sub-nav-item">
-                                <a class="sub-nav-link" href="{{ route('third', ['users', 'role', 'create'])}}">Create</a>
+                                <a class="sub-nav-link" href="#">Create</a>
                             </li>
                         </ul>
                     </ul>
@@ -245,33 +270,12 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="{{ route('second', ['users', 'pages-permission'])}}">
+                <a class="nav-link" href="#">
                          <span class="nav-icon">
                               <iconify-icon icon="solar:checklist-minimalistic-bold-duotone"></iconify-icon>
                          </span>
                     <span class="nav-text"> Permissions </span>
                 </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link menu-arrow" href="#sidebarCustomers" data-bs-toggle="collapse" role="button"
-                   aria-expanded="false" aria-controls="sidebarCustomers">
-                         <span class="nav-icon">
-                              <iconify-icon icon="solar:users-group-two-rounded-bold-duotone"></iconify-icon>
-                         </span>
-                    <span class="nav-text"> Customers </span>
-                </a>
-                <div class="collapse" id="sidebarCustomers">
-                    <ul class="nav sub-navbar-nav">
-
-                        <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['users', 'customer', 'list'])}}">List</a>
-                        </li>
-                        <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['users', 'customer',  'details'])}}">Details</a>
-                        </li>
-                    </ul>
-                </div>
             </li>
 
             <li class="nav-item">
@@ -285,16 +289,16 @@
                 <div class="collapse" id="sidebarSellers">
                     <ul class="nav sub-navbar-nav">
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['users', 'seller', 'list'])}}">List</a>
+                            <a class="sub-nav-link" href="#">List</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['users', 'seller', 'details'])}}">Details</a>
+                            <a class="sub-nav-link" href="#">Details</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['users', 'seller', 'edit'])}}">Edit</a>
+                            <a class="sub-nav-link" href="#">Edit</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('third', ['users', 'seller', 'create'])}}">Create</a>
+                            <a class="sub-nav-link" href="#">Create</a>
                         </li>
                     </ul>
                 </div>
@@ -311,17 +315,17 @@
                 <div class="collapse" id="sidebarCoupons">
                     <ul class="nav sub-navbar-nav">
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('second', ['other', 'coupons-list'])}}">List</a>
+                            <a class="sub-nav-link" href="#">List</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('second', ['other', 'coupons-add'])}}">Add</a>
+                            <a class="sub-nav-link" href="#">Add</a>
                         </li>
                     </ul>
                 </div>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="{{ route('second', ['other', 'pages-review'])}}">
+                <a class="nav-link" href="#">
                          <span class="nav-icon">
                               <iconify-icon icon="solar:chat-square-like-bold-duotone"></iconify-icon>
                          </span>

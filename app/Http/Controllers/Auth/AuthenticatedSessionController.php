@@ -28,12 +28,25 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request)
     {
+        $validated = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
 
-        $request->authenticate();
+        // Cek apakah 'remember' ada
+        $remember = $request->has('remember') ? true : false;
 
-        $request->session()->regenerate();
+        // Autentikasi pengguna dengan remember me jika ada
+        if (Auth::attempt(['email' => $validated['email'], 'password' => $validated['password']], $remember)) {
+            // Regenerasi session untuk keamanan
+            $request->session()->regenerate();
 
-        return redirect()->intended(RouteServiceProvider::HOME);
+            // Redirect ke halaman dashboard
+            return redirect()->route('dashboard.index');
+        }   
+
+        // Jika gagal, redirect kembali dengan pesan error
+        return back()->withErrors(['email' => 'The provided credentials do not match our records.']);
     }
 
     /**
@@ -50,6 +63,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/auth/logout');
+        return redirect('login');
     }
 }

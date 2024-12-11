@@ -11,7 +11,7 @@
 
                 <!-- Menu Toggle Button -->
                 <div class="topbar-item">
-                    <h4 class="fw-bold topbar-button pe-none text-uppercase mb-0">{{ $title ?? 'Larkon' }}</h4>
+                    <h4 class="fw-bold topbar-button pe-none text-uppercase mb-0">{{ $title ?? 'Champoil Dashboard' }}</h4>
                 </div>
             </div>
 
@@ -165,33 +165,30 @@
                     </a>
                     <div class="dropdown-menu dropdown-menu-end">
                         <!-- item-->
-                        <h6 class="dropdown-header">Welcome Gaston!</h6>
-                        <a class="dropdown-item" href="{{ route('second', ['users', 'pages-profile'])}}">
+                        <h6 class="dropdown-header">Welcome {{Auth::user()->name}}!</h6>
+                        <a class="dropdown-item" href="">
                             <i class="bx bx-user-circle text-muted fs-18 align-middle me-1"></i><span
                                 class="align-middle">Profile</span>
                         </a>
-                    <a class="dropdown-item" href="{{ route('second', ['users', 'chat'])}}">
-                            <i class="bx bx-message-dots text-muted fs-18 align-middle me-1"></i><span
-                                class="align-middle">Messages</span>
-                        </a>
 
-                        <a class="dropdown-item" href="{{ route('second', ['users', 'pricing'])}}">
-                            <i class="bx bx-wallet text-muted fs-18 align-middle me-1"></i><span class="align-middle">Pricing</span>
-                        </a>
-                        <a class="dropdown-item" href="{{ route('second', ['users', 'faqs'])}}">
+                        <a class="dropdown-item" href="">
                             <i class="bx bx-help-circle text-muted fs-18 align-middle me-1"></i><span
                                 class="align-middle">Help</span>
                         </a>
-                        <a class="dropdown-item" href="{{ route('second', [ 'auth' , 'lock-screen']) }}">
+
+                        <a class="dropdown-item" href="">
                             <i class="bx bx-lock text-muted fs-18 align-middle me-1"></i><span class="align-middle">Lock screen</span>
                         </a>
 
                         <div class="dropdown-divider my-1"></div>
 
-                        <a class="dropdown-item text-danger" href="{{ route('second', [ 'auth' , 'login']) }}">
-                            <i class="bx bx-log-out fs-18 align-middle me-1"></i><span
-                                class="align-middle">Logout</span>
-                        </a>
+                        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="dropdown-item text-danger me-1" style="border: none; background: none; padding: 0; margin-left:22px;">
+                                <i class="bx bx-log-out fs-18 align-middle me-1"></i>
+                                <span class="align-middle">Logout</span>
+                            </button>
+                        </form>
                     </div>
                 </div>
 

@@ -9,11 +9,11 @@
                         <div class="col-lg-6 py-lg-5">
                             <div class="d-flex flex-column h-100 justify-content-center">
                                 <div class="auth-logo mb-4">
-                                    <a href="{{ route('second', [ 'dashboards' , 'index']) }}" class="logo-dark">
+                                    <a href="#" class="logo-dark">
                                         <img src="/images/champortal.png" height="55" alt="logo dark">
                                     </a>
 
-                                    <a href="{{ route('second', [ 'dashboards' , 'index']) }}" class="logo-light">
+                                    <a href="#" class="logo-light">
                                         <img src="/images/champortal.png" height="55" alt="logo light">
                                     </a>
                                 </div>
@@ -36,16 +36,16 @@
                                             <label class="form-label" for="example-email">Email</label>
                                             <input type="email" id="example-email" name="email"
                                                    class="form-control bg-" placeholder="Enter your email"
-                                                   value="test@example.com">
+                                                   value="{{ old('email') }}" required autofocus>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label" for="example-password">Password</label>
                                             <input type="password" id="example-password" class="form-control"
-                                                   placeholder="Enter your password" name="password" value="password">
+                                                   placeholder="Enter your password" name="password">
                                         </div>
                                         <div class="mb-3">
                                             <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="checkbox-signin">
+                                                <input type="checkbox" class="form-check-input" id="checkbox-signin" {{ old('remember') ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="checkbox-signin">Remember
                                                     me</label>
                                             </div>

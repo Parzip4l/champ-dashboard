@@ -18,7 +18,7 @@
 @endif
 <div class="row">
     <div class="col-xl-12 col-lg-12 ">
-    <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" id="product-dropzone" class="dropzone">
+    <form action="{{ route('product.store') }}" method="POST" enctype="multipart/form-data" id="product-dropzone" class="dropzone">
         @csrf
         <div class="card">
             <div class="card-header">
@@ -56,8 +56,8 @@
                         <label for="weight-product" class="form-label">Weight</label>
                         <select class="form-control" name="weight" id="weight-product" data-choices data-choices-groups data-placeholder="Select Categories" name="choices-single-groups">
                             <option value="">Choose a weight</option>
-                            <option value="CHAMPOIL">KG</option>
-                            <option value="WHEEL">Gr</option>
+                            <option value="Kg">KG</option>
+                            <option value="gr">Gr</option>
                         </select>
                     </div>
                     <div class="col-lg-4">

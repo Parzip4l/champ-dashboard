@@ -6,7 +6,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="alert alert-primary text-truncate mb-3" role="alert">
-                        We regret to inform you that our server is currently experiencing technical difficulties.
+                        Welcome Back {{Auth::user()->name}} !
                     </div>
                 </div>
 
