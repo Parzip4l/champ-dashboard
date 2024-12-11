@@ -8,3 +8,4 @@
 
 <!-- App favicon -->
 <link rel="shortcut icon" href="/images/champortal.png">
+<meta name="_token" content="{{ csrf_token() }}">

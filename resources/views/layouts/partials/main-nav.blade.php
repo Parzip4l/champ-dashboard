@@ -17,7 +17,7 @@
 
     <div class="scrollbar" data-simplebar>
         @php
-            $menus = \App\Models\General\Menu::whereNull('parent_id')->where('is_active', 1)->with('children')->orderBy('order')->get();
+            $menus = \App\Models\General\Menu::where('is_active',1)->whereNull('parent_id')->with('children')->orderBy('order')->get();
         @endphp
         <ul class="navbar-nav" id="navbar-nav">
             @foreach($menus as $menu)
@@ -43,9 +43,11 @@
                     <div class="collapse" id="sidebar{{ $menu->id }}">
                         <ul class="nav sub-navbar-nav">
                             @foreach($menu->children as $child)
-                            <li class="sub-nav-item">
-                                <a class="sub-nav-link" href="{{ route($child->url) }}">{{ $child->title }}</a>
-                            </li>
+                                @if($child->is_active === 1)
+                                <li class="sub-nav-item">
+                                    <a class="sub-nav-link" href="{{ route($child->url) }}">{{ $child->title }}</a>
+                                </li>
+                                @endif
                             @endforeach
                         </ul>
                     </div>

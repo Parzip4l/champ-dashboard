@@ -30,7 +30,8 @@ Route::get('/', function () {
 
 Route::group(['prefix' => '/', 'middleware' => 'auth'], function () {
     // Setting
-    Route::get('/sidebar', [SidebarController::class, 'getMenus'])->name('sidebar');
+    Route::resource('menu', App\Http\Controllers\Setting\MenuController::class);
+        Route::post('/update-status/{id}', [App\Http\Controllers\Setting\MenuController::class, 'updateStatus'])->name('update.status');
 
     
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
