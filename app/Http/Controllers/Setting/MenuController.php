@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Setting;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\General\Menu;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+
+use App\Models\General\Menu;
+use App\Models\Setting\Role;
 
 class MenuController extends Controller
 {
@@ -30,7 +32,8 @@ class MenuController extends Controller
     public function create()
     {   
         $menuData = Menu::whereNull('parent_id')->get();
-        return view('general.menu.create', compact('menuData'));
+        $roles = Role::all();
+        return view('general.menu.create', compact('menuData','roles'));
     }
 
     public function store(Request $request)
@@ -54,6 +57,7 @@ class MenuController extends Controller
             $menu->parent_id = $request->parent_id;
             $menu->is_active = $request->is_active;
             $menu->order = $request->order;
+            $menu->role_id = $request->role_ids;
             $menu->save();
 
             // Redirect dengan pesan sukses
@@ -62,6 +66,54 @@ class MenuController extends Controller
             // Log error dan kembalikan error response
             Log::error('Error storing menu: ' . $e->getMessage());
             return back()->with('error', 'Failed to create menu. Please try again later.');
+        }
+    }
+
+    public function edit($id)
+    {
+        try {
+            // Ambil data menu berdasarkan id
+            $roles = Role::all();
+            $menu = Menu::findOrFail($id);
+            // Ambil data menu parent untuk dropdown
+            $menuData = Menu::whereNull('parent_id')->get();
+
+            return view('general.menu.edit', compact('menu', 'menuData','roles'));
+        } catch (Exception $e) {
+            // Jika terjadi error, tampilkan pesan error
+            return redirect()->route('general.menu.index')->with('error', 'Menu not found!');
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            // Validasi input
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'icon' => 'nullable|string|max:255',
+                'url' => 'nullable|string|max:255',
+                'parent_id' => 'nullable|exists:menus,id',
+                'is_active' => 'required|boolean',
+                'order' => 'required|integer',
+            ]);
+
+            // Update data menu
+            $menu = Menu::findOrFail($id);
+            $menu->title = $validated['title'];
+            $menu->icon = $validated['icon'];
+            $menu->url = $validated['url'];
+            $menu->parent_id = $validated['parent_id'];
+            $menu->is_active = $validated['is_active'];
+            $menu->order = $validated['order'];
+            $menu->role_id = $request->role_ids;
+            $menu->save();
+
+            // Redirect dengan pesan sukses
+            return redirect()->route('menu.index')->with('success', 'Menu updated successfully!');
+        } catch (Exception $e) {
+            // Jika terjadi error, tampilkan pesan error
+            return redirect()->route('menu.index')->with('error', 'An error occurred while updating the menu.');
         }
     }
 

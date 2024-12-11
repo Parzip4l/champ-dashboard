@@ -36,15 +36,23 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-lg-6">
+                    <div class="col-lg-4">
                         <div class="mb-3">
                             <label for="username" class="form-label">User Name</label>
                             <input type="text" name="name" id="username" class="form-control" placeholder="Username" required>
                         </div>
                     </div>
-                    <div class="col-lg-6">
+                    <div class="col-lg-4">
                         <label for="prodemail" class="form-label">Email</label>
                         <input type="email" name="email" id="email" class="form-control" placeholder="Email">
+                    </div>
+                    <div class="col-lg-4">
+                        <label for="prodemail" class="form-label">Roles</label>
+                        <select name="role_id" class="form-control" id="">
+                            @foreach($role as $data)
+                            <option value="{{$data->id}}">{{$data->name}}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 <div class="row">

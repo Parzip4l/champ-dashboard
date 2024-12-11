@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ['title' => 'Menu List'])
+@extends('layouts.vertical', ['title' => 'Role List'])
 
 @section('content')
 @if (session('success'))
@@ -18,11 +18,11 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between">
                         <h4 class="card-title">
-                            List Menu
+                            List Role
                         </h4>
 
-                        <a href="{{ route('menu.create') }}" class="btn btn-sm btn-soft-primary">
-                            <i class="bx bx-plus me-1"></i>Create Menu
+                        <a href="{{ route('role.create') }}" class="btn btn-sm btn-soft-primary">
+                            <i class="bx bx-plus me-1"></i>Create Role
                         </a>
                     </div>
                 </div>
@@ -31,7 +31,7 @@
                 <!-- Search Input -->
                 <div class="mb-3 mx-3">
                     <label for="" class="mb-2">Search Data</label>
-                    <input type="text" id="search-input" class="form-control" placeholder="Search by menu name" value="{{ request()->get('search') }}">
+                    <input type="text" id="search-input" class="form-control" placeholder="Search by role name" value="{{ request()->get('search') }}">
                 </div>
 
                 <!-- Table -->
@@ -39,62 +39,23 @@
                     <table class="table mb-0">
                         <thead class="bg-light bg-opacity-50">
                             <tr>
-                                <th class="ps-3">Menu</th>
-                                <th>Is Active</th>
+                                <th class="ps-3">Name</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="user-table-body">
-                            @foreach($menu as $data)
-                                @if($data->parent_id == null)
-                                    <!-- Parent Menu -->
-                                    <tr>
-                                        <td class="ps-3">
-                                            <a href="">{{ $data->title }}</a>
-                                        </td>
-                                        <td>
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" name="is_active" type="checkbox" role="switch" id="flexSwitchCheckChecked"
-                                                    data-id="{{ $data->id }}" {{ $data->is_active == 1 ? 'checked' : '' }}>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex gap-2">
-                                                <a href="{{route('menu.edit', $data->id)}}" class="btn btn-soft-primary btn-sm">
-                                                    <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
-                                                </a>
-                                                <a href="#!" class="btn btn-soft-danger btn-sm" onclick="confirmDelete({{ $data->id }})">
-                                                    <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Menampilkan Child Menu dengan Margin Kiri -->
-                                    @foreach($menu->where('parent_id', $data->id) as $child)
-                                        <tr>
-                                            <td class="ps-3" style="padding-left: 40px!important;"> <!-- Memberikan margin kiri untuk child -->
-                                                <a href="" class="text-secondary">{{ $child->title }}</a>
-                                            </td>
-                                            <td>
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" name="is_active" type="checkbox" role="switch" id="flexSwitchCheckChecked"
-                                                        data-id="{{ $child->id }}" {{ $child->is_active == 1 ? 'checked' : '' }}>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="d-flex gap-2">
-                                                    <a href="{{route('menu.edit', $child->id)}}" class="btn btn-soft-primary btn-sm">
-                                                        <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
-                                                    </a>
-                                                    <a href="#!" class="btn btn-soft-danger btn-sm" onclick="confirmDelete({{ $child->id }})">
-                                                        <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                @endif
+                            @foreach($role as $data)
+                                <tr>
+                                    <td class="ps-3">{{$data->name}}</td>
+                                    <td>
+                                        <a href="{{route('role.edit', $data->id)}}" class="btn btn-soft-primary btn-sm">
+                                            <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                                        </a>
+                                        <a href="#!" class="btn btn-soft-danger btn-sm" onclick="confirmDelete({{ $data->id }})">
+                                            <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                                        </a>
+                                    </td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>
@@ -103,10 +64,10 @@
                     <tfoot>
                         <div class="d-flex justify-content-between mx-3 mt-2 mb-2 ">
                             <div>
-                                Showing {{ $menu->firstItem() }} to {{ $menu->lastItem() }} of {{ $menu->total() }} entries
+                                Showing {{ $role->firstItem() }} to {{ $role->lastItem() }} of {{ $role->total() }} entries
                             </div>
                             <div class="">
-                            {{ $menu->links('pagination::bootstrap-4') }}
+                            {{ $role->links('pagination::bootstrap-4') }}
                             </div>
                         </div>
                     </tfoot>
@@ -130,7 +91,7 @@
             var search = $(this).val();  // Get the search input value
 
             $.ajax({
-                url: "{{ route('menu.index') }}",  // Route for user list
+                url: "{{ route('role.index') }}",  // Route for user list
                 method: 'GET',
                 data: { search: search },  // Send the search query
                 success: function(response) {
@@ -171,7 +132,7 @@
     });
 </script>
 <script>
-    function confirmDelete(menuId) {
+    function confirmDelete(roleId) {
         // Tampilkan SweetAlert konfirmasi
         Swal.fire({
             title: 'Are you sure?',
@@ -184,7 +145,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 // Kirim permintaan AJAX untuk menghapus menu
-                fetch('/menu/' + menuId, {
+                fetch('/role/' + roleId, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -196,7 +157,7 @@
                     if (data.success) {
                         Swal.fire(
                             'Deleted!',
-                            'The menu has been deleted.',
+                            'The role has been deleted.',
                             'success'
                         ).then(() => {
                             location.reload(); // Muat ulang halaman untuk melihat perubahan
@@ -204,7 +165,7 @@
                     } else {
                         Swal.fire(
                             'Error!',
-                            data.message || 'Failed to delete the menu. Please try again.', // Menampilkan pesan error dari server
+                            data.message || 'Failed to delete the role. Please try again.', // Menampilkan pesan error dari server
                             'error'
                         );
                     }

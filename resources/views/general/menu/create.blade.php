@@ -1,4 +1,7 @@
 @extends('layouts.vertical', ['title' => 'Create Menu'])
+@section('css')
+@vite(['node_modules/choices.js/public/assets/styles/choices.min.css'])
+@endsection
 
 @section('content')
 @if (session('success'))
@@ -36,7 +39,7 @@
                     </div>
                     <div class="col-lg-4">
                         <label for="prodemail" class="form-label">Url</label>
-                        <input type="text" name="url" id="url" class="form-control" placeholder="Your Routes">
+                        <input type="text" name="url" id="url" class="form-control" placeholder="Your Routes" required>
                     </div>
                 </div>
                 <div class="row">
@@ -60,7 +63,17 @@
                     </div>
                     <div class="col-lg-4">
                         <label for="prodemail" class="form-label">Order Menu</label>
-                        <input type="number" name="order" id="order" class="form-control" placeholder="Order menu">
+                        <input type="number" name="order" id="order" class="form-control" placeholder="Order menu" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <label for="roles" class="form-label">Select Roles</label>
+                        <select class="form-control" name="role_ids[]" id="roles" data-choices multiple>
+                            @foreach($roles as $role)
+                            <option value="{{ $role->id }}">{{ $role->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
             </div>

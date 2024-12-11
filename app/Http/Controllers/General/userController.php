@@ -5,6 +5,7 @@ namespace App\Http\Controllers\General;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Setting\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -29,7 +30,8 @@ class userController extends Controller
 
     public function create()
     {
-        return view('general.user.create'); 
+        $role = Role::all();
+        return view('general.user.create',compact('role')); 
     }
 
     public function store(Request $request)
@@ -53,7 +55,8 @@ class userController extends Controller
             $user = User::create([
                 'name' => $request->input('name'),
                 'email' => $request->input('email'),
-                'password' => Hash::make($request->input('password')),  // Enkripsi password
+                'role_id' => $request->input('role_id'),
+                'password' => Hash::make($request->input('password')),
                 'remember_token' => Str::random(60), // Menghasilkan token acak untuk 'remember_token'
             ]);
 
