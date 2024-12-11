@@ -23,7 +23,7 @@
                                 <p class="text-muted mt-1 mb-4">Enter your email address and password to access admin
                                     panel.</p>
 
-                                <div class="mb-5">
+                                <div>
                                     <form method="POST" action="{{ route('login') }}" class="authentication-form">
                                         @csrf
                                         @if (sizeof($errors) > 0)
@@ -55,6 +55,7 @@
                                             <button class="btn btn-soft-primary" type="submit">Sign In</button>
                                         </div>
                                     </form>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -65,7 +66,7 @@
                         <div class="d-flex flex-column h-100">
                             <img src="/images/small/img-10.jpg" alt="" class="w-100 h-100">
                         </div>
-                    </div>
+                    </div> <!-- end card -->
                 </div>
             </div>
         </div>
