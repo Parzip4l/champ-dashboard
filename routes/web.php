@@ -29,10 +29,15 @@ Route::get('/', function () {
 });
 
 Route::group(['prefix' => '/', 'middleware' => 'auth'], function () {
+    // Setting
+    Route::get('/sidebar', [SidebarController::class, 'getMenus'])->name('sidebar');
+
+    
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
     Route::resource('product', App\Http\Controllers\Produck\ProdukController::class);
     route::get('dashboard', [dashboardController::class, 'index'])->name('dashboard.index');
     Route::resource('user', App\Http\Controllers\General\userController::class);
+    
 });
 
 
