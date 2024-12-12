@@ -16,18 +16,21 @@ class MenuController extends Controller
     {
         $search = $request->get('search'); 
 
+        // Query untuk mendapatkan data menu dengan filter pencarian jika ada
         $menu = Menu::when($search, function ($query, $search) {
             return $query->where('title', 'like', '%' . $search . '%');
         })
-        ->orderBy('parent_id') 
         ->paginate(10);
 
+        // Jika permintaan AJAX, kembalikan hanya bagian tampilan yang perlu diperbarui
         if ($request->ajax()) {
             return view('general.menu.index', compact('menu'))->render(); 
         }
 
-        return view('general.menu.index', compact('menu'));
+        // Untuk tampilan biasa, kirimkan data menu
+        return view('general.menu.index', compact('menu', 'search'));
     }
+
 
     public function create()
     {   

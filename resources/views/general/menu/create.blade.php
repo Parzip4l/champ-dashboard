@@ -39,7 +39,7 @@
                     </div>
                     <div class="col-lg-4">
                         <label for="prodemail" class="form-label">Url</label>
-                        <input type="text" name="url" id="url" class="form-control" placeholder="Your Routes" required>
+                        <input type="text" name="url" id="url" class="form-control" placeholder="Your Routes">
                     </div>
                 </div>
                 <div class="row">

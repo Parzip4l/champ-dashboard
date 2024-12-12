@@ -58,7 +58,7 @@
                         </div>
                         <div class="col-lg-4">
                             <label for="url" class="form-label">Url</label>
-                            <input type="text" name="url" id="url" class="form-control" placeholder="Your Routes" value="{{ old('url', $menu->url) }}" required>
+                            <input type="text" name="url" id="url" class="form-control" placeholder="Your Routes" value="{{ old('url', $menu->url) }}">
                         </div>
                     </div>
                     <div class="row">

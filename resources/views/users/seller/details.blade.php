@@ -9,7 +9,7 @@
                 <div class="row g-3">
                     <div class="col-lg-2 text-lg-center">
                         <div class="bg-body d-flex align-items-center justify-content-center rounded py-4">
-                            <img src="/images/seller/zara22.svg" alt="" class="avatar-xxl flex-shrink-0">
+                            <img src="/images/champortal.png" alt="" class="avatar-xxl flex-shrink-0">
                         </div>
                         <div class="mt-3">
                             <a href="#!" class="btn btn-primary w-100">View Order</a>
@@ -17,26 +17,26 @@
                     </div>
                     <div class="col-lg-3 border-end">
                         <div class="">
-                            <h4 class="mb-1"> Bintang Mandiri</h4>
+                            <h4 class="mb-1"> {{$distributor->name}}</h4>
                             
                             <div class="mt-2">
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     <div class="avatar-sm bg-light d-flex align-items-center justify-content-center rounded">
                                         <iconify-icon icon="solar:point-on-map-bold-duotone" class="fs-20 text-primary"></iconify-icon>
                                     </div>
-                                    <p class="mb-0 fs-15">Medan, Sumatera Utara</p>
+                                    <p class="mb-0 fs-15">{{$distributor->address_details}}</p>
                                 </div>
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     <div class="avatar-sm bg-light d-flex align-items-center justify-content-center rounded">
                                         <iconify-icon icon="solar:letter-bold-duotone" class="fs-20 text-primary"></iconify-icon>
                                     </div>
-                                    <p class="mb-0 fs-15">bintangmandiri@champoildistributor.com</p>
+                                    <p class="mb-0 fs-15">{{$distributor->email}}</p>
                                 </div>
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="avatar-sm bg-light d-flex align-items-center justify-content-center rounded">
                                         <iconify-icon icon="solar:outgoing-call-rounded-bold-duotone" class="fs-20 text-primary"></iconify-icon>
                                     </div>
-                                    <p class="mb-0 fs-15">+62 812-801-9335</p>
+                                    <p class="mb-0 fs-15">{{$distributor->phone}}</p>
                                 </div>
                             </div>
                         </div>

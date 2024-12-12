@@ -29,14 +29,22 @@ Route::get('/', function () {
 });
 
 Route::group(['prefix' => '/', 'middleware' => 'auth'], function () {
+    // Setting
     Route::resource('menu', App\Http\Controllers\Setting\MenuController::class);
         Route::post('/update-status/{id}', [App\Http\Controllers\Setting\MenuController::class, 'updateStatus'])->name('update.status');
     Route::resource('user', App\Http\Controllers\General\userController::class);
     Route::resource('role', App\Http\Controllers\Setting\RoleController::class);
-    Route::get('/sidebar', [App\Http\Controllers\Setting\SidebarController::class, 'index']);
 
-    
-    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+    // Page
+    Route::get('dashboard', [dashboardController::class, 'index'])->name('dashboard.index');
     Route::resource('product', App\Http\Controllers\Produck\ProdukController::class);
-    route::get('dashboard', [dashboardController::class, 'index'])->name('dashboard.index');
+    Route::resource('distributor', App\Http\Controllers\General\DistributorController::class);
+    
+
+    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+    
+
+    Route::get('/penerimaan-oli', function () {
+        return view('general.inventory.oli.index');
+    })->name('penerimaan.oli');
 });
