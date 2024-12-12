@@ -7,8 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 // Model
-use App\Models\product\Product;
-use App\Models\product\ProductImage;
+use App\Models\Product\Product;
+use App\Models\Product\ProductImage;
 
 class ProdukController extends Controller
 {
