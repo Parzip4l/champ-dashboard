@@ -57,7 +57,7 @@
                     <p class="d-flex align-items-center gap-2 mb-0"><iconify-icon icon="solar:outgoing-call-rounded-bold-duotone" class="fs-20 text-primary"></iconify-icon>{{$data->phone}}</p>
                 </div>
                 <div class="d-flex align-items-center justify-content-between mt-3 mb-1">
-                    <p class="mb-0 fs-15 fw-medium text-dark">Pembelian</p>
+                    <p class="mb-0 fs-15 fw-medium text-dark">Total Purchase</p>
                     <div>
                         <p class="mb-0 fs-15 fw-medium text-dark">Rp. 200M <span class="ms-1"><iconify-icon icon="solar:course-up-outline" class="text-success"></iconify-icon></span></p>
                     </div>
@@ -67,13 +67,9 @@
                 </div>
                 <div class="p-2 pb-0 mx-n3 mt-2">
                     <div class="row text-center g-2">
-                        <div class="col-lg-6 col-6 border-end">
-                            <h5 class="mb-1">2</h5>
-                            <p class="text-muted mb-0">Total Order</p>
-                        </div>
-                        <div class="col-lg-6 col-6">
+                        <div class="col-lg-12 col-6">
                             <h5 class="mb-1">+4.5k</h5>
-                            <p class="text-muted mb-0">Point</p>
+                            <p class="text-muted mb-0">Total Point</p>
                         </div>
                     </div>
                 </div>

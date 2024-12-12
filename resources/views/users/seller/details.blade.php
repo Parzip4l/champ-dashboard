@@ -43,7 +43,7 @@
                     </div>
                     <div class="col-lg-7">
                         <div class="ps-lg-4">
-                            <h4 class="card-title">Profit by Product Category</h4>
+                            <h4 class="card-title">Top Product Purchase</h4>
                             <div class="d-flex align-items-center justify-content-between mt-3 mb-1">
                                 <p class="mb-0 fs-15 fw-medium text-dark">F300</p>
                                 <div>
