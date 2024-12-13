@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Models\General\Distributor;
 
+
 class DistributorController extends Controller
 {
     public function index(Request $request)
@@ -61,6 +62,7 @@ class DistributorController extends Controller
             return redirect()->route('distributor.index')->with('success', 'Distributor information saved successfully!');
         } catch (\Exception $e) {
             // Handle any exceptions that occur during the process
+            Log::error('Error storing menu: ' . $e->getMessage());
             return back()->withErrors(['error' => 'Failed to save distributor information. Please try again. Error: ' . $e->getMessage()]);
         }
     }

@@ -39,7 +39,7 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function () {
     Route::get('dashboard', [dashboardController::class, 'index'])->name('dashboard.index');
     Route::resource('product', App\Http\Controllers\Produck\ProdukController::class);
     Route::resource('distributor', App\Http\Controllers\General\DistributorController::class);
-    
+    Route::resource('delivery-order', App\Http\Controllers\General\DeliveryOrder::class);
 
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
     

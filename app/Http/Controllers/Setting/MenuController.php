@@ -41,6 +41,7 @@ class MenuController extends Controller
 
     public function store(Request $request)
     {
+        
         // Validasi input
         $validated = $request->validate([
             'title' => 'required|string|max:255',
