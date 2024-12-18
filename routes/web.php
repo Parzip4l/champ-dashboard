@@ -41,6 +41,9 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function () {
     Route::resource('distributor', App\Http\Controllers\General\DistributorController::class);
     Route::resource('delivery-order', App\Http\Controllers\General\DeliveryOrder::class);
 
+    // Rnd
+    Route::resource('rnd-check', App\Http\Controllers\General\PenetrasiController::class);
+
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
     
 
