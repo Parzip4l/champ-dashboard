@@ -44,7 +44,7 @@ class PenetrasiController extends Controller
             $purchase->checker = $request->checker;
             $purchase->save();
 
-            $slackWebhookUrl = 'https://hooks.slack.com/services/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';
+            $slackWebhookUrl = 'https://hooks.slack.com/services/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';
             $today = now()->toDateString();
             $data = [
                 'text' => "Update Penetrasi Produksi {$today}",
