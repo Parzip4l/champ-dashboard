@@ -44,7 +44,7 @@ class PenetrasiController extends Controller
             $purchase->checker = $request->checker;
             $purchase->save();
 
-            $slackWebhookUrl = 'https://hooks.slack.com/services/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';
+            $slackWebhookUrl = 'https://hooks.slack.com/services/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';
             $today = now()->toDateString();
             $data = [
                 'text' => "Update Penetrasi Produksi {$today}",
@@ -89,7 +89,7 @@ class PenetrasiController extends Controller
                             ],
                             [
                                 'title' => 'Lihat Detail Data Di Champoil Portal',
-                                'value' => '(https://portal.champoil.co.id/rnd-check)',
+                                'value' => '(https://dashboard.champoil.co.id/rnd-check)',
                                 'short' => true,
                             ]
                         ],
