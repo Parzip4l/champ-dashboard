@@ -4,6 +4,10 @@
   <link href="{{ asset('assets/plugins/datatables-net-bs5/dataTables.bootstrap5.css') }}" rel="stylesheet" />
   <link href="{{ asset('assets/plugins/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" />
 @endpush
+
+
+@section('content')
+
 @if (session('success'))
     <div class="alert alert-success">
         {{ session('success') }}
@@ -16,7 +20,6 @@
     </div>
 @endif
 
-@section('content')
 <div class="row">
     <div class="col-md-12 grid-margin stretch-card">
         <div class="card">
