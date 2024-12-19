@@ -21,13 +21,31 @@ class OliController extends Controller
         ->orderBy('created_at', 'desc')
         ->paginate(50);
 
+        $startDate = Carbon::now()->subMonth()->startOfMonth();
+        $endDate = Carbon::now()->subMonth()->endOfMonth();
+
+        $totalOli = [
+            'Trafo' => Oli::where('jenis_oli', 'Trafo')
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->sum('jumlah'),
+            'Bahan' => Oli::where('jenis_oli', 'Bahan')
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->sum('jumlah'),
+            'Service' => Oli::where('jenis_oli', 'Service')
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->sum('jumlah'),
+            'Minarex' => Oli::where('jenis_oli', 'Minarex')
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->sum('jumlah'),
+        ];
+
         // Jika permintaan AJAX, kembalikan hanya bagian tampilan yang perlu diperbarui
         if ($request->ajax()) {
             return view('general.inventory.oli.index', compact('oli'))->render(); 
         }
 
         // Untuk tampilan biasa, kirimkan data menu
-        return view('general.inventory.oli.index', compact('oli', 'search'));
+        return view('general.inventory.oli.index', compact('oli', 'search','totalOli'));
     }
 
     public function create()

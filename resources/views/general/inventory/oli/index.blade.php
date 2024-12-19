@@ -8,7 +8,9 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <h4 class="card-title mb-2">Oli Bahan</h4>
-                        <p id="oliBahanTotal" class="text-muted fw-medium fs-22 mb-0">0 Drum</p>
+                        <p id="oliBahanTotal" class="text-muted fw-medium fs-22 mb-0">
+                            {{ $totalOli['Bahan'] ?? 0 }} Drum
+                        </p>
                     </div>
                     <div>
                         <div class="avatar-md bg-primary bg-opacity-10 rounded">
@@ -26,7 +28,9 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <h4 class="card-title mb-2">Oli Trafo</h4>
-                        <p id="oliTrafoTotal" class="text-muted fw-medium fs-22 mb-0">0 Drum</p>
+                        <p id="oliTrafoTotal" class="text-muted fw-medium fs-22 mb-0">
+                            {{ $totalOli['Trafo'] ?? 0 }} Drum
+                        </p>
                     </div>
                     <div>
                         <div class="avatar-md bg-primary bg-opacity-10 rounded">
@@ -44,7 +48,9 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <h4 class="card-title mb-2">Oli Service</h4>
-                        <p id="oliServiceTotal" class="text-muted fw-medium fs-22 mb-0">0 Drum</p>
+                        <p id="oliServiceTotal" class="text-muted fw-medium fs-22 mb-0">
+                            {{ $totalOli['Service'] ?? 0 }} Drum
+                        </p>
                     </div>
                     <div>
                         <div class="avatar-md bg-primary bg-opacity-10 rounded">
@@ -62,7 +68,9 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <h4 class="card-title mb-2">Minarex</h4>
-                        <p id="oliMinarex" class="text-muted fw-medium fs-22 mb-0">0 Drum</p>
+                        <p id="oliMinarex" class="text-muted fw-medium fs-22 mb-0">
+                            {{ $totalOli['Minarex'] ?? 0 }} Drum
+                        </p>
                     </div>
                     <div>
                         <div class="avatar-md bg-primary bg-opacity-10 rounded">
@@ -74,6 +82,7 @@
         </div>
     </div>
 </div>
+
 
 <div class="row">
         <div class="col">
@@ -98,7 +107,7 @@
                     <table class="table mb-0">
                         <thead class="bg-light bg-opacity-50">
                             <tr>
-                                <th>Tanggal</th>
+                                <th class="ps-3">Tanggal</th>
                                 <th>Pengirim</th>
                                 <th>Jenis Oli</th>
                                 <th>Jumlah</th>
@@ -108,7 +117,7 @@
                         <tbody id="user-table-body">
                             @foreach($oli as $data)
                                 <tr>
-                                    <td> {{ $data->tanggal }} </td>
+                                    <td class="ps-3"> {{ $data->tanggal }} </td>
                                     <td> {{ $data->pengirim }} </td>
                                     <td> {{ $data->jenis_oli }} </td>
                                     <td> {{ $data->jumlah }} </td>
