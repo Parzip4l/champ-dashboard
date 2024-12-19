@@ -206,10 +206,7 @@
                                 <td> {{ $data->jumlah }} </td>
                                 <td>
                                     <div class="d-flex gap-2">
-                                        <a href="" class="btn btn-soft-primary btn-sm">
-                                            <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
-                                        </a>
-                                        <a href="#!" class="btn btn-soft-danger btn-sm">
+                                        <a href="#!" class="btn btn-soft-danger btn-sm" onclick="confirmDelete({{ $data->id }})">
                                             <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
                                         </a>
                                     </div>
@@ -242,6 +239,7 @@
 @section('script')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // Pass PHP array to JavaScript
         const chartData = @json($chartData);
@@ -372,5 +370,55 @@
         });
     </script>
 
-
+    <script>
+        function confirmDelete(oliId) {
+            // Tampilkan SweetAlert konfirmasi
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'You won\'t be able to revert this!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Kirim permintaan AJAX untuk menghapus menu
+                    fetch('/pencatatan-oli/' + oliId, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire(
+                                'Deleted!',
+                                'Data has been deleted.',
+                                'success'
+                            ).then(() => {
+                                location.reload(); // Muat ulang halaman untuk melihat perubahan
+                            });
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                data.message || 'Failed to delete data. Please try again.', // Menampilkan pesan error dari server
+                                'error'
+                            );
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire(
+                            'Error!',
+                            error.message || 'An error occurred. Please try again.', // Menampilkan pesan error dari exception
+                            'error'
+                        );
+                    });
+                }
+            });
+        }
+    </script>
 @endsection

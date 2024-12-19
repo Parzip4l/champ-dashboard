@@ -291,4 +291,29 @@ class OliController extends Controller
         }
     }
 
+    public function destroy($id)
+    {
+        try {
+            // Cari menu berdasarkan ID
+            $oli = Oli::findOrFail($id);
+
+            // Hapus menu
+            $oli->delete();
+
+            // Mengembalikan response JSON dengan status sukses
+            return response()->json([
+                'success' => true,
+                'message' => 'Data Oli has been deleted successfully.'
+            ]);
+        } catch (\Exception $e) {
+            // Log error dan kembalikan error response JSON
+            Log::error('Error deleting data: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete menu. Please try again later. ' . $e->getMessage()
+            ], 500); // Menggunakan status code 500 jika ada error server
+        }
+    }
+
 }

@@ -46,6 +46,7 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function () {
 
     // Oli
     Route::get('/pencatatan-oli', [App\Http\Controllers\Produck\OliController::class, 'index'])->name('oli.index');
+    Route::delete('/pencatatan-oli/{id}', [App\Http\Controllers\Produck\OliController::class, 'destroy'])->name('oli.destoy');
     
 
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
