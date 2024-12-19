@@ -7,19 +7,6 @@
 
 
 @section('content')
-
-@if (session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
-    </div>
-@endif
-
-@if (session('error'))
-    <div class="alert alert-danger">
-        {{ session('error') }}
-    </div>
-@endif
-
 <div class="row">
     <div class="col-md-12 grid-margin stretch-card">
         <div class="card">
@@ -65,23 +52,23 @@
 @endpush
 
 @push('custom-scripts')
-  <script src="{{ asset('assets/js/data-table.js') }}"></script>
-  <script src="{{ asset('assets/js/sweet-alert.js') }}"></script>
-<script>
-    @if(session('success'))
-        Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: '{{ session('success') }}',
-        });
-    @endif
+    <script src="{{ asset('assets/js/data-table.js') }}"></script>
+    <script src="{{ asset('assets/js/sweet-alert.js') }}"></script>
+    <script>
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: '{{ session('success') }}',
+            });
+        @endif
 
-    @if(session('error'))
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: '{{ session('error') }}',
-        });
-    @endif
-</script>
+        @if(session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '{{ session('error') }}',
+            });
+        @endif
+    </script>
 @endpush
