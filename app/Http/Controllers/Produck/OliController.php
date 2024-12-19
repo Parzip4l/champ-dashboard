@@ -1,97 +1,85 @@
 <?php
 
-namespace App\Http\Controllers\General;
+namespace App\Http\Controllers\Produck;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Product\Oli;
 use Carbon\Carbon;
-use App\Models\General\Penetrasi;
 use App\Models\Setting\Slack;
 
-class PenetrasiController extends Controller
+class OliController extends Controller
 {
-
     public function index(Request $request)
     {
         $search = $request->get('search'); 
 
         // Query untuk mendapatkan data menu dengan filter pencarian jika ada
-        $penetrasi = Penetrasi::when($search, function ($query, $search) {
-            return $query->where('product', 'like', '%' . $search . '%');
+        $oli = Oli::when($search, function ($query, $search) {
+            return $query->where('pengirim', 'like', '%' . $search . '%');
         })
-        ->orderBy('created_at', 'desc') // Urutkan berdasarkan created_at, dari terbaru ke terlama
+        ->orderBy('created_at', 'desc')
         ->paginate(50);
 
         // Jika permintaan AJAX, kembalikan hanya bagian tampilan yang perlu diperbarui
         if ($request->ajax()) {
-            return view('general.lab.penetrasi', compact('penetrasi'))->render(); 
+            return view('general.inventory.oli.index', compact('oli'))->render(); 
         }
 
         // Untuk tampilan biasa, kirimkan data menu
-        return view('general.lab.penetrasi', compact('penetrasi', 'search'));
+        return view('general.inventory.oli.index', compact('oli', 'search'));
+    }
+
+    public function create()
+    {
+        return view('general.inventory.oli.form');
     }
 
     public function store(Request $request)
     {
         try {
+            $defaultReceive = 'Not Received';
             // Simpan data pembelian
-            $purchase = new Penetrasi(); // Generate UUID
-            $purchase->batch = $request->batch;
-            $purchase->product = $request->product;
-            $purchase->p_process = $request->p_process;
-            $purchase->k_process = $request->k_process;
-            $purchase->k_fng = $request->k_fng;
-            $purchase->p_fng = $request->p_fng;
-            $purchase->checker = $request->checker;
-            $purchase->save();
+            $olidata = new Oli();
+            $olidata->tanggal = now();
+            $olidata->pengirim = $request->pengirim;
+            $olidata->jenis_oli = $request->jenis_oli;
+            $olidata->jumlah = $request->jumlah;
+            $olidata->receive_status = $defaultReceive;
+            $olidata->save();
 
-            $slackChannel = Slack::where('channel', 'QC')->first();
+            $slackChannel = Slack::where('channel', 'Data Oli')->first();
             $slackWebhookUrl = $slackChannel->url;
             $today = now()->toDateString();
             $data = [
-                'text' => "Update Penetrasi Produksi {$today}",
+                'text' => "Data Pengiriman Oli",
                 'attachments' => [
                     [
-                        'title' => 'Data Check Penetrasi',
+                        'title' => '',
                         'fields' => [
                             [
-                                'title' => 'Batch Number',
-                                'value' => $request->batch,
+                                'title' => 'Tanggal',
+                                'value' => now()->format('d F Y'),
                                 'short' => true,
                             ],
                             [
-                                'title' => 'Product',
-                                'value' => $request->product,
+                                'title' => 'Pengirim',
+                                'value' => $request->pengirim,
                                 'short' => true,
                             ],
                             [
-                                'title' => 'Penetrasi Proses',
-                                'value' => $request->p_process,
+                                'title' => 'Jenis Oli',
+                                'value' => $request->jenis_oli,
                                 'short' => true,
                             ],
                             [
-                                'title' => 'Keterangan Proses',
-                                'value' => $request->k_process,
-                                'short' => true,
-                            ],
-                            [
-                                'title' => 'Penetrasi Finish Goods',
-                                'value' => $request->p_fng,
-                                'short' => true,
-                            ],
-                            [
-                                'title' => 'Keterangan Finish Goods',
-                                'value' => $request->k_fng,
-                                'short' => true,
-                            ],
-                            [
-                                'title' => 'Checker',
-                                'value' => $request->checker,
+                                'title' => 'Jumlah',
+                                'value' => $request->jumlah,
                                 'short' => true,
                             ],
                             [
                                 'title' => 'Lihat Detail Data Di Champoil Portal',
-                                'value' => '(https://dashboard.champoil.co.id/rnd-check)',
+                                'value' => '(https://dashboard.champoil.co.id/pencatatan-oli)',
                                 'short' => true,
                             ]
                         ],
@@ -130,10 +118,11 @@ class PenetrasiController extends Controller
 
             curl_close($ch);
     
-            return redirect()->route('rnd-check.index')->with('success', 'Data berhasil disimpan.');
+            return redirect()->back()->with('success', 'Data berhasil disimpan.');
         } catch (\Exception $e) {
             // Tangani kesalahan yang mungkin terjadi
             return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan Data: ' . $e->getMessage());
         }
     }
+
 }

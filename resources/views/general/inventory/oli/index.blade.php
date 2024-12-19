@@ -75,47 +75,70 @@
     </div>
 </div>
 
-    <div class="row">
+<div class="row">
         <div class="col">
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between">
                         <h4 class="card-title">
-                            50 Data Terakhir Pengiriman Oli
+                            Oli Data
                         </h4>
                     </div>
                 </div>
                 <!-- end card body -->
+
+                <!-- Search Input -->
+                <div class="mb-3 mx-3">
+                    <label for="" class="mb-2">Search Data</label>
+                    <input type="text" id="search-input" class="form-control" placeholder="Search by menu name" value="{{ request()->get('search') }}">
+                </div>
 
                 <!-- Table -->
                 <div id="table-search">
                     <table class="table mb-0">
                         <thead class="bg-light bg-opacity-50">
                             <tr>
-                                <th class="ps-3">
-                                    Pengirim
-                                </th>
                                 <th>Tanggal</th>
-                                <th>
-                                    Jenis
-                                </th>
-                                <th>
-                                    Jumlah
-                                </th>
-                                <th>
-                                    Action
-                                </th>
+                                <th>Pengirim</th>
+                                <th>Jenis Oli</th>
+                                <th>Jumlah</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="user-table-body">
-                            <!-- Data will be inserted here -->
+                            @foreach($oli as $data)
+                                <tr>
+                                    <td> {{ $data->tanggal }} </td>
+                                    <td> {{ $data->pengirim }} </td>
+                                    <td> {{ $data->jenis_oli }} </td>
+                                    <td> {{ $data->jumlah }} </td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <a href="" class="btn btn-soft-primary btn-sm">
+                                                <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                                            </a>
+                                            <a href="#!" class="btn btn-soft-danger btn-sm">
+                                                <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
 
-                    <div id="pagination-container" class="d-flex justify-content-between mx-3 mt-2 mb-2">
-                        <!-- Pagination will be inserted here -->
-                    </div>
+                    <tfoot>
+                        <div class="d-flex justify-content-between mx-3 mt-2 mb-2">
+                            <div>
+                                Showing {{ $oli->firstItem() }} to {{ $oli->lastItem() }} of {{ $oli->total() }} entries
+                            </div>
+                            <div class="">
+                                {{ $oli->links('pagination::bootstrap-4') }}  <!-- Pagination links -->
+                            </div>
+                        </div>
+                    </tfoot>
                 </div>
+
             </div>
 
             <!-- end card -->
@@ -128,86 +151,48 @@
     @vite(['resources/js/pages/dashboard.js'])
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-    $(document).ready(function() {
-    const apiUrl = "https://portal.champoil.co.id/api/pengiriman-oli"; // API endpoint baru
+        $(document).ready(function() {
+        // Trigger an AJAX request on keyup event
+            $('#search-input').on('keyup', function() {
+                var search = $(this).val();  // Get the search input value
+                var page = $('.pagination .active a').text() || 1;  // Get the current page, default to 1
 
-    // Get current month (1-12)
-    const currentMonth = new Date().getMonth() + 1;
-
-    // Function to get cached data from localStorage
-    function getCachedData() {
-        const cachedData = localStorage.getItem('totalOliData');
-        return cachedData ? JSON.parse(cachedData) : null;
-    }
-
-    // Function to cache data in localStorage
-    function cacheData(data) {
-        localStorage.setItem('totalOliData', JSON.stringify(data));
-    }
-
-    // Fetch data function
-    function fetchData() {
-        // Check if data is available in cache
-        const cachedData = getCachedData();
-
-        // If data is cached, use it
-        if (cachedData) {
-            updateTotals(cachedData);
-        } else {
-            // If not cached, fetch data from API
-            $.ajax({
-                url: apiUrl,
-                method: 'GET',
-                data: {
-                    month: currentMonth // Include current month in the request
-                },
-                success: function(response) {
-                    if (response.success) {
-                        // Cache the response data
-                        cacheData(response.data.total_oli_per_jenis);
-                        updateTotals(response.data.total_oli_per_jenis); // Only update totals
-                    } else {
-                        $('#user-table-body').html('<tr><td colspan="5" class="text-center">No data found</td></tr>');
+                $.ajax({
+                    url: "{{ route('oli.index') }}",  // Route for user list
+                    method: 'GET',
+                    data: { 
+                        search: search,  // Send the search query
+                        page: page       // Send the current page number
+                    },
+                    success: function(response) {
+                        $('#user-table-body').html($(response).find('#user-table-body').html());  // Replace table body with filtered data
+                        $('.pagination').html($(response).find('.pagination').html());  // Replace pagination
                     }
-                },
-                error: function() {
-                    $('#user-table-body').html('<tr><td colspan="5" class="text-center">Error fetching data</td></tr>');
-                }
+                });
             });
-        }
-    }
 
-    // Update totals for current month
-    function updateTotals(totalOliData) {
-        let totals = {
-            'Oli Bahan': 0,
-            'Oli Trafo': 0,
-            'Oli Service': 0,
-            'Oli Minarex': 0
-        };
+            // Handle pagination click
+            $(document).on('click', '.pagination a', function(event) {
+                event.preventDefault();
+                
+                var page = $(this).attr('href').split('page=')[1];  // Extract the page number from the link
+                var search = $('#search-input').val();  // Get the search input value
 
-        // Ensure the totals are reset to zero for the current month
-        if (totalOliData) {
-            // Add up the totals for each type of oil for the current month
-            ['Bahan', 'Trafo', 'Service', 'Minarex'].forEach(jenisOli => {
-                if (totalOliData[jenisOli] && totalOliData[jenisOli][currentMonth]) {
-                    totals[`Oli ${jenisOli}`] = parseFloat(totalOliData[jenisOli][currentMonth]);
-                }
+                $.ajax({
+                    url: "{{ route('oli.index') }}",  // Route for user list
+                    method: 'GET',
+                    data: { 
+                        search: search,  // Send the search query
+                        page: page       // Send the page number
+                    },
+                    success: function(response) {
+                        $('#user-table-body').html($(response).find('#user-table-body').html());  // Replace table body with filtered data
+                        $('.pagination').html($(response).find('.pagination').html());  // Replace pagination
+                    }
+                });
             });
-        }
-
-        // Update the totals on the page
-        document.getElementById('oliBahanTotal').textContent = totals['Oli Bahan'] + ' Drum' || 0;
-        document.getElementById('oliTrafoTotal').textContent = totals['Oli Trafo'] + ' Drum' || 0;
-        document.getElementById('oliServiceTotal').textContent = totals['Oli Service'] + ' Drum' || 0;
-        document.getElementById('oliMinarex').textContent = totals['Oli Minarex'] + ' Drum' || 0;
-    }
-
-    // Initial data fetch
-    fetchData();
-});
-
-</script>
+        });
+    </script>
 
 
 @endsection
