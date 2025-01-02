@@ -41,10 +41,17 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function () {
     Route::resource('distributor', App\Http\Controllers\General\DistributorController::class);
     Route::resource('delivery-order', App\Http\Controllers\General\DeliveryOrder::class);
 
-    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+    // Rnd
+    Route::resource('rnd-check', App\Http\Controllers\General\PenetrasiController::class);
+
+    // Oli
+    Route::get('/pencatatan-oli', [App\Http\Controllers\Produck\OliController::class, 'index'])->name('oli.index');
+    Route::delete('/pencatatan-oli/{id}', [App\Http\Controllers\Produck\OliController::class, 'destroy'])->name('oli.destoy');
     
 
-    Route::get('/penerimaan-oli', function () {
-        return view('general.inventory.oli.index');
-    })->name('penerimaan.oli');
+    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+    
 });
+
+Route::get('/pencatatan-oli/create', [App\Http\Controllers\Produck\OliController::class, 'create'])->name('oli.create');
+Route::post('/pencatatan-oli/simpan', [App\Http\Controllers\Produck\OliController::class, 'store'])->name('oli.store');
