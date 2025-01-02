@@ -128,10 +128,10 @@
         <div class="p-3 bg-light mb-3 rounded">
             <div class="row justify-content-end g-2">
                 <div class="col-lg-2">
-                    <button class="btn btn-outline-secondary w-100" type="submit">Create Data</button>
+                    <button class="btn btn-primary w-100" type="submit">Update Data</button>
                 </div>
                 <div class="col-lg-2">
-                    <button class="btn btn-primary w-100" type="reset">Cancel</button>
+                    <button class="btn btn-outline-secondary w-100" type="reset">Cancel</button>
                 </div>
             </div>
         </div>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 // Model
 use App\Models\General\ListOrder;
@@ -13,8 +14,8 @@ use App\Models\General\OrderItem;
 use App\Models\General\Distributor;
 use App\Models\Product\Product;
 use App\Models\User;
+use App\Models\Setting\Slack;
 use App\Models\Setting\Role;
-use Illuminate\Support\Facades\Log;
 
 class DeliveryOrder extends Controller
 {
@@ -93,6 +94,89 @@ class DeliveryOrder extends Controller
                 $orderItem->save();
             }
 
+            $slackChannel = Slack::where('channel', 'Pengiriman')->first();
+
+            if (!$slackChannel) {
+                return redirect()->back()->with('error', 'Slack channel not found.');
+            }
+
+            $slackWebhookUrl = $slackChannel->url;
+            $today = now()->toDateString();
+            $attachments = [];
+
+            foreach ($request->order_items as $item) {
+                $attachments[] = [
+                    'title' => 'Details Data Order',
+                    'fields' => [
+                        [
+                            'title' => 'Product',
+                            'value' => $item['nama_produk'],
+                            'short' => true,
+                        ],
+                        [
+                            'title' => 'Tanggal Kirim',
+                            'value' => $item['tanggal_kirim'],
+                            'short' => true,
+                        ],
+                        [
+                            'title' => 'Total Order',
+                            'value' => $item['total_order'],
+                            'short' => true,
+                        ],
+                        [
+                            'title' => 'Total Kirim',
+                            'value' => $item['jumlah_kirim'],
+                            'short' => true,
+                        ],
+                        [
+                            'title' => 'Sisa Kirim',
+                            'value' => $item['sisa_belum_kirim'],
+                            'short' => true,
+                        ],
+                        [
+                            'title' => 'Lihat Detail Data Di Champoil Portal',
+                            'value' => '(https://dashboard.champoil.co.id/delivery-oder)',
+                            'short' => true,
+                        ]
+                    ],
+                ];
+            }
+            $distributorName = Distributor::where('id',$request->distributor)->select('name')->first();
+            $data = [
+                'text' => "Automatic Report Delivery Order {$distributorName->name} || Sales Name : {$request->sales} || Delivery Status : {$request->status}",
+                'attachments' => $attachments,
+            ];
+
+            $data_string = json_encode($data);
+
+            $ch = curl_init($slackWebhookUrl);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($data_string),
+            ]);
+
+            $result = curl_exec($ch);
+
+            if ($result === false) {
+                // Penanganan kesalahan jika Curl gagal
+                $error = curl_error($ch);
+                curl_close($ch);
+                return redirect()->back()->with('error', 'Terjadi kesalahan saat mengirim data ke Slack: ' . $error);
+            }
+
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+            if ($httpCode !== 200) {
+                // Penanganan kesalahan jika Slack merespons selain status 200 OK
+                curl_close($ch);
+                return redirect()->back()->with('error', 'Terjadi kesalahan saat mengirim data ke Slack. Kode status: ' . $httpCode);
+            }
+
+            curl_close($ch);
+
             return redirect()->route('delivery-order.index')->with('success', 'Data information saved successfully!');
         } catch (Exception $e) {
             Log::error('Error storing menu: ' . $e->getMessage());
@@ -150,7 +234,6 @@ class DeliveryOrder extends Controller
             $listOrder->ekspedisi = $request->ekspedisi;
             $listOrder->status = $request->status; // Update only the status
             $listOrder->save();
-            Log::info('Data sebelum update', $listOrder->toArray());
 
             // Only update order items if there are changes in the order_items field
             if ($request->has('order_items') && !empty($request->order_items)) {
@@ -174,9 +257,7 @@ class DeliveryOrder extends Controller
                                 'sisa_belum_kirim' => $item['sisa_belum_kirim'],
                                 'sales' => $request->sales,
                             ]);
-                            Log::info('OrderItem updated:', $orderItem->toArray());
                         } else {
-                            Log::info('OrderItem already exists, no changes made:', $orderItem->toArray());
                         }
                     } else {
                         // Buat item baru
@@ -188,10 +269,93 @@ class DeliveryOrder extends Controller
                             'tanggal_kirim' => $item['tanggal_kirim'] ?? null,
                             'sales' => $request->sales,
                         ]);
-                        Log::info('New OrderItem created:', $newItem->toArray());
                     }
                 }
             }
+
+            $slackChannel = Slack::where('channel', 'Pengiriman')->first();
+
+            if (!$slackChannel) {
+                return redirect()->back()->with('error', 'Slack channel not found.');
+            }
+
+            $slackWebhookUrl = $slackChannel->url;
+            $today = now()->toDateString();
+            $attachments = [];
+
+            foreach ($request->order_items as $item) {
+                $attachments[] = [
+                    'title' => 'Details Data Order',
+                    'fields' => [
+                        [
+                            'title' => 'Product',
+                            'value' => $item['nama_produk'],
+                            'short' => true,
+                        ],
+                        [
+                            'title' => 'Tanggal Kirim',
+                            'value' => $item['tanggal_kirim'],
+                            'short' => true,
+                        ],
+                        [
+                            'title' => 'Total Order',
+                            'value' => $item['total_order'],
+                            'short' => true,
+                        ],
+                        [
+                            'title' => 'Total Kirim',
+                            'value' => $item['jumlah_kirim'],
+                            'short' => true,
+                        ],
+                        [
+                            'title' => 'Sisa Kirim',
+                            'value' => $item['sisa_belum_kirim'],
+                            'short' => true,
+                        ],
+                        [
+                            'title' => 'Lihat Detail Data Di Champoil Portal',
+                            'value' => '(https://dashboard.champoil.co.id/delivery-oder)',
+                            'short' => true,
+                        ]
+                    ],
+                ];
+            }
+            $distributorName = Distributor::where('id',$request->distributor)->select('name')->first();
+            $data = [
+                'text' => "Automatic Report Delivery Order {$distributorName->name} || Sales Name : {$request->sales} || Delivery Status : {$request->status}",
+                'attachments' => $attachments,
+            ];
+
+            $data_string = json_encode($data);
+
+            $ch = curl_init($slackWebhookUrl);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($data_string),
+            ]);
+
+            $result = curl_exec($ch);
+
+            if ($result === false) {
+                // Penanganan kesalahan jika Curl gagal
+                $error = curl_error($ch);
+                curl_close($ch);
+                return redirect()->back()->with('error', 'Terjadi kesalahan saat mengirim data ke Slack: ' . $error);
+            }
+
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+            if ($httpCode !== 200) {
+                // Penanganan kesalahan jika Slack merespons selain status 200 OK
+                curl_close($ch);
+                return redirect()->back()->with('error', 'Terjadi kesalahan saat mengirim data ke Slack. Kode status: ' . $httpCode);
+            }
+
+            curl_close($ch);
+
         
             
             DB::commit();
