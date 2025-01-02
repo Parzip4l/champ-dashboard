@@ -47,7 +47,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-4">
+                    <div class="col-lg-3">
                         <label for="weight-product" class="form-label">PPN</label>
                         <select class="form-control" name="ppn" id="weight-product" data-placeholder="Select PPn">
                             <option value="">Choose a PPn</option>
@@ -55,13 +55,13 @@
                             <option value="Non Ppn">Non Ppn</option>
                         </select>
                     </div>
-                    <div class="col-lg-4">
+                    <div class="col-lg-3">
                         <div class="mb-3">
                             <label for="size-product" class="form-label">Ekspedisi</label>
                             <input type="text" name="ekspedisi" id="size-product" class="form-control" placeholder="Ekspedisi">
                         </div>
                     </div>
-                    <div class="col-lg-4">
+                    <div class="col-lg-3">
                         <div class="mb-3">
                             <label for="size-product" class="form-label">Status</label>
                             <select class="form-control" name="status" id="weight-product" data-choices data-choices-groups data-placeholder="Select Status" name="choices-single-groups">
@@ -70,6 +70,17 @@
                             <option value="Delayed">Delayed</option>
                             <option value="On Process">On Process</option>
                             <option value="Cancel">Cancel</option>
+                        </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="mb-3">
+                            <label for="size-product" class="form-label">Sales</label>
+                            <select class="form-control" name="sales" id="weight-product" data-choices data-choices-groups data-placeholder="Select Sales" name="choices-single-groups">
+                            <option value="">Choose a Sales</option>
+                            @foreach ($sales as $data)
+                            <option value="{{$data->name}}">{{$data->name}}</option>
+                            @endforeach
                         </select>
                         </div>
                     </div>

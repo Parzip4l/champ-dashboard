@@ -131,6 +131,7 @@
                                 <th>Ekspedisi</th>
                                 <th>Sisa Kiriman</th>
                                 <th>Status</th>
+                                <th>Sales</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -152,6 +153,7 @@
                                         <td>{{ $order->ekspedisi ?? 'N/A' }}</td>
                                         <td>{{ $item->sisa_belum_kirim ?? '0' }}</td>
                                         <td>{{ $order->status ?? 'N/A' }}</td>
+                                        <td>{{ $item->sales ?? 'N/A' }}</td>
                                         <td>
                                             <div class="d-flex gap-2">
                                                 <a href="{{ route('delivery-order.edit', $order->id) }}" class="btn btn-soft-primary btn-sm">

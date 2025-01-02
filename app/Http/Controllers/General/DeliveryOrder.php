@@ -11,6 +11,8 @@ use App\Models\General\ListOrder;
 use App\Models\General\OrderItem;
 use App\Models\General\Distributor;
 use App\Models\Product\Product;
+use App\Models\User;
+use App\Models\Setting\Role;
 use Illuminate\Support\Facades\Log;
 
 class DeliveryOrder extends Controller
@@ -31,16 +33,16 @@ class DeliveryOrder extends Controller
                 return $query->where('status', $status);  // Filter by status if provided
             })
             ->paginate(10);
-
-        // If the request is AJAX, return the partial view with updated data
-        if ($request->ajax()) {
-            return view('general.delivery.index', compact('listorder'))->render();
-        }
-
         $deliverySuccessCount = ListOrder::where('status', 'Delivered')->count(); 
         $onProcessCount = ListOrder::where('status', 'On Process')->count();  
         $delayedCount = ListOrder::where('status', 'Delayed')->count(); 
         $notDeliveredCount = ListOrder::where('status', 'Cancel')->count();
+        // If the request is AJAX, return the partial view with updated data
+        if ($request->ajax()) {
+            return view('general.delivery.index', compact('listorder','deliverySuccessCount', 'onProcessCount', 'delayedCount', 'notDeliveredCount'))->render();
+        }
+
+        
 
         // For regular view, return the full page
         return view('general.delivery.index', compact('listorder', 'search', 'status','deliverySuccessCount', 'onProcessCount', 'delayedCount', 'notDeliveredCount'));
@@ -51,7 +53,11 @@ class DeliveryOrder extends Controller
     {
         $distributor = Distributor::all();
         $product = Product::all();
-        return view('general.delivery.create', compact('distributor','product'));
+        $sales = User::join('roles', 'users.role_id', '=', 'roles.id')
+             ->where('roles.name', 'sales')
+             ->select('users.*')
+             ->get();
+        return view('general.delivery.create', compact('distributor','product','sales'));
     }
 
     /**
@@ -78,6 +84,7 @@ class DeliveryOrder extends Controller
                 $orderItem = new OrderItem();
                 $orderItem->list_order_id = $listOrder->id; // Associate with the ListOrder
                 $orderItem->tanggal_kirim = $request->tanggal_kirim;
+                $orderItem->sales = $request->sales;
                 $orderItem->nama_produk = $item['nama_produk']; // Make sure the array structure matches
                 $orderItem->total_order = $item['total_order'];
                 $orderItem->jumlah_kirim = $item['jumlah_kirim'];
