@@ -47,7 +47,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-lg-4">
+                        <div class="col-lg-3">
                             <label for="weight-product" class="form-label">PPN</label>
                             <select class="form-control" name="ppn" id="weight-product" data-placeholder="Select PPn">
                                 <option value="">Choose a PPn</option>
@@ -55,13 +55,13 @@
                                 <option value="Non Ppn" {{ $listOrder->ppn == 'Non Ppn' ? 'selected' : '' }}>Non Ppn</option>
                             </select>
                         </div>
-                        <div class="col-lg-4">
+                        <div class="col-lg-3">
                             <div class="mb-3">
                                 <label for="size-product" class="form-label">Ekspedisi</label>
                                 <input type="text" name="ekspedisi" id="size-product" class="form-control" value="{{ $listOrder->ekspedisi }}">
                             </div>
                         </div>
-                        <div class="col-lg-4">
+                        <div class="col-lg-3">
                             <div class="mb-3">
                                 <label for="size-product" class="form-label">Status</label>
                                 <select class="form-control" name="status" id="weight-product" data-choices data-choices-groups data-placeholder="Select Status">
@@ -70,6 +70,17 @@
                                     <option value="Delayed" {{ $listOrder->status == 'Delayed' ? 'selected' : '' }}>Delayed</option>
                                     <option value="On Process" {{ $listOrder->status == 'On Process' ? 'selected' : '' }}>On Process</option>
                                     <option value="Cancel" {{ $listOrder->status == 'Cancel' ? 'selected' : '' }}>Cancel</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="mb-3">
+                                <label for="size-product" class="form-label">Sales</label>
+                                <select class="form-control" name="sales" id="weight-product" data-choices data-choices-groups data-placeholder="Select Sales" name="choices-single-groups">
+                                    <option value="">Choose a Sales</option>
+                                    @foreach ($sales as $data)
+                                    <option value="{{$data->name}}">{{$data->name}}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -100,15 +111,15 @@
                             </div>
                             <div class="col-lg-4">
                                 <label for="product-categories" class="form-label">Total Order</label>
-                                <input type="text" name="order_items[{{ $index }}][total_order]" class="form-control" value="{{ $item->total_order }}">
+                                <input type="number" name="order_items[{{ $index }}][total_order]" class="form-control" value="{{ $item->total_order }}" id="total_order_0">
                             </div>
                             <div class="col-lg-4">
                                 <label for="product-categories" class="form-label">Total Kirim</label>
-                                <input type="text" name="order_items[{{ $index }}][jumlah_kirim]" class="form-control" value="{{ $item->jumlah_kirim }}">
+                                <input type="number" name="order_items[{{ $index }}][jumlah_kirim]" class="form-control" value="{{ $item->jumlah_kirim }}" id="jumlah_kirim_0">
                             </div>
                             <div class="col-lg-4 mb-3">
                                 <label for="product-categories" class="form-label">Sisa Kiriman</label>
-                                <input type="text" name="order_items[{{ $index }}][sisa_belum_kirim]" class="form-control" value="{{ $item->sisa_belum_kirim }}">
+                                <input type="number" name="order_items[{{ $index }}][sisa_belum_kirim]" class="form-control" value="{{ $item->sisa_belum_kirim }}" id="sisa_belum_kirim_0">
                             </div>
                             <div class="col-lg-4 mb-3">
                                 <label for="product-categories" class="form-label">Tanggal Kirim</label>
@@ -143,24 +154,29 @@
 @section('script-bottom')
 @vite(['resources/js/pages/ecommerce-product-details.js'])
 <script>
+    // Event listener untuk tombol tambah produk
     document.querySelector('.btn-add-product').addEventListener('click', function() {
-        // Get the index of the last added product row
+        // Get the current number of product rows
         const productRows = document.querySelectorAll('.product-row');
-        const lastRowIndex = parseInt(productRows[productRows.length - 1].getAttribute('data-index'));
+        const newIndex = productRows.length; // Menggunakan jumlah baris sebagai indeks baru
 
         // Clone the first product row and increment its index
         const productRow = document.querySelector('.product-row').cloneNode(true);
-        const newIndex = lastRowIndex + 1;
-
+        
         // Update the index in the cloned row
         productRow.setAttribute('data-index', newIndex);
 
-        // Update the name attributes to reflect the new index
+        // Update the name and ID attributes to reflect the new index
         const inputs = productRow.querySelectorAll('input, select');
         inputs.forEach(input => {
             const name = input.name;
-            const updatedName = name.replace(`[${lastRowIndex}]`, `[${newIndex}]`);
+            const updatedName = name.replace(/\[\d+\]/, `[${newIndex}]`); // Update the name attribute
             input.name = updatedName;
+
+            // Update the ID attribute to reflect the new index
+            const id = input.id;
+            const updatedId = id.replace(/_\d+/, `_${newIndex}`); // Update the id attribute
+            input.id = updatedId;
         });
 
         // Reset input values in the cloned row
@@ -170,7 +186,51 @@
 
         // Append the cloned row to the container
         document.getElementById('product-container').appendChild(productRow);
+
+        // Attach event listeners to new inputs for Sisa Kiriman calculation
+        attachEventListenersToAllRows(); // Call this for both new and existing rows
     });
 
+    // Fungsi untuk menghitung dan mengupdate Sisa Kiriman
+    function attachEventListenersToAllRows() {
+        // Ambil semua baris produk
+        const productRows = document.querySelectorAll('.product-row');
+        
+        // Loop melalui semua baris produk dan tambahkan event listener
+        productRows.forEach((row, index) => {
+            const totalOrderInput = row.querySelector(`#total_order_${index}`);
+            const jumlahKirimInput = row.querySelector(`#jumlah_kirim_${index}`);
+            const sisaKirimanInput = row.querySelector(`#sisa_belum_kirim_${index}`);
+
+            // Pastikan elemen ada sebelum menambahkan event listener
+            if (totalOrderInput && jumlahKirimInput && sisaKirimanInput) {
+                // Tambahkan event listener ke input
+                totalOrderInput.removeEventListener('input', updateSisaKiriman); // Remove existing event listener
+                jumlahKirimInput.removeEventListener('input', updateSisaKiriman); // Remove existing event listener
+
+                totalOrderInput.addEventListener('input', () => updateSisaKiriman(index));
+                jumlahKirimInput.addEventListener('input', () => updateSisaKiriman(index));
+            }
+        });
+    }
+
+    // Fungsi untuk menghitung dan mengupdate Sisa Kiriman
+    function updateSisaKiriman(index) {
+        // Ambil nilai input Total Order dan Total Kirim berdasarkan index
+        const totalOrder = parseFloat(document.querySelector(`#total_order_${index}`).value) || 0;
+        const jumlahKirim = parseFloat(document.querySelector(`#jumlah_kirim_${index}`).value) || 0;
+
+        // Hitung sisa kiriman
+        const sisaKiriman = totalOrder - jumlahKirim;
+
+        // Set nilai ke input Sisa Kiriman
+        document.querySelector(`#sisa_belum_kirim_${index}`).value = sisaKiriman;
+    }
+
+    // Inisialisasi event listeners pada saat halaman pertama kali dimuat
+    document.addEventListener('DOMContentLoaded', () => {
+        attachEventListenersToAllRows(); // Inisialisasi untuk baris pertama
+    });
 </script>
+
 @endsection

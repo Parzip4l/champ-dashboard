@@ -19,6 +19,7 @@ class OrderItem extends Model
         'jumlah_kirim',
         'sisa_belum_kirim',
         'tanggal_kirim',
+        'sales',
     ];
 
     /**

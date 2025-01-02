@@ -5,6 +5,7 @@ namespace App\Http\Controllers\General;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 // Model
 use App\Models\General\ListOrder;
@@ -118,7 +119,11 @@ class DeliveryOrder extends Controller
             $listOrder = ListOrder::with('orderItems')->findOrFail($id);
             $distributor = Distributor::all();
             $product = Product::all();
-            return view('general.delivery.edit', compact('listOrder','distributor','product'));
+            $sales = User::join('roles', 'users.role_id', '=', 'roles.id')
+             ->where('roles.name', 'sales')
+             ->select('users.*')
+             ->get();
+            return view('general.delivery.edit', compact('listOrder','distributor','product','sales'));
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 404);
         }
@@ -129,6 +134,7 @@ class DeliveryOrder extends Controller
      */
     public function update(Request $request, $id)
     {
+        DB::beginTransaction();
         try {
             // Validate the incoming request
             $validated = $request->validate([
@@ -144,46 +150,55 @@ class DeliveryOrder extends Controller
             $listOrder->ekspedisi = $request->ekspedisi;
             $listOrder->status = $request->status; // Update only the status
             $listOrder->save();
+            Log::info('Data sebelum update', $listOrder->toArray());
 
             // Only update order items if there are changes in the order_items field
             if ($request->has('order_items') && !empty($request->order_items)) {
                 foreach ($request->order_items as $item) {
-                    // Cek apakah item memiliki ID (update) atau tidak (create baru)
-                    if (isset($item['id']) && $item['id']) {
-                        $orderItem = OrderItem::find($item['id']);
-                        if ($orderItem) {
+                    $orderItem = $listOrder->orderItems()
+                        ->where('nama_produk', $item['nama_produk'])
+                        ->where('tanggal_kirim', $item['tanggal_kirim'])
+                        ->first();
+        
+                    if ($orderItem) {
+                        // Perbarui jika ada perubahan data
+                        if (
+                            $orderItem->total_order != $item['total_order'] ||
+                            $orderItem->jumlah_kirim != $item['jumlah_kirim'] ||
+                            $orderItem->sisa_belum_kirim != $item['sisa_belum_kirim'] ||
+                            $orderItem->sales != $request->sales
+                        ) {
                             $orderItem->update([
-                                'nama_produk' => $item['nama_produk'],
                                 'total_order' => $item['total_order'],
                                 'jumlah_kirim' => $item['jumlah_kirim'],
-                                'sisa_belum_kirim' => $item['sisa_belum_kirim'] ?? 0,
-                                'tanggal_kirim' => $item['tanggal_kirim'] ?? null,
+                                'sisa_belum_kirim' => $item['sisa_belum_kirim'],
+                                'sales' => $request->sales,
                             ]);
+                            Log::info('OrderItem updated:', $orderItem->toArray());
+                        } else {
+                            Log::info('OrderItem already exists, no changes made:', $orderItem->toArray());
                         }
                     } else {
-                        // Pastikan tidak membuat item baru yang identik dengan yang sudah ada
-                        $existingItem = $listOrder->orderItems()
-                            ->where('nama_produk', $item['nama_produk'])
-                            ->where('tanggal_kirim', $item['tanggal_kirim'])
-                            ->first();
-            
-                        if (!$existingItem) {
-                            $listOrder->orderItems()->create([
-                                'nama_produk' => $item['nama_produk'],
-                                'total_order' => $item['total_order'],
-                                'jumlah_kirim' => $item['jumlah_kirim'] ?? 0,
-                                'sisa_belum_kirim' => $item['sisa_belum_kirim'] ?? 0,
-                                'tanggal_kirim' => $item['tanggal_kirim'] ?? null,
-                            ]);
-                        }
+                        // Buat item baru
+                        $newItem = $listOrder->orderItems()->create([
+                            'nama_produk' => $item['nama_produk'],
+                            'total_order' => $item['total_order'],
+                            'jumlah_kirim' => $item['jumlah_kirim'] ?? 0,
+                            'sisa_belum_kirim' => $item['sisa_belum_kirim'] ?? 0,
+                            'tanggal_kirim' => $item['tanggal_kirim'] ?? null,
+                            'sales' => $request->sales,
+                        ]);
+                        Log::info('New OrderItem created:', $newItem->toArray());
                     }
                 }
             }
+        
             
-
+            DB::commit();
             // Return a success response
             return redirect()->route('delivery-order.index')->with('success', 'Data information updated successfully!');
         } catch (Exception $e) {
+            \Log::error($e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
