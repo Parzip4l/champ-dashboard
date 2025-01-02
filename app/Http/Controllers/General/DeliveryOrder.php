@@ -105,12 +105,13 @@ class DeliveryOrder extends Controller
             $attachments = [];
 
             foreach ($request->order_items as $item) {
+                $productName = Product::where('id',$item['nama_produk'])->first();
                 $attachments[] = [
                     'title' => 'Details Data Order',
                     'fields' => [
                         [
                             'title' => 'Product',
-                            'value' => $item['nama_produk'],
+                            'value' => $productName->name,
                             'short' => true,
                         ],
                         [
@@ -284,12 +285,13 @@ class DeliveryOrder extends Controller
             $attachments = [];
 
             foreach ($request->order_items as $item) {
+                $productName = Product::where('id',$item['nama_produk'])->first();
                 $attachments[] = [
-                    'title' => 'Details Data Order',
+                    'title' => 'Details Product Order',
                     'fields' => [
                         [
                             'title' => 'Product',
-                            'value' => $item['nama_produk'],
+                            'value' => $productName->name,
                             'short' => true,
                         ],
                         [
