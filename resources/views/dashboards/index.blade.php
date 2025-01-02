@@ -439,89 +439,78 @@
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Pass PHP array to JavaScript
-        const chartData = @json($chartData);
+    // Pass PHP array to JavaScript
+    const chartData = @json($chartData);
 
-        // Function to format date as 'YYYY-MM'
-        const formatDateToMonth = (date) => {
-            const d = new Date(date);
-            const month = (d.getMonth() + 1).toString().padStart(2, '0');
-            const year = d.getFullYear();
-            return `${year}-${month}`;
-        };
+    // Function to format date as 'YYYY-MM'
+    const formatDateToMonth = (date) => {
+        const d = new Date(date);
+        const month = (d.getMonth() + 1).toString().padStart(2, '0');
+        const year = d.getFullYear();
+        return `${year}-${month}`;
+    };
 
-        // Format categories to group by month, but retain full date
-        const formattedCategories = chartData.categories.map(date => new Date(date).toLocaleDateString('en-CA'));
+    // Format categories to group by month, but retain full date
+    const formattedCategories = chartData.categories.map(date => new Date(date).toLocaleDateString('en-CA'));
 
-        // Update series data without filtering by month
-        const formattedSeries = chartData.series.map(series => ({
-            ...series,
-            data: series.data.map((value, index) => ({
-                x: new Date(chartData.categories[index]).toLocaleDateString('en-CA'),
-                y: value
-            }))
-        }));
+    // Update series data without filtering by month
+    const formattedSeries = chartData.series.map(series => ({
+        ...series,
+        data: series.data.map((value, index) => ({
+            x: new Date(chartData.categories[index]).toLocaleDateString('en-CA'),
+            y: value
+        }))
+    }));
 
-        // Initial chart options
-        const options = {
-            series: formattedSeries,  // Use the formatted series data
-            chart: {
-                height: 313,
-                type: "bar",
-                stacked: true,
-                toolbar: { show: false },
+    // Initial chart options for stacked area chart
+    const options = {
+        series: formattedSeries,  // Use the formatted series data
+        chart: {
+            type: 'area',  // Change chart type to area
+            height: 350,   // Set height to 350px
+            stacked: true, // Enable stacking
+            events: {
+                selection: function (chart, e) {
+                    console.log(new Date(e.xaxis.min));  // Log selected date range
+                }
             },
-            plotOptions: {
-                bar: {
-                    horizontal: false,
-                    columnWidth: "30%",
-                    barHeight: "70%",
-                    borderRadius: 3,
-                },
-            },
-            fill: {
-                opacity: [1, 1, 1, 1],
-                type: ['solid', 'solid', 'solid', 'solid'],
-            },
-            stroke: { width: 0 },
-            xaxis: {
-                categories: formattedCategories,  // Use the formatted categories (with full date)
-                axisTicks: { show: false },
-                axisBorder: { show: false },
-            },
-            yaxis: {
-                min: 0,
-                axisBorder: { show: false },
-            },
-            grid: {
-                show: true,
-                strokeDashArray: 3,
-                xaxis: { lines: { show: false } },
-                yaxis: { lines: { show: true } },
-                padding: { top: 0, right: -2, bottom: 0, left: 10 },
-            },
-            legend: {
-                show: true,
-                horizontalAlign: "center",
-                offsetX: 0,
-                offsetY: 5,
-                markers: { width: 9, height: 9, radius: 6 },
-                itemMargin: { horizontal: 10, vertical: 0 },
-            },
-            colors: ["#22c55e","#c0392b","#e74c3c", "#2980b9","#1abc9c"],
-            tooltip: {
-                shared: true,
-                intersect: false,
-                y: [
-                    { formatter: (y) => (typeof y !== "undefined" ? parseFloat(y.toFixed(1)) : y) },
-                    { formatter: (y) => (typeof y !== "undefined" ? parseFloat(y.toFixed(1)) : y) },
-                    { formatter: (y) => (typeof y !== "undefined" ? parseFloat(y.toFixed(1)) : y) },
-                ],
-            },
-        };
+        },
+        colors: ['#22c55e', '#c0392b', '#e74c3c', '#2980b9', '#1abc9c'],
+        dataLabels: {
+            enabled: false, // Disable data labels
+        },
+        stroke: {
+            curve: 'monotoneCubic',  // Smooth line curve
+        },
+        fill: {
+            type: 'gradient', // Use gradient fill
+            gradient: {
+                opacityFrom: 0.6,  // Starting opacity of gradient
+                opacityTo: 0.8,    // Ending opacity of gradient
+            }
+        },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'left',
+        },
+        xaxis: {
+            categories: formattedCategories,  // Use the formatted categories (with full date)
+            type: 'category', // Use category type for x-axis
+        },
+        tooltip: {
+            shared: true,
+            intersect: false,
+            y: [
+                { formatter: (y) => (typeof y !== "undefined" ? parseFloat(y.toFixed(1)) : y) },
+                { formatter: (y) => (typeof y !== "undefined" ? parseFloat(y.toFixed(1)) : y) },
+                { formatter: (y) => (typeof y !== "undefined" ? parseFloat(y.toFixed(1)) : y) },
+            ],
+        },
+    };
 
-        // Initialize the chart
-        const chart = new ApexCharts(document.querySelector("#dash-performance-chart"), options);
-        chart.render();
-    </script>
+    // Initialize the chart
+    const chart = new ApexCharts(document.querySelector("#dash-performance-chart"), options);
+    chart.render();
+</script>
+
 @endsection
