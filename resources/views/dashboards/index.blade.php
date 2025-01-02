@@ -17,24 +17,28 @@
                                 <div class="col-6">
                                     <div class="avatar-md bg-soft-primary rounded">
                                         <iconify-icon icon="solar:cart-5-bold-duotone"
-                                                      class="avatar-title fs-32 text-primary"></iconify-icon>
+                                                    class="avatar-title fs-32 text-primary"></iconify-icon>
                                     </div>
                                 </div> <!-- end col -->
                                 <div class="col-6 text-end">
                                     <p class="text-muted mb-0 text-truncate">Total Orders</p>
-                                    <h3 class="text-dark mt-1 mb-0">13, 647</h3>
+                                    <h3 class="text-dark mt-1 mb-0">{{ number_format($totalOrdersCurrentMonth) }}</h3>
                                 </div> <!-- end col -->
                             </div> <!-- end row-->
+                             <!-- end card footer -->
                         </div> <!-- end card body -->
                         <div class="card-footer py-2 bg-light bg-opacity-50">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div>
-                                    <span class="text-success"> <i class="bx bxs-up-arrow fs-12"></i> 2.3%</span>
-                                    <span class="text-muted ms-1 fs-12">Last Week</span>
+                                    <span class="{{ $percentageChangeTotalOrders >= 0 ? 'text-success' : 'text-danger' }}">
+                                        <i class="bx {{ $percentageChangeTotalOrders >= 0 ? 'bxs-up-arrow' : 'bxs-down-arrow' }} fs-12"></i> 
+                                        {{ number_format($percentageChangeTotalOrders, 2) }}%
+                                    </span>
+                                    <span class="text-muted ms-1 fs-12">Last Month</span>
                                 </div>
                                 <a href="#!" class="text-reset fw-semibold fs-12">View More</a>
                             </div>
-                        </div> <!-- end card body -->
+                        </div> 
                     </div> <!-- end card -->
                 </div> <!-- end col -->
                 <div class="col-md-6">
@@ -47,20 +51,23 @@
                                     </div>
                                 </div> <!-- end col -->
                                 <div class="col-6 text-end">
-                                    <p class="text-muted mb-0 text-truncate">New Leads</p>
-                                    <h3 class="text-dark mt-1 mb-0">9, 526</h3>
+                                    <p class="text-muted mb-0 text-truncate">Delivery Success</p>
+                                    <h3 class="text-dark mt-1 mb-0">{{$totalDelivered}}</h3>
                                 </div> <!-- end col -->
                             </div> <!-- end row-->
                         </div> <!-- end card body -->
                         <div class="card-footer py-2 bg-light bg-opacity-50">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div>
-                                    <span class="text-success"> <i class="bx bxs-up-arrow fs-12"></i> 8.1%</span>
+                                    <span class="{{ $percentageChangeDelivered >= 0 ? 'text-success' : 'text-danger' }}">
+                                        <i class="bx {{ $percentageChangeDelivered >= 0 ? 'bxs-up-arrow' : 'bxs-down-arrow' }} fs-12"></i> 
+                                        {{ number_format($percentageChangeDelivered, 2) }}%
+                                    </span>
                                     <span class="text-muted ms-1 fs-12">Last Month</span>
                                 </div>
                                 <a href="#!" class="text-reset fw-semibold fs-12">View More</a>
                             </div>
-                        </div> <!-- end card body -->
+                        </div>  <!-- end card body -->
                     </div> <!-- end card -->
                 </div> <!-- end col -->
                 <div class="col-md-6">
@@ -73,15 +80,19 @@
                                     </div>
                                 </div> <!-- end col -->
                                 <div class="col-6 text-end">
-                                    <p class="text-muted mb-0 text-truncate">Deals</p>
-                                    <h3 class="text-dark mt-1 mb-0">976</h3>
+                                    <p class="text-muted mb-0 text-truncate">Top Products</p>
+                                    <h3 class="text-dark mt-1 mb-0">{{number_format($topProductCurrentMonth->total_ordered)}}</h3>
+                                    <p class="text-muted mb-0 text-truncate"></p>
                                 </div> <!-- end col -->
                             </div> <!-- end row-->
                         </div> <!-- end card body -->
                         <div class="card-footer py-2 bg-light bg-opacity-50">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div>
-                                    <span class="text-danger"> <i class="bx bxs-down-arrow fs-12"></i> 0.3%</span>
+                                    <span class="{{ $percentageChangetopProduct >= 0 ? 'text-success' : 'text-danger' }}">
+                                        <i class="bx {{ $percentageChangetopProduct >= 0 ? 'bxs-up-arrow' : 'bxs-down-arrow' }} fs-12"></i> 
+                                        {{ number_format($percentageChangetopProduct, 2) }}%
+                                    </span>
                                     <span class="text-muted ms-1 fs-12">Last Month</span>
                                 </div>
                                 <a href="#!" class="text-reset fw-semibold fs-12">View More</a>
@@ -93,14 +104,14 @@
                     <div class="card overflow-hidden">
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-6">
+                                <div class="col-3">
                                     <div class="avatar-md bg-soft-primary rounded">
                                         <i class="bx bx-dollar-circle avatar-title text-primary fs-24"></i>
                                     </div>
                                 </div> <!-- end col -->
-                                <div class="col-6 text-end">
-                                    <p class="text-muted mb-0 text-truncate">Booked Revenue</p>
-                                    <h3 class="text-dark mt-1 mb-0">$123.6k</h3>
+                                <div class="col-9 text-end">
+                                    <p class="text-muted mb-0 text-truncate">Revenue</p>
+                                    <h3 class="text-dark mt-1 mb-0">Rp. 123.6M</h3>
                                 </div> <!-- end col -->
                             </div> <!-- end row-->
                         </div> <!-- end card body -->
@@ -124,10 +135,9 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <h4 class="card-title">Performance</h4>
                         <div>
-                            <button type="button" class="btn btn-sm btn-outline-light">ALL</button>
-                            <button type="button" class="btn btn-sm btn-outline-light">1M</button>
-                            <button type="button" class="btn btn-sm btn-outline-light">6M</button>
-                            <button type="button" class="btn btn-sm btn-outline-light active">1Y</button>
+                            <a href="{{ route('dashboard.index', array_merge(request()->all(), ['filter' => '1M'])) }}" type="button" class="btn btn-sm btn-outline-light {{ $filter == '1M' ? 'active' : '' }}">1M</a>
+                            <a href="{{ route('dashboard.index', array_merge(request()->all(), ['filter' => '6M'])) }}" type="button" class="btn btn-sm btn-outline-light {{ $filter == '6M' ? 'active' : '' }}">6M</a>
+                            <a href="{{ route('dashboard.index', array_merge(request()->all(), ['filter' => '1Y'])) }}" type="button" class="btn btn-sm btn-outline-light {{ $filter == '1Y' ? 'active' : '' }}">1Y</a>
                         </div>
                     </div> <!-- end card-title-->
 
@@ -141,57 +151,28 @@
 
     <div class="row">
         <div class="col-lg-4">
-        <div class="card card-height-100">
+            <div class="card card-height-100">
                 <div class="card-header d-flex align-items-center justify-content-between gap-2">
                     <h4 class="card-title flex-grow-1">Top Distributor</h4>
-
                     <a href="#" class="btn btn-sm btn-soft-primary">View All</a>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover table-nowrap table-centered m-0">
                         <thead class="bg-light bg-opacity-50">
-                        <tr>
-                            <th class="text-muted ps-3">Distributor Name</th>
-                            <th class="text-muted">Order Count</th>
-                            <th class="text-muted">Revenue</th>
-                        </tr>
+                            <tr>
+                                <th class="text-muted ps-3">Distributor Name</th>
+                                <th class="text-muted">Order Count</th>
+                                <th class="text-muted">Revenue</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/ecommerce.html</a></td>
-                            <td>465</td>
-                            <td><span class="badge badge-soft-success">4.4%</span></td>
-                        </tr>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/dashboard.html</a></td>
-                            <td> 426</td>
-                            <td><span class="badge badge-soft-danger">20.4%</span></td>
-                        </tr>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/chat.html</a></td>
-                            <td>254</td>
-                            <td><span class="badge badge-soft-warning">12.25%</span></td>
-                        </tr>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/auth-login.html</a></td>
-                            <td> 3369</td>
-                            <td><span class="badge badge-soft-success">5.2%</span></td>
-                        </tr>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/email.html</a></td>
-                            <td>985</td>
-                            <td><span class="badge badge-soft-danger">64.2%</span></td>
-                        </tr>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/social.html</a></td>
-                            <td>653</td>
-                            <td><span class="badge badge-soft-success">2.4%</span></td>
-                        </tr>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/blog.html</a></td>
-                            <td>478</td>
-                            <td><span class="badge badge-soft-danger">1.4%</span></td>
-                        </tr>
+                            @foreach($topDistributors as $distributor)
+                            <tr>
+                                <td class="ps-3"><a href="#" class="text-muted">{{ $distributor->distributor_name }}</a></td>
+                                <td>{{ $distributor->total_ordered }}</td>
+                                <td><span class="badge badge-soft-success">{{ $distributor->revenue_percentage }}</span></td>
+                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -199,57 +180,26 @@
         </div> <!-- end left chart card -->
 
         <div class="col-lg-4">
-        <div class="card card-height-100">
+            <div class="card card-height-100">
                 <div class="card-header d-flex align-items-center justify-content-between gap-2">
                     <h4 class="card-title flex-grow-1">Top Product</h4>
-
                     <a href="#" class="btn btn-sm btn-soft-primary">View All</a>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover table-nowrap table-centered m-0">
                         <thead class="bg-light bg-opacity-50">
-                        <tr>
-                            <th class="text-muted ps-3">Product Name</th>
-                            <th class="text-muted">Quantity Sales</th>
-                            <th class="text-muted">Exit Rate</th>
-                        </tr>
+                            <tr>
+                                <th class="text-muted ps-3">Product Name</th>
+                                <th class="text-muted">Quantity Sales</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/ecommerce.html</a></td>
-                            <td>465</td>
-                            <td><span class="badge badge-soft-success">4.4%</span></td>
-                        </tr>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/dashboard.html</a></td>
-                            <td> 426</td>
-                            <td><span class="badge badge-soft-danger">20.4%</span></td>
-                        </tr>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/chat.html</a></td>
-                            <td>254</td>
-                            <td><span class="badge badge-soft-warning">12.25%</span></td>
-                        </tr>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/auth-login.html</a></td>
-                            <td> 3369</td>
-                            <td><span class="badge badge-soft-success">5.2%</span></td>
-                        </tr>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/email.html</a></td>
-                            <td>985</td>
-                            <td><span class="badge badge-soft-danger">64.2%</span></td>
-                        </tr>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/social.html</a></td>
-                            <td>653</td>
-                            <td><span class="badge badge-soft-success">2.4%</span></td>
-                        </tr>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/blog.html</a></td>
-                            <td>478</td>
-                            <td><span class="badge badge-soft-danger">1.4%</span></td>
-                        </tr>
+                            @foreach($topProducts as $product)
+                            <tr>
+                                <td class="ps-3"><a href="#" class="text-muted">{{ $product->nama_produk }}</a></td>
+                                <td>{{ $product->total_delivered }}</td>
+                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -260,135 +210,30 @@
             <div class="card card-height-100">
                 <div class="card-header d-flex align-items-center justify-content-between gap-2">
                     <h4 class="card-title flex-grow-1">Top Sales</h4>
-
                     <a href="#" class="btn btn-sm btn-soft-primary">View All</a>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover table-nowrap table-centered m-0">
                         <thead class="bg-light bg-opacity-50">
-                        <tr>
-                            <th class="text-muted ps-3">Sales Name</th>
-                            <th class="text-muted">Sales Count</th>
-                            <th class="text-muted">Exit Rate</th>
-                        </tr>
+                            <tr>
+                                <th class="text-muted ps-3">Sales Name</th>
+                                <th class="text-muted">Sales Count</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/ecommerce.html</a></td>
-                            <td>465</td>
-                            <td><span class="badge badge-soft-success">4.4%</span></td>
-                        </tr>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/dashboard.html</a></td>
-                            <td> 426</td>
-                            <td><span class="badge badge-soft-danger">20.4%</span></td>
-                        </tr>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/chat.html</a></td>
-                            <td>254</td>
-                            <td><span class="badge badge-soft-warning">12.25%</span></td>
-                        </tr>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/auth-login.html</a></td>
-                            <td> 3369</td>
-                            <td><span class="badge badge-soft-success">5.2%</span></td>
-                        </tr>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/email.html</a></td>
-                            <td>985</td>
-                            <td><span class="badge badge-soft-danger">64.2%</span></td>
-                        </tr>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/social.html</a></td>
-                            <td>653</td>
-                            <td><span class="badge badge-soft-success">2.4%</span></td>
-                        </tr>
-                        <tr>
-                            <td class="ps-3"><a href="#" class="text-muted">larkon/blog.html</a></td>
-                            <td>478</td>
-                            <td><span class="badge badge-soft-danger">1.4%</span></td>
-                        </tr>
+                            @foreach($topSales as $sales)
+                            <tr>
+                                <td class="ps-3"><a href="#" class="text-muted">{{ $sales->sales }}</a></td>
+                                <td>{{ $sales->total_delivered }}</td>
+                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
             </div>
         </div> <!-- end col -->
-
-        <div class="col-xl-4 d-none">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="card-title">Recent Transactions</h4>
-                    <div>
-                        <a href="#!" class="btn btn-sm btn-primary">
-                            <i class="bx bx-plus me-1"></i>Add
-                        </a>
-                    </div>
-                </div> <!-- end card-header-->
-                <div class="card-body p-0">
-                    <div class="px-3" data-simplebar style="max-height: 398px;">
-                        <table class="table table-hover mb-0 table-centered">
-                            <tbody>
-                            <tr>
-                                <td>24 April, 2024</td>
-                                <td>$120.55</td>
-                                <td><span class="badge bg-success">Cr</span></td>
-                                <td>Commisions</td>
-                            </tr>
-                            <tr>
-                                <td>24 April, 2024</td>
-                                <td>$9.68</td>
-                                <td><span class="badge bg-success">Cr</span></td>
-                                <td>Affiliates</td>
-                            </tr>
-                            <tr>
-                                <td>20 April, 2024</td>
-                                <td>$105.22</td>
-                                <td><span class="badge bg-danger">Dr</span></td>
-                                <td>Grocery</td>
-                            </tr>
-                            <tr>
-                                <td>18 April, 2024</td>
-                                <td>$80.59</td>
-                                <td><span class="badge bg-success">Cr</span></td>
-                                <td>Refunds</td>
-                            </tr>
-                            <tr>
-                                <td>18 April, 2024</td>
-                                <td>$750.95</td>
-                                <td><span class="badge bg-danger">Dr</span></td>
-                                <td>Bill Payments</td>
-                            </tr>
-                            <tr>
-                                <td>17 April, 2024</td>
-                                <td>$455.62</td>
-                                <td><span class="badge bg-danger">Dr</span></td>
-                                <td>Electricity</td>
-                            </tr>
-                            <tr>
-                                <td>17 April, 2024</td>
-                                <td>$102.77</td>
-                                <td><span class="badge bg-success">Cr</span></td>
-                                <td>Interest</td>
-                            </tr>
-                            <tr>
-                                <td>16 April, 2024</td>
-                                <td>$79.49</td>
-                                <td><span class="badge bg-success">Cr</span></td>
-                                <td>Refunds</td>
-                            </tr>
-                            <tr>
-                                <td>05 April, 2024</td>
-                                <td>$980.00</td>
-                                <td><span class="badge bg-danger">Dr</span></td>
-                                <td>Shopping</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div> <!-- end card body -->
-            </div> <!-- end card-->
-        </div> <!-- end col-->
     </div> <!-- end row -->
+
 
     <div class="row">
         <div class="col">
@@ -590,5 +435,93 @@
 @endsection
 
 @section('script')
-    @vite(['resources/js/pages/dashboard.js'])
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Pass PHP array to JavaScript
+        const chartData = @json($chartData);
+
+        // Function to format date as 'YYYY-MM'
+        const formatDateToMonth = (date) => {
+            const d = new Date(date);
+            const month = (d.getMonth() + 1).toString().padStart(2, '0');
+            const year = d.getFullYear();
+            return `${year}-${month}`;
+        };
+
+        // Format categories to group by month, but retain full date
+        const formattedCategories = chartData.categories.map(date => new Date(date).toLocaleDateString('en-CA'));
+
+        // Update series data without filtering by month
+        const formattedSeries = chartData.series.map(series => ({
+            ...series,
+            data: series.data.map((value, index) => ({
+                x: new Date(chartData.categories[index]).toLocaleDateString('en-CA'),
+                y: value
+            }))
+        }));
+
+        // Initial chart options
+        const options = {
+            series: formattedSeries,  // Use the formatted series data
+            chart: {
+                height: 313,
+                type: "bar",
+                stacked: true,
+                toolbar: { show: false },
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: "30%",
+                    barHeight: "70%",
+                    borderRadius: 3,
+                },
+            },
+            fill: {
+                opacity: [1, 1, 1, 1],
+                type: ['solid', 'solid', 'solid', 'solid'],
+            },
+            stroke: { width: 0 },
+            xaxis: {
+                categories: formattedCategories,  // Use the formatted categories (with full date)
+                axisTicks: { show: false },
+                axisBorder: { show: false },
+            },
+            yaxis: {
+                min: 0,
+                axisBorder: { show: false },
+            },
+            grid: {
+                show: true,
+                strokeDashArray: 3,
+                xaxis: { lines: { show: false } },
+                yaxis: { lines: { show: true } },
+                padding: { top: 0, right: -2, bottom: 0, left: 10 },
+            },
+            legend: {
+                show: true,
+                horizontalAlign: "center",
+                offsetX: 0,
+                offsetY: 5,
+                markers: { width: 9, height: 9, radius: 6 },
+                itemMargin: { horizontal: 10, vertical: 0 },
+            },
+            colors: ["#22c55e","#c0392b","#e74c3c", "#2980b9","#1abc9c"],
+            tooltip: {
+                shared: true,
+                intersect: false,
+                y: [
+                    { formatter: (y) => (typeof y !== "undefined" ? parseFloat(y.toFixed(1)) : y) },
+                    { formatter: (y) => (typeof y !== "undefined" ? parseFloat(y.toFixed(1)) : y) },
+                    { formatter: (y) => (typeof y !== "undefined" ? parseFloat(y.toFixed(1)) : y) },
+                ],
+            },
+        };
+
+        // Initialize the chart
+        const chart = new ApexCharts(document.querySelector("#dash-performance-chart"), options);
+        chart.render();
+    </script>
 @endsection
