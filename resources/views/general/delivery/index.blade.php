@@ -159,7 +159,7 @@
                                                 <a href="{{ route('delivery-order.edit', $order->id) }}" class="btn btn-soft-primary btn-sm">
                                                     <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
                                                 </a>
-                                                <a href="{{ route('delivery-order.destroy', $order->id) }}" class="btn btn-soft-danger btn-sm">
+                                                <a href="#!" class="btn btn-soft-danger btn-sm" onclick="confirmDelete({{ $order->id }})">
                                                     <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
                                                 </a>
                                             </div>
@@ -286,7 +286,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Kirim permintaan AJAX untuk menghapus menu
-                    fetch('/menu/' + menuId, {
+                    fetch('/delivery-order/' + menuId, {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
@@ -298,7 +298,7 @@
                         if (data.success) {
                             Swal.fire(
                                 'Deleted!',
-                                'The distributor has been deleted.',
+                                'Data has been deleted.',
                                 'success'
                             ).then(() => {
                                 location.reload(); // Muat ulang halaman untuk melihat perubahan
@@ -306,7 +306,7 @@
                         } else {
                             Swal.fire(
                                 'Error!',
-                                data.message || 'Failed to delete distributor. Please try again.', // Menampilkan pesan error dari server
+                                data.message || 'Failed to delete Data. Please try again.', // Menampilkan pesan error dari server
                                 'error'
                             );
                         }

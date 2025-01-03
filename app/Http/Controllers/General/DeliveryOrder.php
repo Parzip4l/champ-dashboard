@@ -381,7 +381,7 @@ class DeliveryOrder extends Controller
             $listOrder = ListOrder::findOrFail($id);
             $listOrder->delete();
 
-            return response()->json(['message' => 'Order deleted successfully.']);
+            return response()->json(['success' => true]);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
