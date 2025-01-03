@@ -116,7 +116,7 @@ class DeliveryOrder extends Controller
                         ],
                         [
                             'title' => 'Tanggal Kirim',
-                            'value' => $item['tanggal_kirim'],
+                            'value' => $request->tanggal_kirim,
                             'short' => true,
                         ],
                         [
