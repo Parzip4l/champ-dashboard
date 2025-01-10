@@ -61,8 +61,6 @@ class DistributorController extends Controller
             // Redirect with a success message
             return redirect()->route('distributor.index')->with('success', 'Distributor information saved successfully!');
         } catch (\Exception $e) {
-            // Handle any exceptions that occur during the process
-            Log::error('Error storing menu: ' . $e->getMessage());
             return back()->withErrors(['error' => 'Failed to save distributor information. Please try again. Error: ' . $e->getMessage()]);
         }
     }
@@ -132,7 +130,6 @@ class DistributorController extends Controller
             ]);
         } catch (\Exception $e) {
             // Log error dan kembalikan error response JSON
-            Log::error('Error deleting menu: ' . $e->getMessage());
             
             return response()->json([
                 'success' => false,
