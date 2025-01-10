@@ -9,5 +9,5 @@ class Oli extends Model
 {
     use HasFactory;
     protected $table = 'delivery_oli';
-    protected $fillable = ['tanggal','pengirim','jenis_oli','jumlah','receive_status'];
+    protected $fillable = ['tanggal','pengirim','jenis_oli','jumlah','receive_status','harga','total'];
 }

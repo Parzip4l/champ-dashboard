@@ -3,11 +3,81 @@
 @section('content')
 
 <div class="row">
+@if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
     <div class="col-xxl-5">
         <div class="row">
+            
             <div class="col-12">
-                <div class="alert alert-primary text-truncate mb-3" role="alert">
-                    Welcome Back {{Auth::user()->name}} !
+                <div class="tombol d-flex">
+                    <a href="#" class="btn btn-primary mb-2 me-2" data-bs-toggle="modal" data-bs-target="#modalSettingOli">Setting Harga Oli</a>
+                    <a href="#" class="btn btn-success mb-2" data-bs-toggle="modal" data-bs-target="#modalReportOli">Download Report</a>
+                </div>
+            </div>
+
+            <!-- Modal Report Oli -->
+            <div class="modal fade" id="modalReportOli" tabindex="-1" aria-labelledby="modalSettingOliLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalSettingOliLabel">Pilih Bulan dan Tahun</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{{ route('download.report') }}" method="POST">
+                                @csrf
+                                <div class="mb-3">
+                                    <label for="bulan" class="form-label">Bulan</label>
+                                    <select name="bulan" id="bulan" class="form-control" required>
+                                        <option value="01">Januari</option>
+                                        <option value="02">Februari</option>
+                                        <option value="03">Maret</option>
+                                        <option value="04">April</option>
+                                        <option value="05">Mei</option>
+                                        <option value="06">Juni</option>
+                                        <option value="07">Juli</option>
+                                        <option value="08">Agustus</option>
+                                        <option value="09">September</option>
+                                        <option value="10">Oktober</option>
+                                        <option value="11">November</option>
+                                        <option value="12">Desember</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="tahun" class="form-label">Tahun</label>
+                                    <input type="number" class="form-control" name="tahun" id="tahun" required min="2020" max="2099" value="{{ date('Y') }}">
+                                </div>
+                                <button type="submit" class="btn btn-success">Download Report</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="modalSettingOli" tabindex="-1" aria-labelledby="modalOli" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalOli">Setting Harga Oli</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{{ route('oli.update_all') }}" method="POST">
+                                @csrf
+                                @foreach($hargaOli as $dataOli)
+                                <div class="form-group mb-2">
+                                    <label for="oli_{{ $dataOli->id }}" class="form-label">{{ $dataOli->jenis_oli }}</label>
+                                    <input type="number" name="oli[{{ $dataOli->id }}]" class="form-control" value="{{ $dataOli->harga }}" id="oli_{{ $dataOli->id }}">
+                                    <p>Last Update: <span class="text-danger">{{ $dataOli->updated_at }}</span> By <b><i>{{ $dataOli->updated_by }}</i></b></p>
+                                </div>
+                                @endforeach
+                                <button type="submit" class="btn btn-primary">Update Harga Oli</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -193,7 +263,9 @@
                             <th class="ps-3">Tanggal</th>
                             <th>Pengirim</th>
                             <th>Jenis Oli</th>
+                            <th>Harga</th>
                             <th>Jumlah</th>
+                            <th>Total</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -203,9 +275,14 @@
                                 <td class="ps-3"> {{ $data->tanggal }} </td>
                                 <td> {{ $data->pengirim }} </td>
                                 <td> {{ $data->jenis_oli }} </td>
+                                <td>Rp {{ number_format($data->harga, 0, ',', '.') }}</td>
                                 <td> {{ $data->jumlah }} </td>
+                                <td>Rp {{ number_format($data->total, 0, ',', '.') }}</td>
                                 <td>
                                     <div class="d-flex gap-2">
+                                        <a href="{{route('oli.edit', $data->id)}}" class="btn btn-soft-primary btn-sm">
+                                            <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                                        </a>
                                         <a href="#!" class="btn btn-soft-danger btn-sm" onclick="confirmDelete({{ $data->id }})">
                                             <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
                                         </a>

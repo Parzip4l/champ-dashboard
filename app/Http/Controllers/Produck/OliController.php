@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Produck;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Product\Oli;
 use Carbon\Carbon;
 use App\Models\Setting\Slack;
+use App\Models\Setting\HargaOli;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\OliReportExport;
 
 class OliController extends Controller
 {
@@ -192,7 +196,10 @@ class OliController extends Controller
         ->orderBy('created_at', 'desc')
         ->paginate(50);
 
-        return view('general.inventory.oli.index', compact('oli', 'search', 'totalOliCurrent', 'percentChange', 'chartData', 'filter'));
+        // Setting Harga Oli
+        $hargaOli = HargaOli::all();
+
+        return view('general.inventory.oli.index', compact('oli', 'search', 'totalOliCurrent', 'percentChange', 'chartData', 'filter','hargaOli'));
     }
 
 
@@ -205,13 +212,21 @@ class OliController extends Controller
     {
         try {
             $defaultReceive = 'Not Received';
+
+            // get data harga
+
+            $harga = HargaOli::where('jenis_oli',$request->jenis_oli)->first();
+            $total = $harga->harga * $request->jumlah;
             // Simpan data pembelian
+            
             $olidata = new Oli();
             $olidata->tanggal = now();
             $olidata->pengirim = $request->pengirim;
             $olidata->jenis_oli = $request->jenis_oli;
             $olidata->jumlah = $request->jumlah;
             $olidata->receive_status = $defaultReceive;
+            $olidata->harga = $harga->harga;
+            $olidata->total = $total;
             $olidata->save();
 
             $slackChannel = Slack::where('channel', 'Data Oli')->first();
@@ -290,6 +305,52 @@ class OliController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan Data: ' . $e->getMessage());
         }
     }
+    
+    public function edit($id)
+    {
+        try {
+            $oli = Oli::findOrFail($id);
+
+            return view('general.inventory.oli.edit', compact('oli'));
+        } catch (Exception $e) {
+            // Jika terjadi error, tampilkan pesan error
+            return redirect()->route('users.seller.list')->with('error', 'Distributor not found!');
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            // Validasi data yang diterima dari form
+            $validated = $request->validate([
+                'pengirim' => 'required|string|max:255',
+                'jenis_oli' => 'required|string|max:255',
+                'jumlah' => 'required|string|max:255',
+                'harga' => 'required|numeric',
+                'total' => 'required|numeric',
+            ]);
+
+            // Ambil data oli yang akan diupdate berdasarkan ID
+            $oli = Oli::findOrFail($id);
+
+            // Update data oli dengan data dari form
+            $oli->pengirim = $validated['pengirim'];
+            $oli->jenis_oli = $validated['jenis_oli'];
+            $oli->jumlah = $validated['jumlah'];
+            $oli->harga = $validated['harga'];
+            $oli->total = $validated['total'];
+
+            // Simpan perubahan
+            $oli->save();
+
+            // Redirect kembali ke halaman sebelumnya atau ke halaman lain setelah update berhasil
+            return redirect()->route('oli.index')->with('success', 'Data Oli berhasil diperbarui.');
+        
+        } catch (Exception $e) {
+            // Jika terjadi error, tangani dan beri pesan error
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
 
     public function destroy($id)
     {
@@ -314,6 +375,46 @@ class OliController extends Controller
                 'message' => 'Failed to delete menu. Please try again later. ' . $e->getMessage()
             ], 500); // Menggunakan status code 500 jika ada error server
         }
+    }
+
+    // Setup Oli
+    public function updateHarga(Request $request)
+    {
+        $data = $request->input('oli');
+
+        foreach ($data as $id => $harga) {
+            $hargaOli = HargaOli::find($id);
+            if ($hargaOli) {
+                $hargaOli->update([
+                    'harga' => $harga,
+                    'updated_by' => Auth::user()->name,
+                ]);
+            }
+        }
+
+        return redirect()->route('oli.index')->with('success', 'Harga oli berhasil diperbarui');
+    }
+
+    public function download(Request $request)
+    {
+        // Validasi input bulan dan tahun
+        $validated = $request->validate([
+            'bulan' => 'required|in:01,02,03,04,05,06,07,08,09,10,11,12',
+            'tahun' => 'required|digits:4|integer|min:2020|max:2099',
+        ]);
+
+        // Ambil data oli berdasarkan bulan dan tahun yang dipilih
+        $bulan = $validated['bulan'];
+        $tahun = $validated['tahun'];
+
+        // Filter data oli sesuai bulan dan tahun
+        $dataOli = Oli::whereMonth('created_at', $bulan)
+              ->whereYear('created_at', $tahun)
+              ->select('id', 'created_at as tanggal', 'pengirim', 'jenis_oli', 'jumlah', 'harga', 'total')
+              ->get();
+
+        // Gunakan Laravel Excel untuk export ke Excel
+        return Excel::download(new OliReportExport($dataOli), "report_oli_{$bulan}_{$tahun}.xlsx");
     }
 
 }

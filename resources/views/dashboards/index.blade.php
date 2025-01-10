@@ -52,7 +52,7 @@
                                 </div> <!-- end col -->
                                 <div class="col-6 text-end">
                                     <p class="text-muted mb-0 text-truncate">Delivery Success</p>
-                                    <h3 class="text-dark mt-1 mb-0">{{$totalDelivered}}</h3>
+                                    <h3 class="text-dark mt-1 mb-0">{{$totalDelivered ?? 0}}</h3>
                                 </div> <!-- end col -->
                             </div> <!-- end row-->
                         </div> <!-- end card body -->
@@ -81,7 +81,7 @@
                                 </div> <!-- end col -->
                                 <div class="col-6 text-end">
                                     <p class="text-muted mb-0 text-truncate">Top Products</p>
-                                    <h3 class="text-dark mt-1 mb-0">{{number_format($topProductCurrentMonth->total_ordered)}}</h3>
+                                    <h3 class="text-dark mt-1 mb-0">{{number_format($topProductCurrentMonth->total_ordered ?? 0)}}</h3>
                                     <p class="text-muted mb-0 text-truncate"></p>
                                 </div> <!-- end col -->
                             </div> <!-- end row-->
