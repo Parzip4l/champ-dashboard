@@ -5,6 +5,7 @@ use App\Http\Controllers\Produck\ProdukController;
 use App\Http\Controllers\General\dashboardController;
 use App\Http\Controllers\General\userController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use Illuminate\Support\Facades\Http;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -53,8 +54,14 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function () {
     Route::post('/download-report-oli', [App\Http\Controllers\Produck\OliController::class, 'download'])->name('download.report');
 
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+
+    Route::get('/voltage', [App\Http\Controllers\General\PenetrasiController::class, 'indexVolt'])->name('excavator.volt');
     
 });
 
+Route::get('/proxy-api', function () {
+    $response = Http::get('http://api.champoil.co.id/index.php'); // Ganti URL API jika diperlukan
+    return response()->json($response->json()); // Mengembalikan data dalam format JSON
+});
 Route::get('/pencatatan-oli/create', [App\Http\Controllers\Produck\OliController::class, 'create'])->name('oli.create');
 Route::post('/pencatatan-oli/simpan', [App\Http\Controllers\Produck\OliController::class, 'store'])->name('oli.store');

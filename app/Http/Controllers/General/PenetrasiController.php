@@ -136,4 +136,9 @@ class PenetrasiController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan Data: ' . $e->getMessage());
         }
     }
+
+    public function indexVolt()
+    {
+        return view('general.maintenance.voltage');
+    }
 }
