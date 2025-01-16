@@ -17,17 +17,12 @@
                         Voltage Data
                     </h4>
                 </div>
-                <div id="chart-container">
+                <div id="chart-container" style="overflow-x: auto; white-space: nowrap;">
                     <div id="voltageChart"></div>
                 </div>
             </div>
-
-            <!-- Grafik -->
-            
         </div>
-        <!-- end card -->
     </div>
-    <!-- end col -->
 </div>
 @endsection
 
@@ -35,6 +30,9 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
+    let voltageValues = [];  // Data untuk nilai tegangan
+    let createdAtLabels = [];  // Data untuk tanggal/waktu
+
     // Fungsi untuk memuat data
     function fetchData() {
         fetch('/proxy-api')  // Ganti dengan endpoint yang sesuai
@@ -52,8 +50,18 @@
                     });
 
                     // Menyusun data untuk grafik
-                    const voltageValues = filteredData.map(item => parseFloat(item.voltage)); // Mengambil nilai voltage
-                    const createdAtLabels = filteredData.map(item => item.created_at); // Mengambil tanggal
+                    const voltage = filteredData.map(item => parseFloat(item.voltage)); // Mengambil nilai voltage
+                    const createdAt = filteredData.map(item => item.created_at); // Mengambil tanggal
+
+                    // Menambahkan data baru ke array
+                    voltageValues.push(...voltage);
+                    createdAtLabels.push(...createdAt);
+
+                    // Menjaga agar hanya 10 data terbaru yang ditampilkan
+                    if (voltageValues.length > 10) {
+                        voltageValues.shift();
+                        createdAtLabels.shift();
+                    }
 
                     // Menampilkan grafik
                     updateChart(voltageValues, createdAtLabels);
@@ -70,8 +78,23 @@
             chart: {
                 type: 'line',
                 height: 400,
+                width: voltageValues.length * 50, // Set lebar chart berdasarkan jumlah data
                 zoom: {
-                    enabled: false
+                    enabled: true,  // Enable zooming
+                    type: 'x',      // Enable zooming on the X-axis
+                    zoomedArea: {
+                        fill: {
+                            color: '#90CAF9',
+                            opacity: 0.4
+                        },
+                        stroke: {
+                            color: '#0D47A1',
+                            width: 1
+                        }
+                    }
+                },
+                toolbar: {
+                    show: true
                 }
             },
             series: [{
@@ -99,13 +122,21 @@
                         
                         return day + ' ' + month + ' ' + year + ', ' + hours + ':' + minutes;
                     }
+                },
+                tickAmount: 2,
+                labels: {
+                    style: {
+                        fontSize: '12px'
+                    }
                 }
             },
             yaxis: {
                 title: {
                     text: 'Voltage'
                 },
-                min: 0 // Mulai sumbu Y dari 0
+                min: 0, // Mulai sumbu Y dari 0
+                max: Math.max(...voltageValues) + 2, // Menyesuaikan batas atas sumbu Y
+                tickAmount: 5
             },
             title: {
                 text: 'Voltage Data',
@@ -119,7 +150,20 @@
             },
             dataLabels: {
                 enabled: false // Menonaktifkan label data di titik-titik
-            }
+            },
+            grid: {
+                show: true,  // Menampilkan grid untuk lebih mudah dibaca
+                borderColor: '#ccc',
+                strokeDashArray: 5
+            },
+            responsive: [{
+                breakpoint: 1000,
+                options: {
+                    chart: {
+                        width: "100%",
+                    }
+                }
+            }]
         };
 
         // Cek apakah chart sudah ada sebelumnya, jika ada, perbarui
@@ -137,10 +181,10 @@
         fetchData();
     });
 
-    // Menyegarkan data setiap 5 detik
+    // Menyegarkan data setiap 60 detik
     setInterval(() => {
         fetchData();
-    }, 60000); // 5000 ms = 5 detik
+    }, 60000); // 60000 ms = 60 detik
 
 </script>
 @endsection

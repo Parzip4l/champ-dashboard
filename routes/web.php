@@ -44,6 +44,9 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function () {
 
     // Rnd
     Route::resource('rnd-check', App\Http\Controllers\General\PenetrasiController::class);
+    Route::resource('log-riset-grease', App\Http\Controllers\Rnd\RstGreaseController::class);
+    Route::delete('/log-riset-grease/detail/{id}', [App\Http\Controllers\Rnd\RstGreaseController::class, 'destroyDetail']);
+
 
     // Oli
     Route::get('/pencatatan-oli', [App\Http\Controllers\Produck\OliController::class, 'index'])->name('oli.index');

@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('delivery_oli', function (Blueprint $table) {
+        Schema::create('rnd_master_rstgrease', function (Blueprint $table) {
             $table->id();
-            $table->string('tanggal');
-            $table->string('pengirim');
-            $table->string('jenis_oli');
-            $table->string('jumlah');
-            $table->string('receive_status')->nullable();
+            $table->string('batch_code');
+            $table->string('product_name');
+            $table->date('expected_start_date');
+            $table->date('expected_end_date');
+            $table->string('created_by');
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('delivery_oli');
+        Schema::dropIfExists('rnd_master_rstgrease');
     }
 };
