@@ -46,6 +46,7 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function () {
     Route::resource('rnd-check', App\Http\Controllers\General\PenetrasiController::class);
     Route::resource('log-riset-grease', App\Http\Controllers\Rnd\RstGreaseController::class);
     Route::delete('/log-riset-grease/detail/{id}', [App\Http\Controllers\Rnd\RstGreaseController::class, 'destroyDetail']);
+    Route::post('/generate-report', [App\Http\Controllers\Rnd\RstGreaseController::class, 'generateReport'])->name('generate.report');
 
 
     // Oli

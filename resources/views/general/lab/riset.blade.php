@@ -62,9 +62,79 @@
                             Research Data
                         </h4>
 
-                        <a href="{{route('log-riset-grease.create')}}" class="btn btn-sm btn-soft-primary">
-                            <i class="bx bx-plus me-1"></i>Buat Data Riset
-                        </a>
+                        <div class="data-button d-flex">
+                            <a href="javascript:void(0);" class="btn btn-sm btn-success me-2" data-bs-toggle="modal" data-bs-target="#generateReportModal">
+                                <i class="bx bx-file me-1"></i>Generate Report
+                            </a>
+                            <a href="{{route('log-riset-grease.create')}}" class="btn btn-sm btn-primary">
+                                <i class="bx bx-plus me-1"></i>Buat Data Riset
+                            </a>
+                        </div>
+
+                        <!-- Modal Report -->
+                        <div class="modal fade" id="generateReportModal" tabindex="-1" aria-labelledby="generateReportModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="generateReportModalLabel">Pilih Rentang Waktu</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="generateReportForm" action="{{ route('generate.report') }}" method="POST" target="_blank">
+                                            @csrf
+                                            <div class="mb-3">
+                                                <label for="monthRange" class="form-label">Pilih Rentang Bulan</label>
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <select id="startMonth" class="form-control me-2" name="startMonth">
+                                                            <option value="">Bulan Mulai</option>
+                                                            @foreach(range(1, 12) as $month)
+                                                                <option value="{{ str_pad($month, 2, '0', STR_PAD_LEFT) }}">
+                                                                    {{ \Carbon\Carbon::create()->month($month)->format('F') }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <select id="startYear" class="form-control me-2" name="startYear">
+                                                            <option value="">Tahun Mulai</option>
+                                                            @foreach(range(date('Y') - 5, date('Y')) as $year)
+                                                                <option value="{{ $year }}">{{ $year }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <select id="endMonth" class="form-control me-2" name="endMonth">
+                                                            <option value="">Bulan Akhir</option>
+                                                            @foreach(range(1, 12) as $month)
+                                                                <option value="{{ str_pad($month, 2, '0', STR_PAD_LEFT) }}">
+                                                                    {{ \Carbon\Carbon::create()->month($month)->format('F') }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <select id="endYear" class="form-control" name="endYear">
+                                                            <option value="">Tahun Akhir</option>
+                                                            @foreach(range(date('Y') - 5, date('Y')) as $year)
+                                                                <option value="{{ $year }}">{{ $year }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <button type="submit" class="btn btn-success w-100">Generate Report</button>
+                                            </div>
+                                        </form>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
                 <!-- end card body -->
@@ -291,49 +361,47 @@
     </script>
     <script>
        $(document).ready(function() {
-    // Set up initial visibility and height of the table container
-    $('#reminder-table').css({
-        'transition': 'height 0.5s ease, opacity 0.5s ease',
-        'height': 'auto',
-        'opacity': 1,
-        'visibility': 'visible',
-        'overflow': 'hidden'
-    });
-
-    // Toggle table visibility and collapse with accordion effect
-    $('#toggle-table-btn').on('click', function() {
-        var table = $('#reminder-table'); // Get the table element
-        var cardBody = $('#card-body'); // Get the card body that holds the table
-        var button = $(this); // Get the button element
-
-        if (table.css('opacity') == 1) {
-            // Collapse the table and hide it with a smooth transition
-            cardBody.css({
-                'height': '80px', // Only the header area remains visible
+            // Set up initial visibility and height of the table container
+            $('#reminder-table').css({
+                'transition': 'height 0.5s ease, opacity 0.5s ease',
+                'height': 'auto',
+                'opacity': 1,
+                'visibility': 'visible',
                 'overflow': 'hidden'
             });
-            table.css({
-                'opacity': 0,
-                'visibility': 'hidden'
+
+            // Toggle table visibility and collapse with accordion effect
+            $('#toggle-table-btn').on('click', function() {
+                var table = $('#reminder-table'); // Get the table element
+                var cardBody = $('#card-body'); // Get the card body that holds the table
+                var button = $(this); // Get the button element
+
+                if (table.css('opacity') == 1) {
+                    // Collapse the table and hide it with a smooth transition
+                    cardBody.css({
+                        'height': '80px', // Only the header area remains visible
+                        'overflow': 'hidden'
+                    });
+                    table.css({
+                        'opacity': 0,
+                        'visibility': 'hidden'
+                    });
+
+                    button.text('Show Table'); // Change the button text to "Show Table"
+                } else {
+                    // Expand the table and make it visible with a smooth transition
+                    cardBody.css({
+                        'height': 'auto', // Reset to the natural height of the content
+                        'overflow': 'visible'
+                    });
+                    table.css({
+                        'opacity': 1,
+                        'visibility': 'visible'
+                    });
+
+                    button.text('Hide Table'); // Change the button text to "Hide Table"
+                }
             });
-
-            button.text('Show Table'); // Change the button text to "Show Table"
-        } else {
-            // Expand the table and make it visible with a smooth transition
-            cardBody.css({
-                'height': 'auto', // Reset to the natural height of the content
-                'overflow': 'visible'
-            });
-            table.css({
-                'opacity': 1,
-                'visibility': 'visible'
-            });
-
-            button.text('Hide Table'); // Change the button text to "Hide Table"
-        }
-    });
-});
-
-
+        });
     </script>
 @endsection

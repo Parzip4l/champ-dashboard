@@ -202,5 +202,47 @@ class RstGreaseController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function generateReport(Request $request)
+    {
+        try {
+            // Validasi input
+            $request->validate([
+                'startMonth' => 'required|numeric',
+                'startYear' => 'required|numeric',
+                'endMonth' => 'required|numeric',
+                'endYear' => 'required|numeric',
+            ]);
+
+            // Ambil data bulan dan tahun dari form
+            $startMonth = $request->startMonth;
+            $startYear = $request->startYear;
+            $endMonth = $request->endMonth;
+            $endYear = $request->endYear;
+
+            // Tentukan tanggal mulai dan tanggal akhir berdasarkan bulan dan tahun
+            $startDate = Carbon::createFromFormat('Y-m-d', "{$startYear}-{$startMonth}-01");
+            $endDate = Carbon::createFromFormat('Y-m-d', "{$endYear}-{$endMonth}-01")->endOfMonth();
+
+            // Ambil data dari RisetGreaseMaster berdasarkan rentang tanggal
+            $risetData = RisetGreaseMaster::whereBetween('expected_start_date', [$startDate, $endDate])
+                ->get();
+
+            // Untuk setiap riset, ambil jumlah detail riset
+            $risetDataWithDetails = $risetData->map(function ($riset) {
+                // Ambil jumlah detail untuk riset ini
+                $detailsCount = RisetGreaseDetails::where('master_id', $riset->id)->count();
+                // Tambahkan jumlah detail ke objek riset
+                $riset->details_count = $detailsCount;
+                return $riset;
+            });
+
+            // Kirim data ke view
+            return view('general.lab.riset.report', compact('risetDataWithDetails', 'startDate', 'endDate'));
+            
+        } catch (Exception $e) {
+            // Tangkap error jika terjadi
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
     
 }
