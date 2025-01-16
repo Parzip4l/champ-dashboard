@@ -22,30 +22,31 @@
                         </h4>
                         <a href="javascript:void(0);" class="btn btn-outline-secondary btn-sm" id="toggle-table-btn">Hide Table</a>
                     </div>
-                    
-                    <table class="table table-centered" id="reminder-table">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Improvement Ideas</th>
-                                <th scope="col">Improvement Schedule</th>
-                                <th scope="col">Formulator</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @php 
-                                $no = 1;
-                            @endphp
-                            @foreach($reminder as $dataR)
-                            <tr>
-                                <td>{{$no++}}</td>
-                                <td>{{$dataR->improvement_ideas}}</td>
-                                <td>{{$dataR->improvement_schedule}}</td>
-                                <td>{{$dataR->created_by}}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table table-centered" id="reminder-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Improvement Ideas</th>
+                                    <th scope="col">Improvement Schedule</th>
+                                    <th scope="col">Formulator</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php 
+                                    $no = 1;
+                                @endphp
+                                @foreach($reminder as $dataR)
+                                <tr>
+                                    <td>{{$no++}}</td>
+                                    <td>{{$dataR->improvement_ideas}}</td>
+                                    <td>{{$dataR->improvement_schedule}}</td>
+                                    <td>{{$dataR->created_by}}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
 
                 </div>
             </div>
@@ -103,7 +104,7 @@
                 </div>
 
                 <!-- Table -->
-                <div id="table-search">
+                <div id="table-search" class="table-responsive">
                     <table class="table mb-0">
                         <thead class="bg-light bg-opacity-50">
                             <tr>
