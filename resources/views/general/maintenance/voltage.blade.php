@@ -38,33 +38,21 @@
         fetch('/proxy-api')  // Ganti dengan endpoint yang sesuai
             .then(response => response.json())
             .then(data => {
-                // Cek apakah data ada dan valid
                 if (Array.isArray(data) && data.length > 0) {
-                    const voltageData = data;
-
-                    // Menyaring data hanya untuk hari ini
                     const today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
-                    const filteredData = voltageData.filter(item => {
-                        const createdAtDate = item.created_at.split(' ')[0]; // Mengambil hanya tanggal (YYYY-MM-DD)
-                        return createdAtDate === today;  // Memastikan data untuk hari ini
+
+                    // Filter data hanya untuk hari ini
+                    const filteredData = data.filter(item => {
+                        const createdAtDate = item.created_at.split(' ')[0]; // Mengambil tanggal
+                        return createdAtDate === today;
                     });
 
-                    // Menyusun data untuk grafik
-                    const voltage = filteredData.map(item => parseFloat(item.voltage)); // Mengambil nilai voltage
-                    const createdAt = filteredData.map(item => item.created_at); // Mengambil tanggal
+                    // Ambil nilai voltage dan waktu
+                    voltageValues = filteredData.map(item => parseFloat(item.voltage));
+                    createdAtLabels = filteredData.map(item => item.created_at);
 
-                    // Menambahkan data baru ke array
-                    voltageValues.push(...voltage);
-                    createdAtLabels.push(...createdAt);
-
-                    // Menjaga agar hanya 10 data terbaru yang ditampilkan
-                    if (voltageValues.length > 10) {
-                        voltageValues.shift();
-                        createdAtLabels.shift();
-                    }
-
-                    // Menampilkan grafik
-                    updateChart(voltageValues, createdAtLabels);
+                    // Perbarui grafik
+                    updateChart();
                 } else {
                     console.error("No valid data received", data);
                 }
@@ -73,25 +61,14 @@
     }
 
     // Fungsi untuk memperbarui grafik menggunakan ApexCharts
-    function updateChart(voltageValues, createdAtLabels) {
+    function updateChart() {
         const options = {
             chart: {
                 type: 'line',
                 height: 400,
-                width: voltageValues.length * 50, // Set lebar chart berdasarkan jumlah data
                 zoom: {
-                    enabled: true,  // Enable zooming
-                    type: 'x',      // Enable zooming on the X-axis
-                    zoomedArea: {
-                        fill: {
-                            color: '#90CAF9',
-                            opacity: 0.4
-                        },
-                        stroke: {
-                            color: '#0D47A1',
-                            width: 1
-                        }
-                    }
+                    enabled: true,
+                    type: 'x',
                 },
                 toolbar: {
                     show: true
@@ -107,26 +84,15 @@
                     text: 'Date'
                 },
                 labels: {
-                    rotate: -45,  // Rotasi label agar lebih mudah dibaca
+                    rotate: -45,
                     formatter: function(value) {
-                        var date = new Date(value);
-                        
-                        // Format the date to '01 June 25, 15:30'
-                        var day = date.getDate().toString().padStart(2, '0');
-                        var month = date.toLocaleString('default', { month: 'long' });
-                        var year = date.getFullYear().toString().slice(-2);
-                        
-                        // Get hour and minute
-                        var hours = date.getHours().toString().padStart(2, '0');
-                        var minutes = date.getMinutes().toString().padStart(2, '0');
-                        
-                        return day + ' ' + month + ' ' + year + ', ' + hours + ':' + minutes;
-                    }
-                },
-                tickAmount: 2,
-                labels: {
-                    style: {
-                        fontSize: '12px'
+                        const date = new Date(value);
+                        const day = date.getDate().toString().padStart(2, '0');
+                        const month = date.toLocaleString('default', { month: 'long' });
+                        const year = date.getFullYear().toString().slice(-2);
+                        const hours = date.getHours().toString().padStart(2, '0');
+                        const minutes = date.getMinutes().toString().padStart(2, '0');
+                        return `${day} ${month} ${year}, ${hours}:${minutes}`;
                     }
                 }
             },
@@ -134,8 +100,8 @@
                 title: {
                     text: 'Voltage'
                 },
-                min: 0, // Mulai sumbu Y dari 0
-                max: Math.max(...voltageValues) + 2, // Menyesuaikan batas atas sumbu Y
+                min: 0,
+                max: Math.max(...voltageValues, 10) + 2,
                 tickAmount: 5
             },
             title: {
@@ -149,30 +115,22 @@
                 size: 5
             },
             dataLabels: {
-                enabled: false // Menonaktifkan label data di titik-titik
+                enabled: false
             },
             grid: {
-                show: true,  // Menampilkan grid untuk lebih mudah dibaca
                 borderColor: '#ccc',
                 strokeDashArray: 5
-            },
-            responsive: [{
-                breakpoint: 1000,
-                options: {
-                    chart: {
-                        width: "100%",
-                    }
-                }
-            }]
+            }
         };
 
-        // Cek apakah chart sudah ada sebelumnya, jika ada, perbarui
-        const chart = ApexCharts.getChartByID("voltageChart");
-        if (chart) {
-            chart.updateOptions(options);
+        const chartElement = document.querySelector("#voltageChart");
+        const existingChart = ApexCharts.getChartByID("voltageChart");
+
+        if (existingChart) {
+            existingChart.updateOptions(options);
         } else {
-            const newChart = new ApexCharts(document.querySelector("#voltageChart"), options);
-            newChart.render();
+            const chart = new ApexCharts(chartElement, options);
+            chart.render();
         }
     }
 
@@ -181,10 +139,9 @@
         fetchData();
     });
 
-    // Menyegarkan data setiap 60 detik
+    // Menyegarkan data setiap 10 menit (600000 ms)
     setInterval(() => {
         fetchData();
-    }, 60000); // 60000 ms = 60 detik
-
+    }, 600000);
 </script>
 @endsection
