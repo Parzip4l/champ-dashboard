@@ -199,7 +199,48 @@ class OliController extends Controller
         // Setting Harga Oli
         $hargaOli = HargaOli::all();
 
-        return view('general.inventory.oli.index', compact('oli', 'search', 'totalOliCurrent', 'percentChange', 'chartData', 'filter','hargaOli'));
+        $currentMonthStart = Carbon::now()->startOfMonth();
+        $currentMonthEnd = Carbon::now()->endOfMonth();
+    
+        // Rentang tanggal untuk bulan sebelumnya
+        $lastMonthStart = Carbon::now()->subMonth()->startOfMonth();
+        $lastMonthEnd = Carbon::now()->subMonth()->endOfMonth();
+    
+        // Hitung total oli bulan ini per jenis
+        $totalsThisMonth = Oli::whereBetween('tanggal', [$currentMonthStart, $currentMonthEnd])
+            ->selectRaw('jenis_oli, SUM(total) as total')
+            ->groupBy('jenis_oli')
+            ->pluck('total', 'jenis_oli')
+            ->toArray();
+    
+        // Hitung total oli bulan sebelumnya per jenis
+        $totalsLastMonth = Oli::whereBetween('tanggal', [$lastMonthStart, $lastMonthEnd])
+            ->selectRaw('jenis_oli, SUM(total) as total')
+            ->groupBy('jenis_oli')
+            ->pluck('total', 'jenis_oli')
+            ->toArray();
+    
+        // Pastikan semua jenis oli ada dalam array dengan nilai default 0
+        $jenisOli = ['Trafo', 'Bahan', 'Service', 'Minarex'];
+        foreach ($jenisOli as $jenis) {
+            $totalsThisMonth[$jenis] = $totalsThisMonth[$jenis] ?? 0;
+            $totalsLastMonth[$jenis] = $totalsLastMonth[$jenis] ?? 0;
+        }
+    
+        // Hitung persentase perubahan
+        $percentChangeHarga = [];
+        foreach ($jenisOli as $jenis) {
+            $lastMonth = $totalsLastMonth[$jenis] ?? 0;
+            $thisMonth = $totalsThisMonth[$jenis] ?? 0;
+            if ($lastMonth > 0) {
+                $percentChangeHarga[$jenis] = (($thisMonth - $lastMonth) / $lastMonth) * 100;
+            } else {
+                $percentChangeHarga[$jenis] = $thisMonth > 0 ? 100 : 0;
+            }
+        }
+
+
+        return view('general.inventory.oli.index', compact('oli', 'search', 'totalOliCurrent', 'percentChange', 'chartData', 'filter','hargaOli' ,'totalsThisMonth','percentChangeHarga'));
     }
 
 

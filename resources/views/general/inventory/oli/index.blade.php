@@ -237,6 +237,43 @@
 
 </div> <!-- end row -->
 
+<!-- Card Total -->
+<div class="row">
+    @foreach (['Trafo', 'Bahan', 'Service', 'Minarex'] as $jenis)
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="avatar-md bg-soft-primary rounded">
+                                <iconify-icon icon="hugeicons:dollar-send-02"
+                                              class="avatar-title fs-32 text-primary"></iconify-icon>
+                            </div>
+                        </div>
+                        <div class="col-6 text-end">
+                            <p class="text-muted mb-0 text-truncate">Oli {{ $jenis }}</p>
+                            <h3 id="total-{{ $jenis }}" class="text-dark mt-1 mb-0">Rp 0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer py-2 bg-light bg-opacity-50">
+                    <div class="d-flex align-items-center justify-content-between">
+                        @php
+                            $change = $percentChange[$jenis] ?? 0;
+                            $changeIcon = $change >= 0 ? 'bx bxs-up-arrow' : 'bx bxs-down-arrow';
+                            $changeColor = $change >= 0 ? 'text-success' : 'text-danger';
+                        @endphp
+                        <span class="{{ $changeColor }}">
+                            <i class="{{ $changeIcon }} fs-12"></i> {{ abs(round($change, 1)) }}%
+                        </span>
+                        <span class="text-muted ms-1 fs-12">Last Month</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+</div>
+
 <div class="row">
     <div class="col">
         <div class="card">
@@ -245,6 +282,9 @@
                     <h4 class="card-title">
                         Oli Data
                     </h4>
+                    <div class="d-flex justify-content-end mx-3 mb-3">
+                        <button id="toggle-table-btn" class="btn btn-primary btn-sm">Hide Table</button>
+                    </div>
                 </div>
             </div>
             <!-- end card body -->
@@ -497,5 +537,47 @@
                 }
             });
         }
-    </script>
+    </script><script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggleTableButton = document.getElementById("toggle-table-btn");
+        const tableSearch = document.getElementById("table-search");
+
+        // Atur event listener untuk tombol
+        toggleTableButton.addEventListener("click", function () {
+            // Toggle visibility
+            if (tableSearch.style.display === "none") {
+                tableSearch.style.display = "block"; // Show table
+                toggleTableButton.textContent = "Hide Table"; // Update button text
+            } else {
+                tableSearch.style.display = "none"; // Hide table
+                toggleTableButton.textContent = "Show Table"; // Update button text
+            }
+        });
+    });
+</script>
+<script>
+    // Data dari backend (dikonversi ke JSON)
+    const totals = @json($totalsThisMonth);
+
+    // Fungsi untuk format rupiah singkat
+    function formatRupiahSingkat(number) {
+        if (number >= 1000000000) {
+            return (number / 1000000000).toFixed(1) + ' Miliar';
+        } else if (number >= 1000000) {
+            return (number / 1000000).toFixed(1) + ' Juta';
+        } else if (number >= 1000) {
+            return (number / 1000).toFixed(1) + ' Ribu';
+        } else {
+            return number.toLocaleString('id-ID');
+        }
+    }
+
+    // Update nilai di setiap card
+    Object.keys(totals).forEach(jenis => {
+        const element = document.getElementById(`total-${jenis}`);
+        if (element) {
+            element.textContent = `Rp ${formatRupiahSingkat(totals[jenis])}`;
+        }
+    });
+</script>
 @endsection
