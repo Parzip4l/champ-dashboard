@@ -244,13 +244,13 @@
             <div class="card">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <div class="avatar-md bg-soft-primary rounded">
                                 <iconify-icon icon="hugeicons:dollar-send-02"
                                               class="avatar-title fs-32 text-primary"></iconify-icon>
                             </div>
                         </div>
-                        <div class="col-6 text-end">
+                        <div class="col-8 text-end">
                             <p class="text-muted mb-0 text-truncate">Oli {{ $jenis }}</p>
                             <h3 id="total-{{ $jenis }}" class="text-dark mt-1 mb-0">Rp 0</h3>
                         </div>
