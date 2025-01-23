@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ['title' => 'Voltage Data Mini Excavator'])
+@extends('layouts.vertical', ['title' => 'Arus Listrik Data Mini Excavator'])
 
 @section('content')
 
@@ -14,7 +14,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
                     <h4 class="card-title">
-                        Voltage Data
+                        Arus Data
                     </h4>
                 </div>
                 <div id="chart-container" style="overflow-x: auto; white-space: nowrap;">
@@ -75,7 +75,7 @@
                 }
             },
             series: [{
-                name: 'Voltage',
+                name: 'Arus',
                 data: voltageValues
             }],
             xaxis: {
@@ -98,14 +98,14 @@
             },
             yaxis: {
                 title: {
-                    text: 'Voltage'
+                    text: 'Arus'
                 },
                 min: 0,
                 max: Math.max(...voltageValues, 10) + 2,
                 tickAmount: 5
             },
             title: {
-                text: 'Voltage Data',
+                text: 'Arus Data',
                 align: 'center'
             },
             stroke: {
