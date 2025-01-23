@@ -76,11 +76,11 @@
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-lg-6">
+                            <div class="col-lg-4">
                                 <label for="competitor_comparison" class="form-label">Kompetitor Komparasi</label>
                                 <input type="text" name="details[0][competitor_comparison]" class="form-control" required>
                             </div>
-                            <div class="col-lg-6">
+                            <div class="col-lg-4">
                                 <label for="status" class="form-label">Status</label>
                                 <select name="details[0][status]" class="form-control">
                                     <option value="On Progress">On Progress</option>
@@ -88,6 +88,10 @@
                                     <option value="Done">Done</option>
                                     <option value="Closed">Closed</option>
                                 </select>
+                            </div>
+                            <div class="col-lg-4">
+                                <label for="attachement" class="form-label">Attachment</label>
+                                <input type="file" name="details[0][file]" class="form-control">
                             </div>
                         </div>
                         <button type="button" class="btn btn-danger remove-detail mb-2">Remove</button>
@@ -151,11 +155,11 @@
                 </div>
             </div>
             <div class="row mb-3">
-                <div class="col-lg-6">
+                <div class="col-lg-4">
                     <label for="competitor_comparison" class="form-label">Kompetitor Komparasi</label>
                     <input type="text" name="details[${detailIndex}][competitor_comparison]" class="form-control" required>
                 </div>
-                <div class="col-lg-6">
+                <div class="col-lg-4">
                     <label for="status" class="form-label">Status</label>
                     <select name="details[${detailIndex}][status]" class="form-control">
                         <option value="On Progress">On Progress</option>
@@ -163,6 +167,10 @@
                         <option value="Done">Done</option>
                         <option value="Closed">Closed</option>
                     </select>
+                </div>
+                <div class="col-lg-4">
+                    <label for="attachement" class="form-label">Attachment</label>
+                    <input type="file" name="details[${detailIndex}][file]" class="form-control" required>
                 </div>
             </div>
             <button type="button" class="btn btn-danger remove-detail mb-2">Remove</button>

@@ -78,11 +78,11 @@
                                     </div>
                                 </div>
                                 <div class="row mb-3">
-                                    <div class="col-lg-6">
+                                    <div class="col-lg-4">
                                         <label for="competitor_comparison_{{ $key }}" class="form-label">Kompetitor Komparasi</label>
                                         <input type="text" name="details[{{ $key }}][competitor_comparison]" id="competitor_comparison_{{ $key }}" class="form-control" required value="{{ $detail->competitor_comparison }}">
                                     </div>
-                                    <div class="col-lg-6">
+                                    <div class="col-lg-4">
                                         <label for="status_{{ $key }}" class="form-label">Status</label>
                                         <select name="details[{{ $key }}][status]" id="status_{{ $key }}" class="form-control">
                                             <option value="On Progress">On Progress</option>
@@ -90,6 +90,11 @@
                                             <option value="Done">Done</option>
                                             <option value="Closed">Closed</option>
                                         </select>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <label for="competitor_comparison_{{ $key }}" class="form-label">Kompetitor Komparasi</label>
+                                        <input type="file" name="details[{{ $key }}][file]" id="file{{ $key }}" class="form-control" required value="{{ $detail->attachment }}">
+                                        <p>{{ $detail->attachment }}</p>
                                     </div>
                                 </div>
                                 <button type="button" class="btn btn-danger remove-detail mt-2">Hapus</button>
@@ -146,11 +151,11 @@
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <div class="col-lg-6">
+                    <div class="col-lg-4">
                         <label for="competitor_comparison_${index}" class="form-label">Kompetitor Komparasi</label>
                         <input type="text" name="details[${index}][competitor_comparison]" id="competitor_comparison_${index}" class="form-control" required value="{{ $detail->competitor_comparison }}">
                     </div>
-                    <div class="col-lg-6">
+                    <div class="col-lg-4">
                         <label for="status_${index}" class="form-label">Status</label>
                         <select name="details[${index}][status]" id="status_${index}" class="form-control">
                             <option value="On Progress">On Progress</option>
@@ -158,6 +163,11 @@
                             <option value="Done">Done</option>
                             <option value="Closed">Closed</option>
                         </select>
+                    </div>
+                    <div class="col-lg-4">
+                        <label for="competitor_comparison_${index}" class="form-label">Kompetitor Komparasi</label>
+                        <input type="file" name="details[${index}][file]" id="attachment_${index}" class="form-control" required value="{{ $detail->attachment }}">
+                        <p>{{ $detail->attachment }}</p>
                     </div>
                 </div>
                 <button type="button" class="btn btn-danger remove-detail mt-2">Hapus</button>

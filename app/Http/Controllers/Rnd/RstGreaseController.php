@@ -74,7 +74,7 @@ class RstGreaseController extends Controller
             // Simpan data ke tabel RisetGreaseDetails
             $details = $request->input('details');
 
-            foreach ($details as $detail) {
+            foreach ($details as $index => $detail) {
                 $detailData = new RisetGreaseDetails();
                 $detailData->master_id = $master->id; // Hubungkan dengan master ID
                 $detailData->trial_method = $detail['trial_method'];
@@ -85,6 +85,13 @@ class RstGreaseController extends Controller
                 $detailData->competitor_comparison = $detail['competitor_comparison'];
                 $detailData->status = $detail['status'];
                 $detailData->created_by = $createdBy;
+
+                if ($request->hasFile("details.$index.file")) {
+                    $attachment = $request->file("details.$index.file");
+                    $attachmentPath = $attachment->store('attachments', 'public');
+                    $detailData->attachment = $attachmentPath;
+                }
+
                 $detailData->save();
             }
 
@@ -130,7 +137,7 @@ class RstGreaseController extends Controller
             $details = $request->input('details', []);
             $doneDetails = [];  // Array untuk menyimpan detail dengan status "done"
 
-            foreach ($details as $detail) {
+            foreach ($details as $index => $detail) {
                 if (isset($detail['id'])) {
                     // Update detail yang sudah ada
                     $updatedDetail = RisetGreaseDetails::find($detail['id']);
@@ -144,6 +151,13 @@ class RstGreaseController extends Controller
                             'competitor_comparison' => $detail['competitor_comparison'],
                             'status' => $detail['status'],
                         ]);
+
+                        if ($request->hasFile("details.$index.file")) {
+                            $attachment = $request->file("details.$index.file");
+                            $attachmentPath = $attachment->store('attachments', 'public');
+                            $updatedDetail->attachment = $attachmentPath;
+                            $updatedDetail->save();
+                        }
 
                         if ($detail['status'] === 'Done') {
                             $doneDetails[] = $updatedDetail;
@@ -163,6 +177,13 @@ class RstGreaseController extends Controller
                         'created_by' => $createdBy,
                     ]);
 
+                    if ($request->hasFile("details.$index.file")) {
+                        $attachment = $request->file("details.$index.file");
+                        $attachmentPath = $attachment->store('attachments', 'public');
+                        $newDetail->attachment = $attachmentPath;
+                        $newDetail->save();
+                    }
+
                     if ($detail['status'] === 'Done') {
                         $doneDetails[] = $newDetail;
                     }
@@ -173,7 +194,7 @@ class RstGreaseController extends Controller
 
             // Kirim data ke Slack hanya jika ada detail dengan status "done"
             if (!empty($doneDetails)) {
-                $slackChannel = Slack::where('channel', 'test')->first();
+                $slackChannel = Slack::where('channel', 'rnd')->first();
                 $slackWebhookUrl = $slackChannel->url;
 
                 $attachments = [];

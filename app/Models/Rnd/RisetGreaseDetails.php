@@ -18,6 +18,7 @@ class RisetGreaseDetails extends Model
         'competitor_comparison',
         'status',
         'created_by',
+        'attachment'
     ];
 
     public function master()
