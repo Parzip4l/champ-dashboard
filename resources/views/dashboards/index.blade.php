@@ -349,7 +349,7 @@
                     pan: false,      // Disable panning
                     reset: true      // Enable reset button
                 },
-            } // Enable stacking
+            },
             events: {
                 selection: function (chart, e) {
                     console.log(new Date(e.xaxis.min));  // Log selected date range
