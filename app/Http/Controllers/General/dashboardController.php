@@ -237,6 +237,8 @@ class dashboardController extends Controller
 
             $chartData['labels'] = $labels;
 
+            $listorder = ListOrder::orderBy('created_at', 'desc')->take(10)->get();
+
 
             
             return view('dashboards.index', [
@@ -250,7 +252,8 @@ class dashboardController extends Controller
                 'topProductCurrentMonth' => $topProductCurrentMonth,
                 'percentageChangetopProduct' => $percentageChangetopProduct,
                 'chartData' => $chartData,
-                'filter' => $filter
+                'filter' => $filter,
+                'dataorder' => $listorder
 
             ]);
         } catch (Exception $e) {
