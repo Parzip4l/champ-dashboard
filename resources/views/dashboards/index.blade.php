@@ -277,7 +277,7 @@
                                 @foreach($data->orderItems as $item)
                                 <tr>
                                     <td class="ps-3">
-                                        <a href="#">{{ $order->distributor->name ?? 'N/A' }}</a>
+                                        <a href="#">{{ $data->distributor->name ?? 'N/A' }}</a>
                                     </td>
                                     <td>{{ $item->product->name ?? 'N/A' }}</td>
                                     <td>
@@ -285,7 +285,7 @@
                                     </td>
                                     <td>{{ $item->jumlah_kirim }}</td>
                                     <td>{{ $item->sisa_belum_kirim ?? '0' }}</td>
-                                    <td>{{ $order->status ?? 'N/A' }}</td>
+                                    <td>{{ $data->status ?? 'N/A' }}</td>
                                     <td>{{ $item->sales ?? 'N/A' }}</td>
                                 </tr>
                                 @endforeach
