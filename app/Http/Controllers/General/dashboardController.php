@@ -237,7 +237,7 @@ class dashboardController extends Controller
 
             $chartData['labels'] = $labels;
 
-            $listorder = ListOrder::orderBy('created_at', 'desc')->take(10)->get();
+            $listorder = ListOrder::orderBy('created_at', 'desc')->take(5)->get();
 
 
             
