@@ -93,7 +93,7 @@
                                     </div>
                                     <div class="col-lg-4">
                                         <label for="competitor_comparison_{{ $key }}" class="form-label">Attachment</label>
-                                        <input type="file" name="details[{{ $key }}][file]" id="file{{ $key }}" class="form-control" required value="{{ $detail->attachment }}">
+                                        <input type="file" name="details[{{ $key }}][file]" id="file{{ $key }}" class="form-control" value="{{ $detail->attachment }}">
                                         <p>{{ $detail->attachment }}</p>
                                     </div>
                                 </div>
