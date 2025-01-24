@@ -338,7 +338,18 @@
         chart: {
             type: 'area',  // Change chart type to area
             height: 350,   // Set height to 350px
-            stacked: true, // Enable stacking
+            stacked: true,
+            toolbar: {
+                tools: {
+                    download: true, // Disable the download button
+                    selection: false, // Enable selection tool
+                    zoom: false,     // Disable zooming
+                    zoomin: false,   // Disable zoom in
+                    zoomout: false,  // Disable zoom out
+                    pan: false,      // Disable panning
+                    reset: true      // Enable reset button
+                },
+            } // Enable stacking
             events: {
                 selection: function (chart, e) {
                     console.log(new Date(e.xaxis.min));  // Log selected date range
