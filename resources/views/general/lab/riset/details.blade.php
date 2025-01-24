@@ -92,26 +92,39 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="title">
-                                                <h5>Status :</h5>
-                                            </div>
-                                            <div class="content-details">
-                                                <a class="btn btn-sm 
-                                                    @if($detail->status == 'On Progress')
-                                                        btn-primary
-                                                    @elseif($detail->status == 'Done')
-                                                        btn-success
-                                                    @elseif($detail->status == 'On Hold')
-                                                        btn-danger
-                                                    @elseif($detail->status == 'Closed')
-                                                        btn-secondary
-                                                    @else
-                                                        btn-secondary  <!-- Default if none of the above matches -->
-                                                    @endif
-                                                ">
-                                                    {{$detail->status}}
-                                                </a>
-                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <div class="data">
+                                                    <div class="title">
+                                                        <h5>Status :</h5>
+                                                    </div>
+                                                    <div class="content-details">
+                                                        <a class="btn btn-sm 
+                                                            @if($detail->status == 'On Progress')
+                                                                btn-primary
+                                                            @elseif($detail->status == 'Done')
+                                                                btn-success
+                                                            @elseif($detail->status == 'On Hold')
+                                                                btn-danger
+                                                            @elseif($detail->status == 'Closed')
+                                                                btn-secondary
+                                                            @else
+                                                                btn-secondary  <!-- Default if none of the above matches -->
+                                                            @endif
+                                                        ">
+                                                            {{$detail->status}}
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                @if($detail->attachment)
+                                                <div class="data flex-end">
+                                                    <div class="title">
+                                                        <h5>Attachment :</h5>
+                                                    </div>
+                                                    <a href="{{ asset('storage/' . $detail->attachment) }}" target="_blank" class="btn btn-sm btn-success">View Attachment</a>
+                                                </div>
+                                                @endif
+                                            </div>  
+                                            
                                             
                                         </div>
                                     </div>

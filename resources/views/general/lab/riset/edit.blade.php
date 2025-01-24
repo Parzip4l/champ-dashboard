@@ -94,7 +94,9 @@
                                     <div class="col-lg-4">
                                         <label for="competitor_comparison_{{ $key }}" class="form-label">Attachment</label>
                                         <input type="file" name="details[{{ $key }}][file]" id="file{{ $key }}" class="form-control" value="{{ $detail->attachment }}">
-                                        <p>{{ $detail->attachment }}</p>
+                                        @if($detail->attachment)
+                                        <a href="{{ asset('storage/' . $detail->attachment) }}" target="_blank" class="btn btn-sm btn-success mt-2">View Attachment</a>
+                                        @endif
                                     </div>
                                 </div>
                                 <button type="button" class="btn btn-danger remove-detail mt-2">Hapus</button>
