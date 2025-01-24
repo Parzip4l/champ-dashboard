@@ -85,14 +85,14 @@
                                     <div class="col-lg-4">
                                         <label for="status_{{ $key }}" class="form-label">Status</label>
                                         <select name="details[{{ $key }}][status]" id="status_{{ $key }}" class="form-control">
-                                            <option value="On Progress">On Progress</option>
-                                            <option value="On Hold">On Hold</option>
-                                            <option value="Done">Done</option>
-                                            <option value="Closed">Closed</option>
+                                            <option value="On Progress" {{ $detail->status == 'On Progress' ? 'selected' : '' }}>On Progress</option>
+                                            <option value="On Hold" {{ $detail->status == 'On Hold' ? 'selected' : '' }}>On Hold</option>
+                                            <option value="Done" {{ $detail->status == 'Done' ? 'selected' : '' }}>Done</option>
+                                            <option value="Closed" {{ $detail->status == 'Closed' ? 'selected' : '' }}>Closed</option>
                                         </select>
                                     </div>
                                     <div class="col-lg-4">
-                                        <label for="competitor_comparison_{{ $key }}" class="form-label">Kompetitor Komparasi</label>
+                                        <label for="competitor_comparison_{{ $key }}" class="form-label">Attachment</label>
                                         <input type="file" name="details[{{ $key }}][file]" id="file{{ $key }}" class="form-control" required value="{{ $detail->attachment }}">
                                         <p>{{ $detail->attachment }}</p>
                                     </div>
@@ -158,15 +158,15 @@
                     <div class="col-lg-4">
                         <label for="status_${index}" class="form-label">Status</label>
                         <select name="details[${index}][status]" id="status_${index}" class="form-control">
-                            <option value="On Progress">On Progress</option>
-                            <option value="On Hold">On Hold</option>
-                            <option value="Done">Done</option>
-                            <option value="Closed">Closed</option>
+                            <option value="On Progress" {{ $detail->status == 'On Progress' ? 'selected' : '' }}>On Progress</option>
+                            <option value="On Hold" {{ $detail->status == 'On Hold' ? 'selected' : '' }}>On Hold</option>
+                            <option value="Done" {{ $detail->status == 'Done' ? 'selected' : '' }}>Done</option>
+                            <option value="Closed" {{ $detail->status == 'Closed' ? 'selected' : '' }}>Closed</option>
                         </select>
                     </div>
                     <div class="col-lg-4">
-                        <label for="competitor_comparison_${index}" class="form-label">Kompetitor Komparasi</label>
-                        <input type="file" name="details[${index}][file]" id="attachment_${index}" class="form-control" required value="{{ $detail->attachment }}">
+                        <label for="competitor_comparison_${index}" class="form-label">Attachment</label>
+                        <input type="file" name="details[${index}][file]" id="attachment_${index}" class="form-control" value="{{ $detail->attachment }}">
                         <p>{{ $detail->attachment }}</p>
                     </div>
                 </div>
