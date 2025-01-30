@@ -100,7 +100,7 @@ class DeliveryOrder extends Controller
                 $orderItem->save();
             }
 
-            $slackChannel = Slack::where('channel', 'tes')->first();
+            $slackChannel = Slack::where('channel', 'Pengiriman')->first();
 
             if (!$slackChannel) {
                 return redirect()->back()->with('error', 'Slack channel not found.');
@@ -285,7 +285,7 @@ class DeliveryOrder extends Controller
                 }
             }
 
-            $slackChannel = Slack::where('channel', 'tes')->first();
+            $slackChannel = Slack::where('channel', 'Pengiriman')->first();
 
             if (!$slackChannel) {
                 return redirect()->back()->with('error', 'Slack channel not found.');
