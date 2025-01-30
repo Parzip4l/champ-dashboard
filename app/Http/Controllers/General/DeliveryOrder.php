@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 // Model
 use App\Models\General\ListOrder;
@@ -79,6 +80,11 @@ class DeliveryOrder extends Controller
             $listOrder->ppn = $request->ppn;
             $listOrder->ekspedisi = $request->ekspedisi;
             $listOrder->status = $request->status;
+            if ($request->hasFile('delivery_attachment')) {
+                $attachment = $request->file("delivery_attachment");
+                $path = $image->store('delivery_attachment', 'public');
+                $listOrder->delivery_attachment = $path;
+            }
             $listOrder->save();
 
             // Now create order items using the validated data
@@ -94,7 +100,7 @@ class DeliveryOrder extends Controller
                 $orderItem->save();
             }
 
-            $slackChannel = Slack::where('channel', 'Pengiriman')->first();
+            $slackChannel = Slack::where('channel', 'tes')->first();
 
             if (!$slackChannel) {
                 return redirect()->back()->with('error', 'Slack channel not found.');
@@ -233,7 +239,12 @@ class DeliveryOrder extends Controller
             $listOrder->maks_kirim = Carbon::parse($request->tanggal_order)->addDays(7); // Set max shipping date
             $listOrder->ppn = $request->ppn;
             $listOrder->ekspedisi = $request->ekspedisi;
-            $listOrder->status = $request->status; // Update only the status
+            $listOrder->status = $request->status;
+            if ($request->hasFile('delivery_attachment')) {
+                $attachment = $request->file("delivery_attachment");
+                $path = $attachment->store('delivery_attachment', 'public');
+                $listOrder->delivery_attachment = $path;
+            }
             $listOrder->save();
 
             // Only update order items if there are changes in the order_items field
@@ -274,7 +285,7 @@ class DeliveryOrder extends Controller
                 }
             }
 
-            $slackChannel = Slack::where('channel', 'Pengiriman')->first();
+            $slackChannel = Slack::where('channel', 'tes')->first();
 
             if (!$slackChannel) {
                 return redirect()->back()->with('error', 'Slack channel not found.');
@@ -286,8 +297,12 @@ class DeliveryOrder extends Controller
 
             foreach ($request->order_items as $item) {
                 $productName = Product::where('id',$item['nama_produk'])->first();
+
+                $imageUrl = $listOrder->delivery_attachment ? asset('storage/' . $listOrder->delivery_attachment) : null;
+
                 $attachments[] = [
                     'title' => 'Details Product Order',
+                    
                     'fields' => [
                         [
                             'title' => 'Product',
@@ -312,6 +327,11 @@ class DeliveryOrder extends Controller
                         [
                             'title' => 'Sisa Kirim',
                             'value' => $item['sisa_belum_kirim'],
+                            'short' => true,
+                        ],
+                        [
+                            'title' => 'Foto Surat Jalan',
+                            'value' => $imageUrl,
                             'short' => true,
                         ],
                         [
