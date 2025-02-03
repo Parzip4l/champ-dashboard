@@ -79,6 +79,7 @@ class dashboardController extends Controller
             } else {
                 $percentageChangetopProduct = 0;
             }
+            
 
             // Top Produk - Produk yang Laku
             $topProducts = OrderItem::select('products.name as nama_produk', 
