@@ -73,9 +73,11 @@ class dashboardController extends Controller
 
             // Calculate the percentage change for the product's total delivered
             $percentageChangetopProduct = 0;
-            if ($topProductPreviousMonth && $topProductPreviousMonth->total_delivered > 0) {
-            $percentageChangetopProduct = (($topProductCurrentMonth->total_delivered - $topProductPreviousMonth->total_delivered) 
-                            / $topProductPreviousMonth->total_delivered) * 100;
+            if ($topProductPreviousMonth?->total_delivered > 0) {
+                $percentageChangetopProduct = (($topProductCurrentMonth->total_delivered - $topProductPreviousMonth->total_delivered) 
+                                / $topProductPreviousMonth->total_delivered) * 100;
+            } else {
+                $percentageChangetopProduct = 0;
             }
 
             // Top Produk - Produk yang Laku
