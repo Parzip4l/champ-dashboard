@@ -47,7 +47,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-lg-3">
+                        <div class="col-lg-4">
                             <label for="weight-product" class="form-label">PPN</label>
                             <select class="form-control" name="ppn" id="weight-product" data-placeholder="Select PPn">
                                 <option value="">Choose a PPn</option>
@@ -55,16 +55,16 @@
                                 <option value="Non Ppn" {{ $listOrder->ppn == 'Non Ppn' ? 'selected' : '' }}>Non Ppn</option>
                             </select>
                         </div>
-                        <div class="col-lg-3">
+                        <div class="col-lg-4">
                             <div class="mb-3">
                                 <label for="size-product" class="form-label">Ekspedisi</label>
                                 <input type="text" name="ekspedisi" id="size-product" class="form-control" value="{{ $listOrder->ekspedisi }}">
                             </div>
                         </div>
-                        <div class="col-lg-3">
+                        <div class="col-lg-4">
                             <div class="mb-3">
                                 <label for="size-product" class="form-label">Status</label>
-                                <select class="form-control" name="status" id="weight-product" data-choices data-choices-groups data-placeholder="Select Status">
+                                <select class="form-control" name="status" id="status-select" data-choices data-choices-groups data-placeholder="Select Status" onchange="toggleAttachmentInput()">
                                     <option value="">Choose a Status</option>
                                     <option value="Delivered" {{ $listOrder->status == 'Delivered' ? 'selected' : '' }}>Delivered</option>
                                     <option value="Delayed" {{ $listOrder->status == 'Delayed' ? 'selected' : '' }}>Delayed</option>
@@ -73,7 +73,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-lg-3">
+                        <div class="col-lg-4">
                             <div class="mb-3">
                                 <label for="size-product" class="form-label">Sales</label>
                                 <select class="form-control" name="sales" id="weight-product" data-choices data-choices-groups data-placeholder="Select Sales" name="choices-single-groups">
@@ -82,6 +82,15 @@
                                     <option value="{{$data->name}}">{{$data->name}}</option>
                                     @endforeach
                                 </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-4" id="attachment-input" style="display: {{ $listOrder->status == 'Delivered' ? 'block' : 'none' }};">
+                            <div class="mb-3">
+                                <label for="delivery-attachment" class="form-label">Delivery Attachment</label>
+                                <input type="file" class="form-control" id="delivery-attachment" name="delivery_attachment">
+                                @if($listOrder->delivery_attachment)
+                                    <small class="text-muted">Current file: {{ basename($listOrder->delivery_attachment) }}</small>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -232,5 +241,16 @@
         attachEventListenersToAllRows(); // Inisialisasi untuk baris pertama
     });
 </script>
-
+<script>
+function toggleAttachmentInput() {
+    const statusSelect = document.getElementById('status-select');
+    const attachmentInput = document.getElementById('attachment-input');
+    
+    if (statusSelect.value === 'Delivered') {
+        attachmentInput.style.display = 'block';
+    } else {
+        attachmentInput.style.display = 'none';
+    }
+}
+</script>
 @endsection
