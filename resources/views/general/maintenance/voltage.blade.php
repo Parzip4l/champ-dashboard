@@ -60,16 +60,18 @@
                 if (Array.isArray(data) && data.length > 0) {
                     const today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
 
-                    // Filter data hanya untuk hari ini
-                    const filteredData = data.filter(item => {
+                    // Filter data hanya untuk hari ini (untuk grafik)
+                    const filteredDataForChart = data.filter(item => {
                         const createdAtDate = item.created_at.split(' ')[0]; // Ambil tanggal dari created_at
                         return createdAtDate === today;
                     });
 
-                    // Ambil nilai voltage dan waktu
-                    voltageValues = filteredData.map(item => parseFloat(item.voltage));
-                    createdAtLabels = filteredData.map(item => item.created_at);
-                    tableData = filteredData.map((item, index) => [index + 1, item.created_at, item.voltage]);
+                    // Ambil nilai voltage dan waktu untuk grafik
+                    voltageValues = filteredDataForChart.map(item => parseFloat(item.voltage));
+                    createdAtLabels = filteredDataForChart.map(item => item.created_at);
+
+                    // Ambil semua data untuk tabel
+                    tableData = data.map((item, index) => [index + 1, item.created_at, item.voltage]);
 
                     // Perbarui grafik dan tabel
                     updateChart();
