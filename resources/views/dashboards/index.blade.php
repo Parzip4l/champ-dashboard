@@ -446,13 +446,13 @@
     chart.render();
 </script>
 <script>
- // Ambil data dari PHP
+// Ambil data dari PHP
 const chartData2 = @json($chartData);
 
 // Objek untuk menyimpan kategori yang telah digabungkan
 let groupedData = {};
 
-// Loop melalui data dan kelompokkan berdasarkan kata kunci
+// Loop melalui data dan kelompokkan berdasarkan kategori utama
 chartData2.series.forEach(series => {
     let itemName = series.name;
     let totalOrder = series.data.reduce((sum, value) => sum + value, 0); // Total orderan
@@ -461,12 +461,12 @@ chartData2.series.forEach(series => {
     let weight = weightMatch ? parseInt(weightMatch[1]) : 15; // Jika tidak ada, default ke 15kg
 
     // Jika produk adalah "Heavy Loader 24x1", gunakan perhitungan khusus
-    if (itemName.includes("Heavy Loader 24x1")) {
+    if (itemName.toLowerCase().includes("heavy loader 24x1")) {
         weight = 24 * 0.45; // 1 dus = 24 pot, 1 pot = 0.45 kg
     }
 
-    // Bersihkan nama produk tanpa beratnya
-    itemName = itemName.replace(/\d+\s*kg/i, '').trim(); 
+    // Bersihkan nama produk agar kategori utama saja yang dihitung
+    let cleanName = itemName.replace(/\d+\s*kg/i, '').trim(); 
 
     // Konversi total order ke kilogram
     let totalKg = totalOrder * weight;
@@ -475,10 +475,10 @@ chartData2.series.forEach(series => {
     let totalTon = totalKg / 1000;
 
     // Jika kategori sudah ada, tambahkan jumlahnya
-    if (groupedData[itemName]) {
-        groupedData[itemName] += totalTon;
+    if (groupedData[cleanName]) {
+        groupedData[cleanName] += totalTon;
     } else {
-        groupedData[itemName] = totalTon;
+        groupedData[cleanName] = totalTon;
     }
 });
 
