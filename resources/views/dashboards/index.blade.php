@@ -446,7 +446,7 @@
     chart.render();
 </script>
 <script>
-    // Ambil data dari PHP
+ // Ambil data dari PHP
 const chartData2 = @json($chartData);
 
 // Objek untuk menyimpan kategori yang telah digabungkan
@@ -455,42 +455,30 @@ let groupedData = {};
 // Loop melalui data dan kelompokkan berdasarkan kata kunci
 chartData2.series.forEach(series => {
     let itemName = series.name;
-    let totalValue = series.data.reduce((sum, value) => sum + value, 0); // Jumlahkan semua data dalam kategori ini
+    let totalOrder = series.data.reduce((sum, value) => sum + value, 0); // Total orderan
 
-    // Tentukan nama kategori berdasarkan pola tertentu
-    if (itemName.includes("Power")) {
-        itemName = "Power";
-    } else if (itemName.includes("Supreme")) {
-        itemName = "Supreme";
-    } else if (itemName.includes("Wheel")) {
-        itemName = "Wheel";
-    } else if (itemName.includes("F300")) {
-        itemName = "F300";
-    } else if (itemName.includes("Activ")) {
-        itemName = "Activ";
-    } else if (itemName.includes("Kuhl")) {
-        itemName = "Kuhl";
-    } else if (itemName.includes("Optima")) {
-        itemName = "Optima";
-    } else if (itemName.includes("Xtreme")) {
-        itemName = "Xtreme";
-    } else if (itemName.includes("Super")) {
-        itemName = "Super";
+    let weightMatch = itemName.match(/(\d+)\s*kg/i); // Cari angka + "kg"
+    let weight = weightMatch ? parseInt(weightMatch[1]) : 15; // Jika tidak ada, default ke 15kg
+
+    // Jika produk adalah "Heavy Loader 24x1", gunakan perhitungan khusus
+    if (itemName.includes("Heavy Loader 24x1")) {
+        weight = 24 * 0.45; // 1 dus = 24 pot, 1 pot = 0.45 kg
     }
 
-    // Konversi unit ke ton
-    if (itemName.includes("kg")) {
-        let weightPerUnit = parseFloat(itemName.match(/\d+/)); // Ambil angka dari nama produk (misal "15 kg" -> 15)
-        totalValue = (totalValue * weightPerUnit) / 1000; // Konversi ke ton
-    } else if (itemName.includes("Heavy Loader 24x1")) {
-        totalValue = (totalValue * 10.8) / 1000; // Konversi Heavy Loader ke ton
-    }
+    // Bersihkan nama produk tanpa beratnya
+    itemName = itemName.replace(/\d+\s*kg/i, '').trim(); 
 
-    // Simpan hasil dalam groupedData
+    // Konversi total order ke kilogram
+    let totalKg = totalOrder * weight;
+
+    // Konversi ke ton (1 ton = 1000 kg)
+    let totalTon = totalKg / 1000;
+
+    // Jika kategori sudah ada, tambahkan jumlahnya
     if (groupedData[itemName]) {
-        groupedData[itemName] += totalValue;
+        groupedData[itemName] += totalTon;
     } else {
-        groupedData[itemName] = totalValue;
+        groupedData[itemName] = totalTon;
     }
 });
 
@@ -510,14 +498,14 @@ const options2 = {
     legend: {
         position: 'bottom',
         onItemClick: {
-            toggleDataSeries: true // Pastikan legend benar-benar menghilangkan data
+            toggleDataSeries: true
         }
     },
     tooltip: {
         y: {
             formatter: function(val, opts) {
                 let index = opts.seriesIndex;
-                return `<span style="color:#000!important;">${pieLabels[index]}: ${val.toFixed(2)} Ton</span>`; 
+                return `<span style="color:#000!important;">${pieLabels[index]}: ${val.toFixed(2)} Ton</span>`;
             }
         }
     },
@@ -527,7 +515,7 @@ const options2 = {
             return `${pieSeries[index].toFixed(2)}`;
         },
         style: {
-            colors: ['#000'] // Warna hitam untuk teks data labels
+            colors: ['#000']
         }
     }
 };
