@@ -460,13 +460,23 @@ chartData2.series.forEach(series => {
     let weightMatch = itemName.match(/(\d+)\s*kg/i); // Cari angka + "kg"
     let weight = weightMatch ? parseInt(weightMatch[1]) : 15; // Jika tidak ada, default ke 15kg
 
+    // Map nama produk agar variasi ukuran tidak mempengaruhi kategori utama
+    let productMapping = {
+        "Heavy Loader 24x1": "Heavy Loader",
+        "Supreme 24x1": "Supreme",
+        "Power 60x1": "Power"
+    };
+
+    // Bersihkan nama produk agar kategori utama saja yang dihitung
+    let cleanName = itemName.replace(/\d+\s*kg/i, '').trim();
+
+    // Jika produk ada dalam mapping, gunakan nama yang telah dikoreksi
+    cleanName = productMapping[cleanName] || cleanName;
+
     // Jika produk adalah "Heavy Loader 24x1", gunakan perhitungan khusus
     if (itemName.toLowerCase().includes("heavy loader 24x1")) {
         weight = 24 * 0.45; // 1 dus = 24 pot, 1 pot = 0.45 kg
     }
-
-    // Bersihkan nama produk agar kategori utama saja yang dihitung
-    let cleanName = itemName.replace(/\d+\s*kg/i, '').trim(); 
 
     // Konversi total order ke kilogram
     let totalKg = totalOrder * weight;
