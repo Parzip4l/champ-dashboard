@@ -457,34 +457,25 @@ chartData2.series.forEach(series => {
     let itemName = series.name;
     let totalOrder = series.data.reduce((sum, value) => sum + value, 0); // Total orderan
 
-    // Menentukan kategori utama untuk pengelompokan
+    // Menentukan kategori utama dengan regex
     let cleanName;
     let weight;
 
-    if (itemName.toLowerCase().includes("supreme 24x1")) {
+    if (/supreme/i.test(itemName)) {
         cleanName = "Supreme"; 
-        weight = 24 * 0.4; // 24 pot x 0.4 kg = 9.6 kg per dus
-    } else if (itemName.toLowerCase().includes("heavy loader 24x1")) {
+    } else if (/heavy loader/i.test(itemName)) {
         cleanName = "Heavy Loader"; 
-        weight = 24 * 0.45; // 24 pot x 0.45 kg = 10.8 kg per dus
-    } else if (itemName.toLowerCase().includes("power 60x1")) {
+    } else if (/power/i.test(itemName)) {
         cleanName = "Power"; 
-        weight = 6; // 6 kg per dus
+    } else if (/optima/i.test(itemName)) {
+        cleanName = "Optima";
     } else {
-        // Map produk lain agar tetap masuk dalam kategori utama
-        let productMapping = {
-            "Heavy Loader 24x1": "Heavy Loader",
-            "Supreme 24x1": "Supreme",
-            "Power 60x1": "Power"
-        };
-
-        // Bersihkan nama produk agar variasi ukuran tidak mempengaruhi kategori utama
-        cleanName = productMapping[itemName] || itemName;
-
-        // Ambil angka kg dari nama produk jika ada
-        let weightMatch = itemName.match(/(\d+)\s*kg/i);
-        weight = weightMatch ? parseInt(weightMatch[1]) : 14; // Jika tidak ada, default 14 kg
+        cleanName = itemName.replace(/\d+\s*kg/gi, '').trim(); // Hapus angka KG di belakang
     }
+
+    // Ambil angka kg dari nama produk jika ada
+    let weightMatch = itemName.match(/(\d+)\s*kg/i);
+    weight = weightMatch ? parseInt(weightMatch[1]) : 14; // Jika tidak ada, default 14 kg
 
     // Konversi total order ke kilogram
     let totalKg = totalOrder * weight;
