@@ -152,7 +152,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h4 class="card-title">Performance</h4>
+                        <h4 class="card-title">Performance dalam Tonase</h4>
                         <div>
                             <a href="{{ route('dashboard.index', array_merge(request()->all(), ['filter' => '1M'])) }}" type="button" class="btn btn-sm btn-outline-light {{ $filter == '1M' ? 'active' : '' }}">1M</a>
                             <a href="{{ route('dashboard.index', array_merge(request()->all(), ['filter' => '6M'])) }}" type="button" class="btn btn-sm btn-outline-light {{ $filter == '6M' ? 'active' : '' }}">6M</a>
@@ -445,91 +445,96 @@
     const chart = new ApexCharts(document.querySelector("#dash-performance-chart"), options);
     chart.render();
 </script>
-
 <script>
     // Ambil data dari PHP
-    const chartData2 = @json($chartData);
+const chartData2 = @json($chartData);
 
-    // Objek untuk menyimpan kategori yang telah digabungkan
-    let groupedData = {};
+// Objek untuk menyimpan kategori yang telah digabungkan
+let groupedData = {};
 
-    // Loop melalui data dan kelompokkan berdasarkan kata kunci
-    chartData2.series.forEach(series => {
-        let itemName = series.name;
+// Loop melalui data dan kelompokkan berdasarkan kata kunci
+chartData2.series.forEach(series => {
+    let itemName = series.name;
+    let totalValue = series.data.reduce((sum, value) => sum + value, 0); // Jumlahkan semua data dalam kategori ini
 
-        // Tentukan nama kategori berdasarkan pola tertentu
-        if (itemName.includes("Power")) {
-            itemName = "Power";
-        } else if (itemName.includes("Supreme")) {
-            itemName = "Supreme";
-        } else if (itemName.includes("Wheel")) {
-            itemName = "Wheel";
-        } else if (itemName.includes("F300")) {
-            itemName = "F300";
-        } else if (itemName.includes("Activ")) {
-            itemName = "Activ";
-        } else if (itemName.includes("Kuhl")) {
-            itemName = "Kuhl";
-        } else if (itemName.includes("Optima")) {
-            itemName = "Optima";
-        } else if (itemName.includes("Xtreme")) {
-            itemName = "Xtreme";
-        } else if (itemName.includes("Super")) {
-            itemName = "Super";
-        } else {
-            itemName = itemName; // Jika tidak cocok, pakai nama aslinya
+    // Tentukan nama kategori berdasarkan pola tertentu
+    if (itemName.includes("Power")) {
+        itemName = "Power";
+    } else if (itemName.includes("Supreme")) {
+        itemName = "Supreme";
+    } else if (itemName.includes("Wheel")) {
+        itemName = "Wheel";
+    } else if (itemName.includes("F300")) {
+        itemName = "F300";
+    } else if (itemName.includes("Activ")) {
+        itemName = "Activ";
+    } else if (itemName.includes("Kuhl")) {
+        itemName = "Kuhl";
+    } else if (itemName.includes("Optima")) {
+        itemName = "Optima";
+    } else if (itemName.includes("Xtreme")) {
+        itemName = "Xtreme";
+    } else if (itemName.includes("Super")) {
+        itemName = "Super";
+    }
+
+    // Konversi unit ke ton
+    if (itemName.includes("kg")) {
+        let weightPerUnit = parseFloat(itemName.match(/\d+/)); // Ambil angka dari nama produk (misal "15 kg" -> 15)
+        totalValue = (totalValue * weightPerUnit) / 1000; // Konversi ke ton
+    } else if (itemName.includes("Heavy Loader 24x1")) {
+        totalValue = (totalValue * 10.8) / 1000; // Konversi Heavy Loader ke ton
+    }
+
+    // Simpan hasil dalam groupedData
+    if (groupedData[itemName]) {
+        groupedData[itemName] += totalValue;
+    } else {
+        groupedData[itemName] = totalValue;
+    }
+});
+
+// Ambil hasil pengelompokan dalam bentuk array
+const pieLabels = Object.keys(groupedData);
+const pieSeries = Object.values(groupedData);
+
+// Define Pie Chart options
+const options2 = {
+    series: pieSeries,
+    chart: {
+        type: 'pie',
+        height: 350
+    },
+    labels: pieLabels, // Nama kategori sebagai label
+    colors: ['#22c55e', '#c0392b', '#e74c3c', '#2980b9', '#1abc9c', '#f1c40f', '#8e44ad'],
+    legend: {
+        position: 'bottom',
+        onItemClick: {
+            toggleDataSeries: true // Pastikan legend benar-benar menghilangkan data
         }
-
-        // Jika kategori sudah ada, tambahkan jumlahnya
-        if (groupedData[itemName]) {
-            groupedData[itemName] += series.data.reduce((sum, value) => sum + value, 0);
-        } else {
-            groupedData[itemName] = series.data.reduce((sum, value) => sum + value, 0);
-        }
-    });
-
-    // Ambil hasil pengelompokan dalam bentuk array
-    const pieLabels = Object.keys(groupedData);
-    const pieSeries = Object.values(groupedData);
-
-    // Define Pie Chart options
-    const options2 = {
-        series: pieSeries,
-        chart: {
-            type: 'pie',
-            height: 350
-        },
-        labels: pieLabels, // Nama kategori sebagai label
-        colors: ['#22c55e', '#c0392b', '#e74c3c', '#2980b9', '#1abc9c', '#f1c40f', '#8e44ad'],
-        legend: {
-            position: 'bottom',
-            onItemClick: {
-                toggleDataSeries: true // Pastikan legend benar-benar menghilangkan data
-            }
-        },
-        tooltip: {
-            y: {
-                formatter: function(val, opts) {
-                    let index = opts.seriesIndex;
-                    return `<span style="color:#000!important;">${pieLabels[index]}: ${val} Pail</span>`; 
-                }
-            }
-        },
-        dataLabels: {
+    },
+    tooltip: {
+        y: {
             formatter: function(val, opts) {
                 let index = opts.seriesIndex;
-                return `${pieSeries[index]}`;
-            },
-            style: {
-                colors: ['#000'] // Warna hitam untuk teks data labels
+                return `<span style="color:#000!important;">${pieLabels[index]}: ${val.toFixed(2)} Ton</span>`; 
             }
         }
-    };
+    },
+    dataLabels: {
+        formatter: function(val, opts) {
+            let index = opts.seriesIndex;
+            return `${pieSeries[index].toFixed(2)}`;
+        },
+        style: {
+            colors: ['#000'] // Warna hitam untuk teks data labels
+        }
+    }
+};
 
-    // Initialize Pie Chart
-    const chart2 = new ApexCharts(document.querySelector("#pieChart"), options2);
-    chart2.render();
+// Initialize Pie Chart
+const chart2 = new ApexCharts(document.querySelector("#pieChart"), options2);
+chart2.render();
+
 </script>
-
-
 @endsection
