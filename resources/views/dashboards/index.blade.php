@@ -474,6 +474,8 @@
             itemName = "Optima";
         } else if (itemName.includes("Xtreme")) {
             itemName = "Xtreme";
+        } else if (itemName.includes("Super")) {
+            itemName = "Super";
         } else {
             itemName = itemName; // Jika tidak cocok, pakai nama aslinya
         }
