@@ -16,6 +16,8 @@ class dashboardController extends Controller
 {
     public function index(Request $request)
     {
+        $startDate = $request->input('start_date', now()->subMonth()->format('Y-m-d'));
+        $endDate = $request->input('end_date', now()->format('Y-m-d'));
         try {
 
             // Order Total
@@ -120,117 +122,70 @@ class dashboardController extends Controller
             $filter = $request->get('filter', '1M');
             $now = Carbon::now();
 
-            switch ($filter) {
-                case '1M':
-                    $startDate = $now->copy()->subMonth()->startOfDay();
-                    $endDate = $now->copy()->endOfDay();
-                    break;
-                case '6M':
-                    $startDate = $now->copy()->subMonths(6)->startOfDay();
-                    $endDate = $now->copy()->endOfDay();
-                    break;
-                case '1Y':
-                    $startDate = $now->copy()->subYear()->startOfDay();
-                    $endDate = $now->copy()->endOfDay();
-                    break;
-                default:
-                    $startDate = OrderItem::min('tanggal_kirim') ?? $now->copy()->subYears(5); // Default to 5 years if no data
-                    $endDate = $now->copy()->endOfDay();
-                    break;
+            if ($filter === 'custom') {
+                $startDate = Carbon::parse($request->get('start_date'))->startOfDay();
+                $endDate = Carbon::parse($request->get('end_date'))->endOfDay();
+            } else {
+                switch ($filter) {
+                    case '1M':
+                        $startDate = $now->copy()->subMonth()->startOfDay();
+                        $endDate = $now->copy()->endOfDay();
+                        break;
+                    case '6M':
+                        $startDate = $now->copy()->subMonths(6)->startOfDay();
+                        $endDate = $now->copy()->endOfDay();
+                        break;
+                    case '1Y':
+                        $startDate = $now->copy()->subYear()->startOfDay();
+                        $endDate = $now->copy()->endOfDay();
+                        break;
+                    default:
+                        $startDate = OrderItem::min('tanggal_kirim') ?? $now->copy()->subYears(5);
+                        $endDate = $now->copy()->endOfDay();
+                        break;
+                }
             }
 
-            // Fetch product data, grouping by month for '1Y' and '6M' filters
-            if ($filter === '1Y' || $filter === '6M') {
-                // Group by year, month, and product name (join with Product to get the product names)
-                $orderItems = OrderItem::whereBetween('tanggal_kirim', [$startDate, $endDate])
-                    ->join('products', 'order_items.nama_produk', '=', 'products.id')  // Join with the Product table
-                    ->selectRaw('YEAR(order_items.tanggal_kirim) as year, MONTH(order_items.tanggal_kirim) as month, products.name as nama_produk, SUM(order_items.total_order) as total')
-                    ->groupBy('year', 'month', 'products.name')
-                    ->orderBy('year', 'asc')
-                    ->orderBy('month', 'asc')
-                    ->get();
-            } else {
-                // Group by specific dates and product names
-                $orderItems = OrderItem::whereBetween('tanggal_kirim', [$startDate, $endDate])
-                    ->join('products', 'order_items.nama_produk', '=', 'products.id')  // Join with the Product table
-                    ->selectRaw('DATE(order_items.tanggal_kirim) as date, products.name as nama_produk, SUM(order_items.total_order) as total')
-                    ->groupBy('date', 'products.name')
-                    ->orderBy('date', 'asc')
-                    ->get();
-            }
+            // Fetch data
+            $orderItems = OrderItem::whereBetween('tanggal_kirim', [$startDate, $endDate])
+                ->join('products', 'order_items.nama_produk', '=', 'products.id')
+                ->selectRaw('DATE(order_items.tanggal_kirim) as date, products.name as nama_produk, SUM(order_items.total_order) as total')
+                ->groupBy('date', 'products.name')
+                ->orderBy('date', 'asc')
+                ->get();
 
             // Prepare data for ApexCharts
-            $products = Product::pluck('name')->toArray(); // Get all product names from the database
+            $products = Product::pluck('name')->toArray();
             $dataSeries = [];
             $dates = [];
 
-            // Initialize data series with 0 for each product
             foreach ($products as $productName) {
                 $dataSeries[$productName] = [];
             }
 
-            // Create the categories (months or days depending on filter)
-            if ($filter === '1Y' || $filter === '6M') {
-                // Group by year and month (format as YYYY-MM)
-                $orderItems->each(function ($item) use (&$dates) {
-                    $monthYear = $item->year . '-' . str_pad($item->month, 2, '0', STR_PAD_LEFT);  // Format as YYYY-MM
-                    if (!in_array($monthYear, $dates)) {
-                        $dates[] = $monthYear;
-                    }
-                });
-            } else {
-                // Group by specific dates (for 1M or ALL) with full date (YYYY-MM-DD)
-                $orderItems->each(function ($item) use (&$dates) {
-                    if (!in_array($item->date, $dates)) {
-                        $dates[] = $item->date;
-                    }
-                });
-            }
+            $orderItems->each(function ($item) use (&$dates) {
+                if (!in_array($item->date, $dates)) {
+                    $dates[] = $item->date;
+                }
+            });
 
-            // Add current month to the categories if it's '1M'
-            if ($filter === '1M' && !in_array($now->format('Y-m-d'), $dates)) {
-                $dates[] = $now->format('Y-m-d');  // Ensure the current day is included for '1M'
-            }
-
-            // Initialize data series with 0 for each date/month
             foreach ($products as $productName) {
                 foreach ($dates as $date) {
                     $dataSeries[$productName][] = 0;
                 }
             }
 
-            // Populate the data series with totals for each product
             foreach ($orderItems as $item) {
-                // For '1Y' or '6M', format as YYYY-MM, and for '1M', use the full date
-                if ($filter === '1Y' || $filter === '6M') {
-                    $index = array_search($item->year . '-' . str_pad($item->month, 2, '0', STR_PAD_LEFT), $dates);
-                } else {
-                    $index = array_search($item->date, $dates);
-                }
-
+                $index = array_search($item->date, $dates);
                 if ($index !== false && in_array($item->nama_produk, $products)) {
-                    // Round the total value to 1 decimal place
                     $dataSeries[$item->nama_produk][$index] = round((float) $item->total, 1);
                 }
             }
 
-            // Prepare data for ApexCharts
             $chartData = [
                 'categories' => $dates,
                 'series' => []
             ];
-
-            // Add formatted labels for each date
-            $labels = [];
-            foreach ($dates as $date) {
-                if ($filter === '1Y' || $filter === '6M') {
-                    // Use YYYY-MM format for 1Y or 6M
-                    $labels[] = Carbon::createFromFormat('Y-m', $date)->format('Y-m');
-                } else {
-                    // Use YYYY-MM-DD format for 1M
-                    $labels[] = Carbon::createFromFormat('Y-m-d', $date)->format('Y-m-d');
-                }
-            }
 
             foreach ($products as $productName) {
                 $chartData['series'][] = [
@@ -239,7 +194,8 @@ class dashboardController extends Controller
                 ];
             }
 
-            $chartData['labels'] = $labels;
+            $chartData['labels'] = $dates;
+
 
             $listorder = ListOrder::orderBy('created_at', 'desc')->take(5)->get();
 

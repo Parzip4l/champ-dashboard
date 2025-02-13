@@ -129,7 +129,7 @@
             </div> <!-- end row -->
         </div> <!-- end col -->
 
-        <div class="col-xxl-12">
+        <div class="col-xxl-6">
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
@@ -147,6 +147,28 @@
                 </div> <!-- end card body -->
             </div> <!-- end card -->
         </div> <!-- end col -->
+
+        <div class="col-xxl-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="card-title">Performance</h4>
+                        <div>
+                            <a href="{{ route('dashboard.index', array_merge(request()->all(), ['filter' => '1M'])) }}" type="button" class="btn btn-sm btn-outline-light {{ $filter == '1M' ? 'active' : '' }}">1M</a>
+                            <a href="{{ route('dashboard.index', array_merge(request()->all(), ['filter' => '6M'])) }}" type="button" class="btn btn-sm btn-outline-light {{ $filter == '6M' ? 'active' : '' }}">6M</a>
+                            <a href="{{ route('dashboard.index', array_merge(request()->all(), ['filter' => '1Y'])) }}" type="button" class="btn btn-sm btn-outline-light {{ $filter == '1Y' ? 'active' : '' }}">1Y</a>
+                            <!-- Tombol Custom dengan modal trigger -->
+                            <button type="button" class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#customFilterModal">Custom</button>
+
+                        </div>
+                    </div> <!-- end card-title-->
+
+                    <div dir="ltr">
+                        <div id="pieChart" class="apex-charts"></div>
+                    </div>
+                </div> <!-- end card body -->
+            </div> <!-- end card -->
+        </div>
     </div> <!-- end row -->
 
     <div class="row">
@@ -302,6 +324,36 @@
         </div>
         <!-- end col -->
     </div>
+    
+
+    <!-- Modal Custom Filter -->
+     <!-- Modal -->
+     <div class="modal fade" id="customFilterModal" tabindex="-1" aria-labelledby="customFilterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="customFilterModalLabel">Custom Date Range</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="customFilterForm" action="{{ route('dashboard.index') }}" method="GET">
+                <div class="modal-body">
+                    <input type="hidden" name="filter" value="custom">
+                    <div class="mb-3">
+                        <label for="start_date" class="form-label">Start Date</label>
+                        <input type="date" name="start_date" id="start_date" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="end_date" class="form-label">End Date</label>
+                        <input type="date" name="end_date" id="end_date" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Apply</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('script')
@@ -393,5 +445,89 @@
     const chart = new ApexCharts(document.querySelector("#dash-performance-chart"), options);
     chart.render();
 </script>
+
+<script>
+    // Ambil data dari PHP
+    const chartData2 = @json($chartData);
+
+    // Objek untuk menyimpan kategori yang telah digabungkan
+    let groupedData = {};
+
+    // Loop melalui data dan kelompokkan berdasarkan kata kunci
+    chartData2.series.forEach(series => {
+        let itemName = series.name;
+
+        // Tentukan nama kategori berdasarkan pola tertentu
+        if (itemName.includes("Power")) {
+            itemName = "Power";
+        } else if (itemName.includes("Supreme")) {
+            itemName = "Supreme";
+        } else if (itemName.includes("Wheel")) {
+            itemName = "Wheel";
+        } else if (itemName.includes("F300")) {
+            itemName = "F300";
+        } else if (itemName.includes("Activ")) {
+            itemName = "Activ";
+        } else if (itemName.includes("Kuhl")) {
+            itemName = "Kuhl";
+        } else if (itemName.includes("Optima")) {
+            itemName = "Optima";
+        } else if (itemName.includes("Xtreme")) {
+            itemName = "Xtreme";
+        } else {
+            itemName = itemName; // Jika tidak cocok, pakai nama aslinya
+        }
+
+        // Jika kategori sudah ada, tambahkan jumlahnya
+        if (groupedData[itemName]) {
+            groupedData[itemName] += series.data.reduce((sum, value) => sum + value, 0);
+        } else {
+            groupedData[itemName] = series.data.reduce((sum, value) => sum + value, 0);
+        }
+    });
+
+    // Ambil hasil pengelompokan dalam bentuk array
+    const pieLabels = Object.keys(groupedData);
+    const pieSeries = Object.values(groupedData);
+
+    // Define Pie Chart options
+    const options2 = {
+        series: pieSeries,
+        chart: {
+            type: 'pie',
+            height: 350
+        },
+        labels: pieLabels, // Nama kategori sebagai label
+        colors: ['#22c55e', '#c0392b', '#e74c3c', '#2980b9', '#1abc9c', '#f1c40f', '#8e44ad'],
+        legend: {
+            position: 'bottom',
+            onItemClick: {
+                toggleDataSeries: true // Pastikan legend benar-benar menghilangkan data
+            }
+        },
+        tooltip: {
+            y: {
+                formatter: function(val, opts) {
+                    let index = opts.seriesIndex;
+                    return `<span style="color:#000!important;">${pieLabels[index]}: ${val} Pail</span>`; 
+                }
+            }
+        },
+        dataLabels: {
+            formatter: function(val, opts) {
+                let index = opts.seriesIndex;
+                return `${pieSeries[index]}`;
+            },
+            style: {
+                colors: ['#000'] // Warna hitam untuk teks data labels
+            }
+        }
+    };
+
+    // Initialize Pie Chart
+    const chart2 = new ApexCharts(document.querySelector("#pieChart"), options2);
+    chart2.render();
+</script>
+
 
 @endsection
