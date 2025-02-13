@@ -447,7 +447,6 @@
 </script>
 <script>
 // Ambil data dari PHP
-// Ambil data dari PHP
 const chartData2 = @json($chartData);
 
 // Objek untuk menyimpan kategori yang telah digabungkan
@@ -458,26 +457,31 @@ chartData2.series.forEach(series => {
     let itemName = series.name;
     let totalOrder = series.data.reduce((sum, value) => sum + value, 0); // Total orderan
 
-    // Map nama produk agar variasi ukuran tidak mempengaruhi kategori utama
-    let productMapping = {
-        "Heavy Loader 24x1": "Heavy Loader",
-        "Supreme 24x1": "Supreme",
-        "Power 60x1": "Power"
-    };
-
-    // Bersihkan nama produk agar kategori utama saja yang dihitung
-    let cleanName = productMapping[itemName] || itemName;
-
-    // Menentukan berat berdasarkan kategori produk
+    // Menentukan kategori utama untuk pengelompokan
+    let cleanName;
     let weight;
+
     if (itemName.toLowerCase().includes("supreme 24x1")) {
+        cleanName = "Supreme"; 
         weight = 24 * 0.4; // 24 pot x 0.4 kg = 9.6 kg per dus
     } else if (itemName.toLowerCase().includes("heavy loader 24x1")) {
+        cleanName = "Heavy Loader"; 
         weight = 24 * 0.45; // 24 pot x 0.45 kg = 10.8 kg per dus
     } else if (itemName.toLowerCase().includes("power 60x1")) {
-        weight = 6 * 60; // 6 kg per dus
+        cleanName = "Power"; 
+        weight = 6; // 6 kg per dus
     } else {
-        // Jika tidak termasuk kategori khusus, ambil angka kg dari nama produk
+        // Map produk lain agar tetap masuk dalam kategori utama
+        let productMapping = {
+            "Heavy Loader 24x1": "Heavy Loader",
+            "Supreme 24x1": "Supreme",
+            "Power 60x1": "Power"
+        };
+
+        // Bersihkan nama produk agar variasi ukuran tidak mempengaruhi kategori utama
+        cleanName = productMapping[itemName] || itemName;
+
+        // Ambil angka kg dari nama produk jika ada
         let weightMatch = itemName.match(/(\d+)\s*kg/i);
         weight = weightMatch ? parseInt(weightMatch[1]) : 14; // Jika tidak ada, default 14 kg
     }
