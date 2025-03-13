@@ -26,6 +26,10 @@
                             <input type="text" class="form-control" value="{{$part->name}}" name="name" required>    
                         </div>
                         <div class="col-md-12 mb-2">
+                            <label for="" class="form-label">Backup Stock</label>
+                            <input type="number" class="form-control" name="backup_stock" value="{{$part->backup_stock}}" required>    
+                        </div>
+                        <div class="col-md-12 mb-2">
                             <label for="" class="form-label">Description</label>
                             <textarea name="description" class="form-control" id="">{{$part->description}}</textarea>
                         </div>

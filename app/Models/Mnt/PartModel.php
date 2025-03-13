@@ -9,7 +9,7 @@ class PartModel extends Model
 {
     use HasFactory;
     protected $table = 'mnt_parts';
-    protected $fillable = ['item_id', 'name', 'description'];
+    protected $fillable = ['item_id', 'name', 'description','backup_stock'];
 
     public function item()
     {

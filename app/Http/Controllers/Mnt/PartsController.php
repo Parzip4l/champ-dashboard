@@ -41,6 +41,7 @@ class PartsController extends Controller
                 'item_id' => 'required|exists:mnt_item,id',
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
+                'backup_stock' => 'required|integer|max:3',
             ]);
 
             // Simpan data part
@@ -48,6 +49,7 @@ class PartsController extends Controller
                 'item_id' => $request->item_id,
                 'name' => $request->name,
                 'description' => $request->description,
+                'backup_stock' => $request->backup_stock,
             ]);
 
             return redirect()->route('maintenance.part.index')->with('success', 'Part berhasil ditambahkan!');
@@ -66,7 +68,7 @@ class PartsController extends Controller
     {
         $part = PartModel::findOrFail($id);
     
-        $part->update($request->only(['name', 'description']));
+        $part->update($request->only(['name', 'description','backup_stock']));
     
         return redirect()->route('maintenance.part.index')->with('success', 'Item updated successfully!');
     }

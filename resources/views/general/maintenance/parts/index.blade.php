@@ -42,6 +42,7 @@
                             <tr>
                                 <th class="ps-3">Parent Item</th>
                                 <th>Parts Name</th>
+                                <th>Stock Backup</th>
                                 <th>Description</th>
                                 <th>Action</th>
                             </tr>
@@ -53,7 +54,7 @@
                             @foreach ($parts as $part)
                             @if ($part->item->name !== $lastItemName)
                                 <tr class="table-primary">
-                                    <td class="ps-3" colspan="4"><strong>{{ $part->item->name ?? 'No Parent Item' }}</strong></td>
+                                    <td class="ps-3" colspan="5"><strong>{{ $part->item->name ?? 'No Parent Item' }}</strong></td>
                                 </tr>
                                 @php
                                     $lastItemName = $part->item->name; // Perbarui item terakhir yang ditampilkan
@@ -62,6 +63,7 @@
                             <tr>
                                 <td class="ps-3"></td> {{-- Kosongkan Parent Item karena sudah ditampilkan di atas --}}
                                 <td>{{ $part->name }}</td>
+                                <td>{{ $part->backup_stock}} Item</td>
                                 <td>{{ $part->description }}</td>
                                 <td>
                                     <div class="d-flex gap-2">
