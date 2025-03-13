@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('delivery_oli', function (Blueprint $table) {
-            $table->integer('harga');
-            $table->integer('total');
+        Schema::create('mnt_item', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->string('qr_code')->unique();
+            $table->string('qr_code_path')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -22,8 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('delivery_oli', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('mnt_item');
     }
 };

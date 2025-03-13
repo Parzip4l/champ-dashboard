@@ -48,6 +48,61 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function () {
     Route::delete('/log-riset-grease/detail/{id}', [App\Http\Controllers\Rnd\RstGreaseController::class, 'destroyDetail']);
     Route::post('/generate-report', [App\Http\Controllers\Rnd\RstGreaseController::class, 'generateReport'])->name('generate.report');
 
+    // Maintenance
+    Route::prefix('maintenance')->name('maintenance.')->group(function () {
+        Route::resource('item', App\Http\Controllers\Mnt\ItemController::class)->names([
+            'index' => 'item.index',
+            'create' => 'item.create',
+            'store' => 'item.store',
+            'show' => 'item.show',
+            'edit' => 'item.edit',
+            'update' => 'item.update',
+            'destroy' => 'item.destroy',
+        ]);
+
+        Route::get('/items/{id}/download-qr', [App\Http\Controllers\Mnt\ItemController::class, 'downloadQrCode'])->name('items.download_qr');
+
+        Route::resource('part', App\Http\Controllers\Mnt\PartsController::class)->names([
+            'index' => 'part.index',
+            'create' => 'part.create',
+            'store' => 'part.store',
+            'show' => 'part.show',
+            'edit' => 'part.edit',
+            'update' => 'part.update',
+            'destroy' => 'part.destroy',
+        ]);
+
+        // Schedule Maintenance
+        Route::resource('schedule', App\Http\Controllers\Mnt\ScheduleController::class)->names([
+            'index' => 'schedule.index',
+            'create' => 'schedule.create',
+            'store' => 'schedule.store',
+            'show' => 'schedule.show',
+            'edit' => 'schedule.edit',
+            'update' => 'schedule.update',
+            'destroy' => 'schedule.destroy',
+        ]);
+
+        // List Maintenance 
+        Route::resource('listmaintenance', App\Http\Controllers\Mnt\ChecklistMaintenanceController::class)->names([
+            'index' => 'listmaintenance.index',
+            'create' => 'listmaintenance.create',
+            'store' => 'listmaintenance.store',
+            'show' => 'listmaintenance.show',
+            'edit' => 'listmaintenance.edit',
+            'update' => 'listmaintenance.update',
+            'destroy' => 'listmaintenance.destroy',
+        ]);
+
+        Route::get('/logs', [App\Http\Controllers\Mnt\LogMaintenanceController::class, 'index'])->name('logs');
+
+    });
+
+    // Maintenance Form
+    Route::get('/maintenance/form/{itemId}', [App\Http\Controllers\Mnt\LogMaintenanceController::class, 'create'])->name('maintenance.form');
+    Route::get('/maintenance/get-checklist/{partId}', [App\Http\Controllers\Mnt\LogMaintenanceController::class, 'getChecklistByPart']);
+    Route::post('/maintenance/store', [App\Http\Controllers\Mnt\LogMaintenanceController::class, 'store'])->name('maintenance.store');
+    Route::get('/maintenance/detail/{id}', [App\Http\Controllers\Mnt\LogMaintenanceController::class, 'show'])->name('maintenance.show');;
 
     // Oli
     Route::get('/pencatatan-oli', [App\Http\Controllers\Produck\OliController::class, 'index'])->name('oli.index');
