@@ -10,6 +10,8 @@ use App\Models\Mnt\ChecklistModel;
 use App\Models\Mnt\LogModel;
 use App\Models\Mnt\ScheduleModel;
 use App\Models\Mnt\MaintenanceChecklist;
+use App\Models\Setting\Slack;
+use App\Models\User;
 
 class LogMaintenanceController extends Controller
 {
@@ -65,42 +67,104 @@ class LogMaintenanceController extends Controller
             'checklist_notes' => 'array',
         ]);
 
-        // Simpan data maintenance log
+        // Cek apakah jadwal maintenance tersedia
         $schedule = ScheduleModel::where('item_id', $request->item_id)
-                ->whereDate('next_maintenance', now()->toDateString())
-                ->first();
+            ->whereDate('next_maintenance', now()->toDateString())
+            ->first();
 
-            if (!$schedule) {
-                return redirect()->route('maintenance.item.index')->with('error', 'Belum Waktunya Maintenance Untuk Item Ini.');
+        if (!$schedule) {
+            return redirect()->route('maintenance.item.index')->with('error', 'Belum Waktunya Maintenance Untuk Item Ini.');
+        }
+
+        $checklistData = [];
+
+        // Simpan log untuk setiap checklist
+        foreach ($request->checklist_ids as $checklist_id) {
+            LogModel::create([
+                'maintenance_id' => $schedule->id,
+                'item_id' => $request->item_id,
+                'part_id' => $request->part_id,
+                'performed_at' => $request->performed_at,
+                'maintenance_by' => $request->maintenance_by,
+                'checklist_item' => $request->checklist_items[$checklist_id] ?? '',
+                'status' => $request->checklist_status[$checklist_id],
+                'notes' => $request->checklist_notes[$checklist_id],
+            ]);
+
+            $checklistData[] = [
+                'title' => $request->checklist_items[$checklist_id] ?? 'N/A',
+                'value' => "Status: {$request->checklist_status[$checklist_id]} | Catatan: {$request->checklist_notes[$checklist_id]}",
+                'short' => false,
+            ];
+        }
+
+        // Kirim notifikasi ke Slack
+        $slackChannel = Slack::where('channel', 'maintenance')->first();
+        if ($slackChannel) {
+            $slackWebhookUrl = $slackChannel->url;
+            $item = ItemModel::find($request->item_id);
+            $part = PartModel::find($request->part_id);
+            $user = User::find($request->maintenance_by);
+            $data = [
+                'text' => "Data Maintenance Log",
+                'attachments' => [[
+                    'title' => 'Maintenance Details',
+                    'fields' => array_merge([
+                        [
+                            'title' => 'Item',
+                            'value' => $item ? $item->name : 'Unknown',
+                            'short' => true,
+                        ],
+                        [
+                            'title' => 'Parts',
+                            'value' => $part ? $part->name : 'Unknown',
+                            'short' => true,
+                        ],
+                        [
+                            'title' => 'Tanggal',
+                            'value' => now()->format('d F Y'),
+                            'short' => true,
+                        ],
+                        [
+                            'title' => 'Maintenance By',
+                            'value' => $user ? $user->name : 'Unknown',
+                            'short' => true,
+                        ]
+                    ], $checklistData),
+                ]],
+            ];
+
+            $data_string = json_encode($data);
+            $ch = curl_init($slackWebhookUrl);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($data_string),
+            ]);
+
+            $result = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($result === false || $httpCode !== 200) {
+                return redirect()->back()->with('error', 'Terjadi kesalahan saat mengirim data ke Slack.');
             }
+        }
 
-            // Simpan log untuk setiap checklist
-            foreach ($request->checklist_ids as $index => $checklist_id) {
-                LogModel::create([
-                    'maintenance_id' => $schedule->id, // Ambil ID schedule berdasarkan item_id
-                    'item_id' => $request->item_id,
-                    'part_id' => $request->part_id,
-                    'performed_at' => $request->performed_at,
-                    'maintenance_by' => $request->maintenance_by,
-                    'checklist_item' => $request->checklist_items[$checklist_id] ?? '',
-                    'status' => $request->checklist_status[$checklist_id],
-                    'notes' => $request->checklist_notes[$checklist_id],
-                ]);
-            }
+        // Update `next_maintenance` berdasarkan tipe maintenance
+        $nextMaintenanceDate = match ($schedule->schedule) {
+            'daily' => now()->addDay()->toDateString(),
+            'weekly' => now()->addWeek()->toDateString(),
+            'monthly' => now()->addMonth()->toDateString(),
+            'yearly' => now()->addYear()->toDateString(),
+            default => now()->toDateString(),
+        };
 
-            // Update `next_maintenance` berdasarkan tipe maintenance
-            $nextMaintenanceDate = match ($schedule->schedule) {
-                'daily' => now()->addDay()->toDateString(),
-                'weekly' => now()->addWeek()->toDateString(),
-                'monthly' => now()->addMonth()->toDateString(),
-                'yearly' => now()->addYear()->toDateString(),
-                default => now()->toDateString(), // Jika tidak ada tipe yang cocok, default ke hari ini
-            };
+        $schedule->update(['next_maintenance' => $nextMaintenanceDate]);
 
-            // Update next maintenance di tabel `mnt_schedule`
-            $schedule->update(['next_maintenance' => $nextMaintenanceDate]);
-
-            return redirect()->route('maintenance.logs')->with('success', 'Maintenance log berhasil disimpan.');
+        return redirect()->route('maintenance.logs')->with('success', 'Maintenance log berhasil disimpan.');
     }
 
     public function show($id)
