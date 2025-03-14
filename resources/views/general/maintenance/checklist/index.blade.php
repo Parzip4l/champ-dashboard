@@ -78,8 +78,7 @@
                                 </tr>
                             @endforeach
                         </tbody>
-
-
+                    </table>
                     <tfoot>
                         <div class="d-flex justify-content-between mx-3 mt-2 mb-2">
                             <div>
@@ -90,7 +89,6 @@
                             </div>
                         </div>
                     </tfoot>
-                </table>
                 </div>
 
             </div>
