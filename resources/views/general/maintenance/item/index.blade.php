@@ -50,7 +50,7 @@
                             @foreach ($items as $item)
                             <tr>
                                 <td class="ps-3">{{ $item->name }}</td>
-                                <td><a href="" class="text-primary">{{ $item->total_parts }} Parts</a></td>
+                                <td><a href="#!" class="text-primary view-maintenance" data-id="{{$item->id}}">{{ $item->total_parts }} Parts</a></td>
                                 <td>{{ $item->description }}</td>
                                 <td>
                                     <div class="d-flex gap-2">
@@ -83,7 +83,17 @@
                 </div>
 
             </div>
-
+            <div class="offcanvas offcanvas-end" tabindex="-1" id="maintenanceDetailCanvas">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title">Detail Maintenance Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <div id="maintenance-detail-content">
+                        <p>Loading...</p>
+                    </div>
+                </div>
+            </div>
             <!-- end card -->
         </div>
         <!-- end col -->
@@ -191,6 +201,47 @@
             }
         });
     }
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".view-maintenance").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
+                let maintenanceId = this.getAttribute("data-id");
+                
+                let detailContainer = document.getElementById("maintenance-detail-content");
+                detailContainer.innerHTML = "<p>Loading...</p>";
+
+                fetch(`/maintenance/item/${maintenanceId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    detailContainer.innerHTML = `
+                        <p><strong>ID:</strong> ${data.id}</p>
+                        <p><strong>Item:</strong> ${data.name}</p>
+                        <p><strong>Parts:</strong></p>
+                        <ul id="partsList">
+                            ${data.parts.map(part => `
+                                <li><strong>${part.name}</strong> - Backup Stock: ${part.backup_stock}</li>
+                            `).join('')}
+                        </ul>
+                    `;
+                })
+                .catch(error => {
+                    console.error("Error fetching maintenance data:", error);
+                    detailContainer.innerHTML = `<p class='text-danger'>Gagal mengambil data! (${error.message})</p>`;
+                });
+
+
+                let maintenanceOffcanvas = new bootstrap.Offcanvas(document.getElementById("maintenanceDetailCanvas"));
+                maintenanceOffcanvas.show();
+            });
+        });
+    });
 </script>
 
 @endsection

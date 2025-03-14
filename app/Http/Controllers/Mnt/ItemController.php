@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 // Model
 use App\Models\Mnt\ItemModel;
+use App\Models\Mnt\ItemParts;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Storage;
 
@@ -118,5 +119,21 @@ class ItemController extends Controller
         }
 
         return response()->download(storage_path("app/public/{$item->qr_code_path}"));
+    }
+
+    public function show($id)
+    {
+        $data = ItemModel::with('parts')->findOrFail($id);
+
+        return response()->json([
+            'id' => $data->id,
+            'name' => $data->name,
+            'parts' => $data->parts->map(function ($part) {
+                return [
+                    'name' => $part->name,
+                    'backup_stock' => $part->backup_stock
+                ];
+            })
+        ]);
     }
 }
