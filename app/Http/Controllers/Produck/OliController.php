@@ -301,12 +301,12 @@ class OliController extends Controller
                             ],
                             [
                                 'title' => 'Harga /Drum',
-                                'value' => $harga->harga,
+                                'value' => 'Rp ' . number_format($harga->harga, 0, ',', '.'),
                                 'short' => true,
                             ],
                             [
                                 'title' => 'Total',
-                                'value' => $total,
+                                'value' => 'Rp ' . number_format($total, 0, ',', '.'),
                                 'short' => true,
                             ],
                             [
