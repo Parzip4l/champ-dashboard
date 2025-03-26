@@ -58,7 +58,7 @@
                             </div>
                             <div class="col-lg-6">
                                 <label for="trial_result" class="form-label">Hasil Riset</label>
-                                <input type="text" name="details[0][trial_result]" class="form-control" required>
+                                <textarea name="details[0][trial_result]" class="form-control" id=""></textarea>
                             </div>
                         </div>
                         <div class="row mb-3">
