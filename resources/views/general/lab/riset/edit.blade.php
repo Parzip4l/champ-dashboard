@@ -56,11 +56,11 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label for="trial_method_{{ $key }}">Metode Uji</label>
-                                        <input type="text" name="details[{{ $key }}][trial_method]" id="trial_method_{{ $key }}" class="form-control" value="{{ $detail->trial_method }}">
+                                        <textarea name="details[{{ $key }}][trial_method]" id="trial_method{{ $key }}" class="form-control" required>{{ $detail->trial_method }}</textarea>
                                     </div>
                                     <div class="col-md-6">
                                         <label for="trial_result_{{ $key }}">Hasil Uji</label>
-                                        <input type="text" name="details[{{ $key }}][trial_result]" id="trial_result_{{ $key }}" class="form-control" value="{{ $detail->trial_result }}">
+                                        <textarea name="details[{{ $key }}][trial_result]" id="trial_result{{ $key }}" class="form-control" required>{{ $detail->trial_result }}</textarea>
                                     </div>
                                 </div>
                                 <div class="row mb-3">

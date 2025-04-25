@@ -23,7 +23,7 @@ class RstGreaseController extends Controller
         $year = $request->get('year');
         $sevenDaysLater = Carbon::today()->addDays(7);
 
-        $reminder = RisetGreaseDetails::where('improvement_schedule', '<=', $sevenDaysLater)->get();
+        $reminder = RisetGreaseDetails::where('improvement_schedule', '<=', $sevenDaysLater)->latest()->paginate(10);
 
         // Query to get RisetGreaseMaster with search and date filters
         $data = RisetGreaseMaster::when($search, function ($query, $search) {
@@ -36,7 +36,8 @@ class RstGreaseController extends Controller
             ->when($year, function ($query, $year) {
                 return $query->whereYear('expected_start_date', $year);
             })
-            ->paginate(10);
+            ->latest()
+            ->paginate(20);
 
         // If the request is AJAX, return only the view content to update the table and pagination
         if ($request->ajax()) {

@@ -54,7 +54,7 @@
                         <div class="row mb-3">
                             <div class="col-lg-6">
                                 <label for="trial_method" class="form-label">Metode Riset</label>
-                                <input type="text" name="details[0][trial_method]" class="form-control" required>
+                                <textarea name="details[0][trial_method]" class="form-control" id="" required></textarea>
                             </div>
                             <div class="col-lg-6">
                                 <label for="trial_result" class="form-label">Hasil Riset</label>
@@ -78,7 +78,7 @@
                         <div class="row mb-3">
                             <div class="col-lg-4">
                                 <label for="competitor_comparison" class="form-label">Kompetitor Komparasi</label>
-                                <input type="text" name="details[0][competitor_comparison]" class="form-control" required>
+                                <textarea name="details[0][competitor_comparison]" class="form-control" required></textarea>
                             </div>
                             <div class="col-lg-4">
                                 <label for="status" class="form-label">Status</label>
@@ -133,21 +133,21 @@
             <div class="row mb-3">
                 <div class="col-lg-6">
                     <label for="trial_method" class="form-label">Metode Riset</label>
-                    <input type="text" name="details[${detailIndex}][trial_method]" class="form-control" required>
+                    <textarea name="details[${detailIndex}][trial_method]" class="form-control" id="" required></textarea>
                 </div>
                 <div class="col-lg-6">
                     <label for="trial_result" class="form-label">Hasil Riset</label>
-                    <input type="text" name="details[${detailIndex}][trial_result]" class="form-control" required>
+                     <textarea name="details[${detailIndex}][trial_result]" class="form-control" id=""></textarea>
                 </div>
             </div>
             <div class="row mb-3">
                 <div class="col-lg-4">
                     <label for="issue" class="form-label">Temuan Masalah</label>
-                    <textarea name="details[${detailIndex}][issue]" class="form-control" required></textarea>
+                    <textarea name="details[${detailIndex}][issue]" class="form-control"></textarea>
                 </div>
                 <div class="col-lg-4">
                     <label for="improvement_ideas" class="form-label">Ide Improvment</label>
-                    <textarea name="details[${detailIndex}][improvement_ideas]" class="form-control" required></textarea>
+                    <textarea name="details[${detailIndex}][improvement_ideas]" class="form-control"></textarea>
                 </div>
                 <div class="col-lg-4">
                     <label for="improvement_schedule" class="form-label">Schedule Tindak Lanjut</label>
@@ -157,7 +157,7 @@
             <div class="row mb-3">
                 <div class="col-lg-4">
                     <label for="competitor_comparison" class="form-label">Kompetitor Komparasi</label>
-                    <input type="text" name="details[${detailIndex}][competitor_comparison]" class="form-control" required>
+                    <textarea name="details[${detailIndex}][competitor_comparison]" class="form-control"></textarea>
                 </div>
                 <div class="col-lg-4">
                     <label for="status" class="form-label">Status</label>
