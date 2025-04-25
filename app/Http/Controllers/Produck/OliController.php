@@ -300,6 +300,16 @@ class OliController extends Controller
                                 'short' => true,
                             ],
                             [
+                                'title' => 'Harga /Drum',
+                                'value' => 'Rp ' . number_format($harga->harga, 0, ',', '.'),
+                                'short' => true,
+                            ],
+                            [
+                                'title' => 'Total',
+                                'value' => 'Rp ' . number_format($total, 0, ',', '.'),
+                                'short' => true,
+                            ],
+                            [
                                 'title' => 'Lihat Detail Data Di Champoil Portal',
                                 'value' => '(https://dashboard.champoil.co.id/pencatatan-oli)',
                                 'short' => true,
