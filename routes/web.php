@@ -124,3 +124,12 @@ Route::get('/proxy-api', function () {
 });
 Route::get('/pencatatan-oli/create', [App\Http\Controllers\Produck\OliController::class, 'create'])->name('oli.create');
 Route::post('/pencatatan-oli/simpan', [App\Http\Controllers\Produck\OliController::class, 'store'])->name('oli.store');
+
+Route::resource('production_batches', App\Http\Controllers\Production\ProductionBatchController::class);
+
+// Tambahan khusus
+Route::get('production_batches/{productionBatch}/add-material', [App\Http\Controllers\Production\ProductionBatchController::class, 'addMaterial'])->name('production_batches.add_material');
+Route::post('production_batches/{productionBatch}/store-material', [App\Http\Controllers\Production\ProductionBatchController::class, 'storeMaterial'])->name('production_batches.store_material');
+Route::post('production_batches/{productionBatch}/close', [App\Http\Controllers\Production\ProductionBatchController::class, 'closeProduction'])->name('production_batches.close');
+Route::post('/production-batches/finish', [App\Http\Controllers\Production\ProductionBatchController::class, 'finishProduction'])->name('production_batches.finish');
+Route::post('/production_batches/forecast', [App\Http\Controllers\Production\ProductionBatchController::class, 'forecastData'])->name('production_batches.forecast');
