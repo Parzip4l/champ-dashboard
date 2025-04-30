@@ -23,6 +23,6 @@ class ProductionBatch extends Model
 
     public function packagingSizes()
     {
-        return $this->hasMany(PackagingSize::class);
+        return $this->hasMany(ProductionPackaging::class);
     }
 }

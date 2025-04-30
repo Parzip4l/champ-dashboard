@@ -44,6 +44,8 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function () {
 
     // Rnd
     Route::resource('rnd-check', App\Http\Controllers\General\PenetrasiController::class);
+    Route::get('/get-product-by-batch', [App\Http\Controllers\General\PenetrasiController::class, 'getProductByBatch']);
+
     Route::resource('log-riset-grease', App\Http\Controllers\Rnd\RstGreaseController::class);
     Route::delete('/log-riset-grease/detail/{id}', [App\Http\Controllers\Rnd\RstGreaseController::class, 'destroyDetail']);
     Route::post('/generate-report', [App\Http\Controllers\Rnd\RstGreaseController::class, 'generateReport'])->name('generate.report');

@@ -204,86 +204,144 @@ class ProductionBatchController extends Controller
 
 
     // Tampilkan detail produksi
-    public function show(ProductionBatch $productionBatch)
+    public function show($id)
     {
-        $productionBatch->load('materials.tanks');
-        return view('production_batches.show', compact('productionBatch'));
+        $batch = ProductionBatch::with(['materials', 'packagingSizes'])->findOrFail($id);
+
+        // Group bahan baku berdasarkan step dan kategori (sama seperti edit)
+        $groupedMaterials = $batch->materials->groupBy(function ($item) {
+            return $item->step;
+        })->map(function ($items) {
+            return $items->groupBy('kategori');
+        });
+
+        // Hasil produksi hanya ditampilkan jika status sudah "Closed"
+        $hasilProduksi = null;
+        if ($batch->status === 'Closed') {
+            $hasilProduksi = $batch->packagingSizes->map(function ($item) {
+                return [
+                    'packaging' => $item->packaging,
+                    'size' => $item->size,
+                    'quantity' => $item->quantity,
+                    'total_kg' => $item->size * $item->quantity,
+                ];
+            });
+        }
+
+        return view('general.produksi.view', compact('batch', 'groupedMaterials', 'hasilProduksi'));
     }
+
 
     public function forecastData(Request $request)
-{
-    $produk = $request->input('produk');
-    $packagings = $request->input('packagings'); // array
-    $sizes = $request->input('sizes');           // array
-    $quantities = $request->input('quantities'); // array
+    {
+        $produk = $request->input('produk');
+        $packagings = $request->input('packagings'); // array
+        $sizes = $request->input('sizes');           // array
+        $quantities = $request->input('quantities'); // array
 
-    // Validasi dasar
-    if (!$produk || !$packagings || !$sizes || !$quantities) {
-        return redirect()->back()->with('error', 'Data packaging tidak lengkap.');
-    }
-
-    // Hitung total target quantity berdasarkan input user
-    $totalTargetQuantity = 0;
-    foreach ($quantities as $index => $qty) {
-        $size = isset($sizes[$index]) ? (float)$sizes[$index] : 0;
-        $qty = (float)$qty;
-        $totalTargetQuantity += ($size * $qty);
-    }
-
-    // Ambil data material dan packaging historis
-    $materials = DB::table('production_materials as pm')
-        ->join('production_packaging as pp', 'pm.production_batch_id', '=', 'pp.production_batch_id')
-        ->join('production_batches as pb', 'pm.production_batch_id', '=', 'pb.id')
-        ->where('pb.produk', $produk)
-        ->where('pp.quantity', '>', 0)
-        ->select('pm.kategori', 'pm.jenis', 'pm.tipe', 'pm.qty', 'pp.quantity')
-        ->get();
-
-    if ($materials->isEmpty()) {
-        return redirect()->back()->with('error', 'Tidak ada data produksi historis untuk produk ini.');
-    }
-
-    // Group berdasarkan kategori, jenis, dan tipe
-    $grouped = $materials->groupBy(function ($item) {
-        return $item->kategori . '-' . $item->jenis . '-' . $item->tipe;
-    });
-
-    $predictedMaterials = [];
-    foreach ($grouped as $key => $rows) {
-        $totalQty = 0;
-        $totalOutput = 0;
-
-        foreach ($rows as $row) {
-            $totalQty += $row->qty;
-            $totalOutput += $row->quantity;
+        // Validasi dasar
+        if (!$produk || !$packagings || !$sizes || !$quantities) {
+            return redirect()->back()->with('error', 'Data packaging tidak lengkap.');
         }
 
-        if ($totalOutput > 0) {
-            $ratio = $totalQty / $totalOutput;
-            $predictedQty = $ratio * $totalTargetQuantity;
+        // Hitung total target quantity berdasarkan input user
+        $totalTargetQuantity = 0;
+        foreach ($quantities as $index => $qty) {
+            $size = isset($sizes[$index]) ? (float)$sizes[$index] : 0;
+            $qty = (float)$qty;
+            $totalTargetQuantity += ($size * $qty);
+        }
 
-            list($kategori, $jenis, $tipe) = explode('-', $key);
+        $packagingInfo = [];
+        foreach ($packagings as $index => $packaging) {
+            $size = isset($sizes[$index]) ? (float)$sizes[$index] : 0;
+            $quantity = isset($quantities[$index]) ? (int)$quantities[$index] : 0;
 
-            $predictedMaterials[] = [
-                'nama' => $kategori,
-                'jenis' => $jenis,
-                'tipe' => $tipe,
-                'predicted_qty' => round($predictedQty, 2),
+            // Simpan informasi packaging yang dimasukkan pengguna
+            $packagingInfo[] = [
+                'packaging' => $packaging,
+                'size' => $size,
+                'quantity' => $quantity,
+                'total_kg' => $size * $quantity,
             ];
         }
+
+        // Ambil data material dan packaging historis
+        $materials = DB::table('production_materials as pm')
+            ->join('production_packaging as pp', 'pm.production_batch_id', '=', 'pp.production_batch_id')
+            ->join('production_batches as pb', 'pm.production_batch_id', '=', 'pb.id')
+            ->where('pb.produk', $produk)
+            ->where('pp.quantity', '>', 0)
+            ->select('pm.kategori', 'pm.jenis', 'pm.tipe', 'pm.qty', 'pp.quantity', 'pp.size')
+            ->get();
+
+        if ($materials->isEmpty()) {
+            return redirect()->back()->with('error', 'Tidak ada data produksi historis untuk produk ini.');
+        }
+
+        // Group berdasarkan kategori, jenis, dan tipe
+        $grouped = $materials->groupBy(function ($item) {
+            return $item->kategori . '-' . $item->jenis . '-' . $item->tipe;
+        });
+
+        $predictedMaterials = [];
+        foreach ($grouped as $key => $rows) {
+            $totalQty = 0;
+            $totalOutput = 0;
+        
+            foreach ($rows as $row) {
+                $totalQty += $row->qty;
+                $totalOutput += $row->quantity * $row->size;
+            }
+        
+            if ($totalOutput > 0) {
+                $ratio = $totalQty / $totalOutput;
+                $predictedQty = $ratio * $totalTargetQuantity;
+        
+                list($kategori, $jenis, $tipe) = explode('-', $key);
+        
+                $predictedMaterials[] = [
+                    'nama' => $kategori,
+                    'jenis' => $jenis,
+                    'tipe' => $tipe,
+                    'predicted_qty' => round($predictedQty, 2),
+                ];
+            }
+        }
+        
+
+        $predictedMaterials = collect($predictedMaterials);
+
+        $batchFuels = DB::table('production_batches as pb')
+            ->join('production_packaging as pp', 'pb.id', '=', 'pp.production_batch_id')
+            ->where('pb.produk', $produk)
+            ->where('pp.quantity', '>', 0)
+            ->select('pb.qty_bahan_bakar_masak', 'pb.qty_bahan_bakar_olah', 'pp.size', 'pp.quantity')
+            ->groupBy('pb.id', 'pb.qty_bahan_bakar_masak', 'pb.qty_bahan_bakar_olah', 'pp.size', 'pp.quantity')
+            ->get();
+
+        $totalFuelMasak = 0;
+        $totalFuelOlah = 0;
+        $totalOutput = 0;
+
+        foreach ($batchFuels as $batch) {
+            $output = $batch->quantity * $batch->size;
+            $totalOutput += $output;
+            $totalFuelMasak += $batch->qty_bahan_bakar_masak;
+            $totalFuelOlah += $batch->qty_bahan_bakar_olah;
+        }
+
+        $predictedFuelMasak = $totalOutput > 0 ? round($totalFuelMasak / $totalOutput * $totalTargetQuantity, 2) : 0;
+        $predictedFuelOlah = $totalOutput > 0 ? round($totalFuelOlah / $totalOutput * $totalTargetQuantity, 2) : 0;
+
+        return view('general.produksi.forecast2.index', [
+            'predictedMaterials' => $predictedMaterials,
+            'produk' => $produk,
+            'targetQuantity' => $totalTargetQuantity,
+            'predictedFuelMasak' => $predictedFuelMasak,
+            'predictedFuelOlah' => $predictedFuelOlah,
+            'packagingInfo' => $packagingInfo,
+        ]);
     }
-
-    $predictedMaterials = collect($predictedMaterials);
-
-    return view('general.produksi.forecast2.index', [
-        'predictedMaterials' => $predictedMaterials,
-        'produk' => $produk,
-        'targetQuantity' => $totalTargetQuantity,
-    ]);
-}
-
-
-
-
 
 }

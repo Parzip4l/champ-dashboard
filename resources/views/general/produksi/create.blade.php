@@ -55,8 +55,8 @@
                                     <label for="seller-number" class="form-label">Tangki Masak</label>
                                     <div class="mb-3">
                                         <select name="tangki_masak" id="" class="form-control">
-                                            <option value="masak1">Tangki Masak 1</option>
-                                            <option value="masak2">Tangki Masak 2</option>
+                                            <option value="1">Tangki Masak 1</option>
+                                            <option value="2">Tangki Masak 2</option>
                                         </select>
                                     </div>
                                 </div>

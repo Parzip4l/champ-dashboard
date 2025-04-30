@@ -2,13 +2,68 @@
 
 @section('content')
     <div class="mt-4">
-        <h3 class="mb-4">Prediksi Kebutuhan Bahan Baku</h3>
-
-        <!-- Menampilkan Nama Produk dan Quantity -->
-        <div class="alert alert-info">
-            <strong>Produk:</strong> {{ $produk }} <br>
-            <strong>Jumlah Target:</strong> {{ number_format($targetQuantity, 0) }}
+        <h3 class="mb-4">📦 Prediksi Kebutuhan Produksi</h3>
+        <div class="card">
+            <div class="card-header">
+            <h4>🔖 Informasi Produk</h4>
+            </div>
+            <div class="card-body">
+               <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Produk</th>
+                                <th>Packaging</th>
+                                <th>Size (Kg)</th>
+                                <th>Quantity</th>
+                                <th>Total Kg</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($packagingInfo as $info)
+                                <tr>
+                                    <td>{{ $produk }}</td>
+                                    <td>{{ $info['packaging'] }}</td>
+                                    <td>{{ $info['size'] }} Kg</td>
+                                    <td>{{ $info['quantity'] }}</td>
+                                    <td>{{ $info['total_kg'] }} Kg</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+               </div>
+            </div>
         </div>
+
+        @if($predictedMaterials->isNotEmpty())
+        <div class="card">
+            <div class="card-header">
+                <h4>⛽ Prediksi Penggunaan Bahan Bakar</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Tangki</th>
+                                <th scope="col">Prediksi Jumlah</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Tangki Masak</td>
+                                <td>{{ number_format($predictedFuelMasak, 0) }} liter</td>
+                            </tr>
+                            <tr>
+                                <td>Tangki Olah</td>
+                                <td>{{ number_format($predictedFuelOlah, 0) }} liter</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        @endif
 
         @if(!empty($predictedMaterials))
             <div class="row">
@@ -17,7 +72,7 @@
                 <div class="col-md-12">
                     <div class="card shadow-sm">
                         <div class="card-body">
-                            <h5 class="card-title">Tabel Prediksi Kebutuhan Bahan Baku</h5>
+                            <h5 class="card-title">📦 Prediksi Kebutuhan Bahan Baku</h5>
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
@@ -52,37 +107,4 @@
         </a>
     </div>
     @endsection
-    @section('script')
-        <!-- Chart.js CDN -->
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script>
-            // Debugging output
-            console.log(@json($predictedMaterials->pluck('nama')));
-            console.log(@json($predictedMaterials->pluck('predicted_qty')));
-
-            // Data untuk grafik
-            var ctx = document.getElementById('forecastChart').getContext('2d');
-            var forecastChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: @json($predictedMaterials->pluck('nama')), // Nama bahan
-                    datasets: [{
-                        label: 'Prediksi Kebutuhan Bahan Baku',
-                        data: @json($predictedMaterials->pluck('predicted_qty')), // Prediksi jumlah bahan
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        </script>
-@endsection
 

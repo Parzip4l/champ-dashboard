@@ -102,7 +102,7 @@
                                             <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>
                                         </a>
                                         @endif
-                                        <a href="{{ route('production_batches.edit', $data->id) }}" class="btn btn-soft-primary btn-sm">
+                                        <a href="{{ route('production_batches.show', $data->id) }}" class="btn btn-soft-primary btn-sm">
                                             <iconify-icon icon="solar:eye-broken" class="align-middle fs-18"></iconify-icon>
                                         </a>
                                     </div>
