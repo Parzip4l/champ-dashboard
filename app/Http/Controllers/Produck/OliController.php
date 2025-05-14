@@ -253,71 +253,66 @@ class OliController extends Controller
     {
         try {
             $defaultReceive = 'Not Received';
+            $pengirim = $request->pengirim;
+            $tanggal = now();
+            $jenisOliArray = $request->jenis_oli;
+            $jumlahArray = $request->jumlah;
 
-            // get data harga
+            $attachments = [[
+                'color' => '#36a64f',
+                'fields' => [
+                    ['title' => 'Tanggal', 'value' => $tanggal->format('d F Y'), 'short' => true],
+                    ['title' => 'Pengirim', 'value' => $pengirim, 'short' => true],
+                ]
+            ]];
 
-            $harga = HargaOli::where('jenis_oli',$request->jenis_oli)->first();
-            $total = $harga->harga * $request->jumlah;
-            // Simpan data pembelian
-            
-            $olidata = new Oli();
-            $olidata->tanggal = now();
-            $olidata->pengirim = $request->pengirim;
-            $olidata->jenis_oli = $request->jenis_oli;
-            $olidata->jumlah = $request->jumlah;
-            $olidata->receive_status = $defaultReceive;
-            $olidata->harga = $harga->harga;
-            $olidata->total = $total;
-            $olidata->save();
+            foreach ($jenisOliArray as $index => $jenisOli) {
+                $jumlah = (int)$jumlahArray[$index];
 
+                $hargaData = HargaOli::where('jenis_oli', $jenisOli)->first();
+                if (!$hargaData) continue;
+
+                $harga = $hargaData->harga;
+                $total = $harga * $jumlah;
+
+                // Simpan ke database
+                $oli = new Oli();
+                $oli->tanggal = $tanggal;
+                $oli->pengirim = $pengirim;
+                $oli->jenis_oli = $jenisOli;
+                $oli->jumlah = $jumlah;
+                $oli->receive_status = $defaultReceive;
+                $oli->harga = $harga;
+                $oli->total = $total;
+                $oli->save();
+
+                // Tambah attachment untuk Slack
+                $attachments[] = [
+                    'color' => '#FFC512',
+                    'fields' => [
+                        ['title' => 'Jenis Oli', 'value' => $jenisOli, 'short' => true],
+                        ['title' => 'Jumlah', 'value' => $jumlah, 'short' => true],
+                        ['title' => 'Harga /Drum', 'value' => 'Rp ' . number_format($harga, 0, ',', '.'), 'short' => true],
+                        ['title' => 'Total', 'value' => 'Rp ' . number_format($total, 0, ',', '.'), 'short' => true],
+                    ]
+                ];
+            }
+
+            // Tambahkan link ke portal
+            $attachments[] = [
+                'color' => '#eeeeee',
+                'fields' => [
+                    ['title' => 'Lihat Detail Data Di Champoil Portal', 'value' => '<https://dashboard.champoil.co.id/pencatatan-oli>', 'short' => false],
+                ]
+            ];
+
+            // Kirim ke Slack
             $slackChannel = Slack::where('channel', 'Data Oli')->first();
             $slackWebhookUrl = $slackChannel->url;
-            $today = now()->toDateString();
+
             $data = [
-                'text' => "Data Pengiriman Oli",
-                'attachments' => [
-                    [
-                        'title' => '',
-                        'fields' => [
-                            [
-                                'title' => 'Tanggal',
-                                'value' => now()->format('d F Y'),
-                                'short' => true,
-                            ],
-                            [
-                                'title' => 'Pengirim',
-                                'value' => $request->pengirim,
-                                'short' => true,
-                            ],
-                            [
-                                'title' => 'Jenis Oli',
-                                'value' => $request->jenis_oli,
-                                'short' => true,
-                            ],
-                            [
-                                'title' => 'Jumlah',
-                                'value' => $request->jumlah,
-                                'short' => true,
-                            ],
-                            [
-                                'title' => 'Harga /Drum',
-                                'value' => 'Rp ' . number_format($harga->harga, 0, ',', '.'),
-                                'short' => true,
-                            ],
-                            [
-                                'title' => 'Total',
-                                'value' => 'Rp ' . number_format($total, 0, ',', '.'),
-                                'short' => true,
-                            ],
-                            [
-                                'title' => 'Lihat Detail Data Di Champoil Portal',
-                                'value' => '(https://dashboard.champoil.co.id/pencatatan-oli)',
-                                'short' => true,
-                            ]
-                        ],
-                    ],
-                ],
-                
+                'text' => ":oil_drum: *Data Pengiriman Oli Dari {$request->pengirim}*",
+                'attachments' => $attachments,
             ];
 
             $data_string = json_encode($data);
@@ -334,28 +329,24 @@ class OliController extends Controller
             $result = curl_exec($ch);
 
             if ($result === false) {
-                // Penanganan kesalahan jika Curl gagal
                 $error = curl_error($ch);
-                // Handle the error here
                 return redirect()->back()->with('error', 'Terjadi kesalahan saat mengirim data ke Slack: ' . $error);
             }
 
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
 
             if ($httpCode !== 200) {
-                // Penanganan kesalahan jika Slack merespons selain status 200 OK
-                // Handle the error here
                 return redirect()->back()->with('error', 'Terjadi kesalahan saat mengirim data ke Slack. Kode status: ' . $httpCode);
             }
 
-            curl_close($ch);
-    
             return redirect()->back()->with('success', 'Data berhasil disimpan.');
         } catch (\Exception $e) {
-            // Tangani kesalahan yang mungkin terjadi
             return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan Data: ' . $e->getMessage());
         }
     }
+
+
     
     public function edit($id)
     {

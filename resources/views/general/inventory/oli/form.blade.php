@@ -11,6 +11,7 @@
         <div class="card">
             <div class="card-header">
                 <h4>Form Pencatatan Pengiriman Oli</h4>
+                
             </div>
             <div class="card-body">
             <form action="{{route('oli.store')}}" method="POST">
@@ -20,21 +21,32 @@
                             <label for="" class="form-label">Pengirim</label>
                             <input type="text" class="form-control" name="pengirim" required>    
                         </div>
-                        <div class="col-md-12 mb-2">
-                            <label for="" class="form-label">Jenis Oli</label>
-                            <select name="jenis_oli" class="form-control" id="" required>
-                                <option value="Bahan">Bahan</option>
-                                <option value="Service">Service</option>
-                                <option value="Trafo">Trafo</option>
-                                <option value="Minarex">Minarex</option>
-                            </select>   
+                        <div id="oli-items">
+                            <div class="row oli-item mb-3">
+                                <div class="col-md-5">
+                                    <label>Jenis Oli</label>
+                                    <select name="jenis_oli[]" class="form-control" required>
+                                        <option value="Bahan">Bahan</option>
+                                        <option value="Service">Service</option>
+                                        <option value="Trafo">Trafo</option>
+                                        <option value="Minarex">Minarex</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-5">
+                                    <label>Jumlah</label>
+                                    <input type="text" name="jumlah[]" class="form-control" placeholder="2 Drum" required>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button type="button" class="btn btn-danger btn-remove w-100">Hapus</button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-12 mb-2">
-                            <label for="" class="form-label">Jumlah</label>
-                            <input type="text" class="form-control" name="jumlah" placeholder="2 Drum" required>       
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-success w-100" id="addRow">Tambah Data</button>
                         </div>
-                        <div class="col-md-12 mt-2">
-                            <button class="btn btn-primary w-100" type="submit">Kirim Data</button>
+                        
+                        <div class="col-md-6">
+                            <button class="btn btn-primary w-100" type="submit">Simpan Data</button>
                         </div>
                     </div>
                 </form>
@@ -64,4 +76,51 @@
             });
         @endif
     </script>
+    <script>
+    $(document).ready(function() {
+        // Tambah baris baru
+        $('#addRow').click(function() {
+            let row = `
+            <div class="row oli-item mb-3">
+                <div class="col-md-5">
+                    <select name="jenis_oli[]" class="form-control" required>
+                        <option value="Bahan">Bahan</option>
+                        <option value="Service">Service</option>
+                        <option value="Trafo">Trafo</option>
+                        <option value="Minarex">Minarex</option>
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <input type="text" name="jumlah[]" class="form-control" placeholder="2 Drum" required>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="button" class="btn btn-danger btn-remove w-100">Hapus</button>
+                </div>
+            </div>`;
+            $('#oli-items').append(row);
+        });
+
+        // Hapus baris
+        $(document).on('click', '.btn-remove', function() {
+            $(this).closest('.oli-item').remove();
+        });
+
+        // SweetAlert
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: '{{ session('success') }}',
+            });
+        @endif
+
+        @if(session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '{{ session('error') }}',
+            });
+        @endif
+    });
+</script>
 @endsection
