@@ -136,4 +136,5 @@ Route::post('production_batches/{productionBatch}/close', [App\Http\Controllers\
 Route::post('/production-batches/finish', [App\Http\Controllers\Production\ProductionBatchController::class, 'finishProduction'])->name('production_batches.finish');
 Route::post('/production_batches/forecast', [App\Http\Controllers\Production\ProductionBatchController::class, 'forecastData'])->name('production_batches.forecast');
 Route::get('/dashboard/production/trend-by-product', [App\Http\Controllers\Production\ProductionBatchController::class, 'productionTrendPerProduct'])->name('dashboard.production.trend_by_product');
+Route::get('/produksi/export-pdf', [App\Http\Controllers\Production\ProductionBatchController::class, 'exportBreakdownToPdf'])->name('produksi.export.pdf');
 

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 // Model
 use App\Models\Production\ProductionMaterialTank;
@@ -350,62 +351,16 @@ class ProductionBatchController extends Controller
         $from = $request->input('from');
         $to = $request->input('to');
         $groupBy = $request->input('group_by', 'monthly'); // default: monthly
+        $compareMode = $request->input('compare_mode'); // product | date
+        $produkCompare = $request->input('produk_compare');
+        $compareFrom = $request->input('compare_from');
+        $compareTo = $request->input('compare_to');
 
-        // Tentukan format period berdasarkan group_by
         $periodFormat = $groupBy === 'daily' ? "%Y-%m-%d" : "%Y-%m";
 
-        $query = ProductionBatch::select(
-            DB::raw("DATE_FORMAT(production_batches.created_at, '$periodFormat') as period"),
-            'produk',
-            DB::raw("SUM(pp.size * pp.quantity) / 1000 as total_ton")
-        )
-        ->join('production_packaging as pp', 'pp.production_batch_id', '=', 'production_batches.id')
-        ->where('production_batches.status', 'Closed');
-
-        // Apply filter
-        if ($produkFilter) {
-            $query->where('produk', $produkFilter);
-        }
-
-        if ($from) {
-            $query->whereDate('production_batches.created_at', '>=', $from);
-        }
-
-        if ($to) {
-            $query->whereDate('production_batches.created_at', '<=', $to);
-        }
-
-        $rawData = $query->groupBy('period', 'produk')
-            ->orderBy('period')
-            ->get();
-
-        $breakdown = ProductionBatch::select(
-                'production_batches.produk',
-                'pp.size',
-                'pp.packaging as kemasan',
-                DB::raw('SUM(pp.quantity) as total_unit'),
-                DB::raw('SUM(pp.size * pp.quantity) / 1000 as total_ton')
-            )
-            ->join('production_packaging as pp', 'pp.production_batch_id', '=', 'production_batches.id')
-            ->where('production_batches.status', 'Closed');
-        
-        if ($produkFilter) {
-            $breakdown->where('produk', $produkFilter);
-        }
-        
-        if ($from) {
-            $breakdown->whereDate('production_batches.created_at', '>=', $from);
-        }
-        
-        if ($to) {
-            $breakdown->whereDate('production_batches.created_at', '<=', $to);
-        }
-        
-        $breakdownData = $breakdown
-            ->groupBy('produk', 'pp.size', 'pp.packaging')
-            ->orderBy('produk')
-            ->orderBy('pp.size')
-            ->get();
+        // 🔹 Data Utama
+        $rawData = $this->getProductionData($produkFilter, $from, $to, $periodFormat);
+        $breakdownData = $this->getBreakdownData($produkFilter, $from, $to);
 
         $produkList = $rawData->pluck('produk')->unique()->values();
         $labels = $rawData->pluck('period')->unique()->sort()->values();
@@ -427,7 +382,37 @@ class ProductionBatchController extends Controller
             $datasets[] = [
                 'label' => $produk,
                 'data' => $dataPerProduk,
-                'backgroundColor' => 'rgba('.rand(0,255).','.rand(0,255).','.rand(0,255).',0.6)',
+                'backgroundColor' => 'rgba(' . rand(0,255) . ',' . rand(0,255) . ',' . rand(0,255) . ',0.6)',
+            ];
+        }
+
+        // 🔹 Data Pembanding
+        $compareLabels = collect();
+        $compareDatasets = [];
+
+        if ($compareMode === 'product' && $produkCompare) {
+            $compareData = $this->getProductionData($produkCompare, $from, $to, $periodFormat);
+            $compareLabels = $compareData->pluck('period')->unique()->sort()->values();
+            $compareDatasets[] = [
+                'label' => $produkCompare . ' (Pembanding)',
+                'data' => $compareLabels->map(fn($period) =>
+                    $compareData->where('period', $period)->pluck('total_ton')->first() ?? 0
+                ),
+                'borderColor' => 'rgba(255, 99, 132, 1)',
+                'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
+                'type' => 'line',
+            ];
+        } elseif ($compareMode === 'date' && $compareFrom && $compareTo) {
+            $compareData = $this->getProductionData($produkFilter, $compareFrom, $compareTo, $periodFormat);
+            $compareLabels = $compareData->pluck('period')->unique()->sort()->values();
+            $compareDatasets[] = [
+                'label' => $produkFilter . ' (Periode Lain)',
+                'data' => $compareLabels->map(fn($period) =>
+                    $compareData->where('period', $period)->pluck('total_ton')->first() ?? 0
+                ),
+                'borderColor' => 'rgba(54, 162, 235, 1)',
+                'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
+                'type' => 'line',
             ];
         }
 
@@ -440,8 +425,92 @@ class ProductionBatchController extends Controller
             'to' => $to,
             'groupBy' => $groupBy,
             'breakdownData' => $breakdownData,
+            'compareMode' => $compareMode,
+            'compareLabels' => $compareLabels,
+            'compareDatasets' => $compareDatasets,
         ]);
     }
 
+
+    public function exportBreakdownToPdf(Request $request)
+    {
+        $produkFilter = $request->input('produk');
+        $from = $request->input('from');
+        $to = $request->input('to');
+    
+        $breakdown = ProductionBatch::select(
+                'production_batches.produk',
+                'pp.size',
+                'pp.packaging as kemasan',
+                DB::raw('SUM(pp.quantity) as total_unit'),
+                DB::raw('SUM(pp.size * pp.quantity) / 1000 as total_ton')
+            )
+            ->join('production_packaging as pp', 'pp.production_batch_id', '=', 'production_batches.id')
+            ->where('production_batches.status', 'Closed');
+    
+        if ($produkFilter) {
+            $breakdown->where('produk', $produkFilter);
+        }
+    
+        if ($from) {
+            $breakdown->whereDate('production_batches.created_at', '>=', $from);
+        }
+    
+        if ($to) {
+            $breakdown->whereDate('production_batches.created_at', '<=', $to);
+        }
+    
+        $breakdownData = $breakdown
+            ->groupBy('produk', 'pp.size', 'pp.packaging')
+            ->orderBy('produk')
+            ->orderBy('pp.size')
+            ->get();
+    
+        $pdf = Pdf::loadView('general.produksi.report.pdf_produksi', [
+            'breakdownData' => $breakdownData,
+            'selectedProduk' => $produkFilter,
+            'from' => $from,
+            'to' => $to,
+        ])->setPaper('a4', 'portrait');
+    
+        return $pdf->download('ringkasan-produksi.pdf');
+    }
+
+    private function getProductionData($produk, $from, $to, $periodFormat)
+    {
+        return ProductionBatch::select(
+                DB::raw("DATE_FORMAT(production_batches.created_at, '$periodFormat') as period"),
+                'produk',
+                DB::raw("SUM(pp.size * pp.quantity) / 1000 as total_ton")
+            )
+            ->join('production_packaging as pp', 'pp.production_batch_id', '=', 'production_batches.id')
+            ->where('production_batches.status', 'Closed')
+            ->when($produk, fn($q) => $q->where('produk', $produk))
+            ->when($from, fn($q) => $q->whereDate('production_batches.created_at', '>=', $from))
+            ->when($to, fn($q) => $q->whereDate('production_batches.created_at', '<=', $to))
+            ->groupBy('period', 'produk')
+            ->orderBy('period')
+            ->get();
+    }
+
+    private function getBreakdownData($produk, $from, $to)
+    {
+        return ProductionBatch::select(
+                'production_batches.produk',
+                'pp.size',
+                'pp.packaging as kemasan',
+                DB::raw('SUM(pp.quantity) as total_unit'),
+                DB::raw('SUM(pp.size * pp.quantity) / 1000 as total_ton')
+            )
+            ->join('production_packaging as pp', 'pp.production_batch_id', '=', 'production_batches.id')
+            ->where('production_batches.status', 'Closed')
+            ->when($produk, fn($q) => $q->where('produk', $produk))
+            ->when($from, fn($q) => $q->whereDate('production_batches.created_at', '>=', $from))
+            ->when($to, fn($q) => $q->whereDate('production_batches.created_at', '<=', $to))
+            ->groupBy('produk', 'pp.size', 'pp.packaging')
+            ->orderBy('produk')
+            ->orderBy('pp.size')
+            ->get();
+    }
 
 }
