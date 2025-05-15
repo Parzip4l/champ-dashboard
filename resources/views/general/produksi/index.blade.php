@@ -118,7 +118,7 @@
                             Showing {{ $batches->firstItem() }} to {{ $batches->lastItem() }} of {{ $batches->total() }} entries
                         </div>
                         <div class="">
-                            {{ $batches->links('pagination::bootstrap-4') }}  <!-- Pagination links -->
+                            {{ $batches->links('pagination::bootstrap-4') }} 
                         </div>
                     </div>
                 </tfoot>
@@ -209,8 +209,8 @@
                                 </select>
                             </div>
 
-                            <div id="packaging-container">
-                                <div class="packaging-group row g-2 mb-2">
+                            <div id="packaging-container2">
+                                <div class="packaging-group2 row g-2 mb-2">
                                     <div class="col-md-4">
                                         <select class="form-select" name="packaging[]">
                                             <option value="drum">Drum</option>
@@ -225,13 +225,13 @@
                                         <input type="number" class="form-control" name="quantity[]" placeholder="Qty" required>
                                     </div>
                                     <div class="col-md-2 d-grid">
-                                        <button type="button" class="btn btn-danger remove-packaging">×</button>
+                                        <button type="button" class="btn btn-danger remove-packaging2">×</button>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <button type="button" class="btn btn-sm btn-secondary" id="addPackaging">+ Tambah Packaging</button>
+                                <button type="button" class="btn btn-sm btn-secondary" id="addPackaging2">+ Tambah Packaging</button>
                             </div>
 
                             <button type="submit" class="btn btn-primary">Selesaikan Produksi</button>
@@ -502,6 +502,65 @@
                     const container = document.getElementById('packaging-container');
                     if (container.querySelectorAll('.packaging-item').length > 1) {
                         e.target.closest('.packaging-item').remove();
+                    }
+                }
+            });
+        </script>
+
+        <!-- Finish Prod -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const container = document.getElementById('packaging-container2');
+                const addBtn = document.getElementById('addPackaging2');
+
+                addBtn.addEventListener('click', function () {
+                    const newRow = document.createElement('div');
+                    newRow.classList.add('packaging-group2', 'row', 'g-2', 'mb-2');
+                    newRow.innerHTML = `
+                        <div class="col-md-4">
+                            <select class="form-select" name="packaging[]">
+                                <option value="drum">Drum</option>
+                                <option value="pail">Pail</option>
+                                <option value="pot">Pot</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" name="size[]" placeholder="Size (Kg)" required>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="number" class="form-control" name="quantity[]" placeholder="Qty" required>
+                        </div>
+                        <div class="col-md-2 d-grid">
+                            <button type="button" class="btn btn-danger remove-packaging">×</button>
+                        </div>
+                    `;
+                    container.appendChild(newRow);
+                });
+
+                container.addEventListener('click', function (e) {
+                    if (e.target.classList.contains('remove-packaging2')) {
+                        e.target.closest('.packaging-group2').remove();
+                    }
+                });
+            });
+        </script>
+        <script>
+            document.getElementById('add-packaging2').addEventListener('click', function() {
+                const container = document.getElementById('packaging-container2');
+                const item = document.querySelector('.packaging-item2').cloneNode(true);
+
+                item.querySelectorAll('input, select').forEach(input => {
+                    input.value = '';
+                });
+
+                container.appendChild(item);
+            });
+
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-packaging2')) {
+                    const container = document.getElementById('packaging-container2');
+                    if (container.querySelectorAll('.packaging-item2').length > 1) {
+                        e.target.closest('.packaging-item2').remove();
                     }
                 }
             });
