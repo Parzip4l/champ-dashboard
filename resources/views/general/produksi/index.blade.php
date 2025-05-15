@@ -536,7 +536,7 @@
                             <input type="number" class="form-control" name="quantity[]" placeholder="Qty" required>
                         </div>
                         <div class="col-md-2 d-grid">
-                            <button type="button" class="btn btn-danger remove-packaging">×</button>
+                            <button type="button" class="btn btn-danger remove-packaging2">×</button>
                         </div>
                     `;
                     container.appendChild(newRow);
