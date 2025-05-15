@@ -13,6 +13,11 @@
         {{ session('error') }}
     </div>
 @endif
+<div class="row mb-2">
+    <div class="col-md-6">
+        <a href="{{route('dashboard.production.trend_by_product')}}" class="btn btn-primary w-100" target="_blank">Buka Dashboard Produksi</a>
+    </div>
+</div>
 <div class="row">
     <div class="col">
         <div class="card">

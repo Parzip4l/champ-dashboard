@@ -344,4 +344,104 @@ class ProductionBatchController extends Controller
         ]);
     }
 
+    public function productionTrendPerProduct(Request $request)
+    {
+        $produkFilter = $request->input('produk');
+        $from = $request->input('from');
+        $to = $request->input('to');
+        $groupBy = $request->input('group_by', 'monthly'); // default: monthly
+
+        // Tentukan format period berdasarkan group_by
+        $periodFormat = $groupBy === 'daily' ? "%Y-%m-%d" : "%Y-%m";
+
+        $query = ProductionBatch::select(
+            DB::raw("DATE_FORMAT(production_batches.created_at, '$periodFormat') as period"),
+            'produk',
+            DB::raw("SUM(pp.size * pp.quantity) / 1000 as total_ton")
+        )
+        ->join('production_packaging as pp', 'pp.production_batch_id', '=', 'production_batches.id')
+        ->where('production_batches.status', 'Closed');
+
+        // Apply filter
+        if ($produkFilter) {
+            $query->where('produk', $produkFilter);
+        }
+
+        if ($from) {
+            $query->whereDate('production_batches.created_at', '>=', $from);
+        }
+
+        if ($to) {
+            $query->whereDate('production_batches.created_at', '<=', $to);
+        }
+
+        $rawData = $query->groupBy('period', 'produk')
+            ->orderBy('period')
+            ->get();
+
+        $breakdown = ProductionBatch::select(
+                'production_batches.produk',
+                'pp.size',
+                'pp.packaging as kemasan',
+                DB::raw('SUM(pp.quantity) as total_unit'),
+                DB::raw('SUM(pp.size * pp.quantity) / 1000 as total_ton')
+            )
+            ->join('production_packaging as pp', 'pp.production_batch_id', '=', 'production_batches.id')
+            ->where('production_batches.status', 'Closed');
+        
+        if ($produkFilter) {
+            $breakdown->where('produk', $produkFilter);
+        }
+        
+        if ($from) {
+            $breakdown->whereDate('production_batches.created_at', '>=', $from);
+        }
+        
+        if ($to) {
+            $breakdown->whereDate('production_batches.created_at', '<=', $to);
+        }
+        
+        $breakdownData = $breakdown
+            ->groupBy('produk', 'pp.size', 'pp.packaging')
+            ->orderBy('produk')
+            ->orderBy('pp.size')
+            ->get();
+
+        $produkList = $rawData->pluck('produk')->unique()->values();
+        $labels = $rawData->pluck('period')->unique()->sort()->values();
+        $datasets = [];
+
+        foreach ($produkList as $produk) {
+            $dataPerProduk = [];
+
+            foreach ($labels as $period) {
+                $value = $rawData
+                    ->where('produk', $produk)
+                    ->where('period', $period)
+                    ->pluck('total_ton')
+                    ->first() ?? 0;
+
+                $dataPerProduk[] = $value;
+            }
+
+            $datasets[] = [
+                'label' => $produk,
+                'data' => $dataPerProduk,
+                'backgroundColor' => 'rgba('.rand(0,255).','.rand(0,255).','.rand(0,255).',0.6)',
+            ];
+        }
+
+        return view('general.produksi.dashboard.index', [
+            'labels' => $labels,
+            'datasets' => $datasets,
+            'produkOptions' => ProductionBatch::select('produk')->distinct()->pluck('produk'),
+            'selectedProduk' => $produkFilter,
+            'from' => $from,
+            'to' => $to,
+            'groupBy' => $groupBy,
+            'breakdownData' => $breakdownData,
+        ]);
+    }
+
+
 }
