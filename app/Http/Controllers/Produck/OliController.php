@@ -267,7 +267,7 @@ class OliController extends Controller
             ]];
 
             foreach ($jenisOliArray as $index => $jenisOli) {
-                $jumlah = (int)$jumlahArray[$index];
+                $jumlah = (float)$jumlahArray[$index];
 
                 $hargaData = HargaOli::where('jenis_oli', $jenisOli)->first();
                 if (!$hargaData) continue;
