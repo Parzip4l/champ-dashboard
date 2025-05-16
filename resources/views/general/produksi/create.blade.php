@@ -34,9 +34,16 @@
                                     </div>
                                 </div>
 
-                                <div class="col-lg-3">
-                                    <label for="seller-email" class="form-label">Produk</label>
+                                <div class="col-lg-2">
                                     <div class="mb-3">
+                                        <label for="distributor-name" class="form-label">Tanggal Produksi</label>
+                                        <input type="date" id="tanggal" name="tanggal" class="form-control" placeholder="Batch Code">
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4">
+                                    <label for="seller-email" class="form-label">Produk</label>
+                                    <div class="mb-4">
                                         <select name="produk" id="" class="form-control">
                                             <option value="Multipurpose">Multipurpose</option>
                                             <option value="Xtreme">Xtreme</option>
@@ -51,7 +58,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-lg-3">
+                                <div class="col-lg-4">
                                     <label for="seller-number" class="form-label">Tangki Masak</label>
                                     <div class="mb-3">
                                         <select name="tangki_masak" id="" class="form-control">
