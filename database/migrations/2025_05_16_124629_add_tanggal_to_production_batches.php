@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('production_batches', function (Blueprint $table) {
-            $table->date('tanggal');
+            $table->date('tanggal')->default('2025-01-01');
         });
     }
 
