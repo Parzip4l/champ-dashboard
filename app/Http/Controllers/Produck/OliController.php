@@ -12,6 +12,12 @@ use App\Models\Setting\HargaOli;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\OliReportExport;
 
+// Warehouse
+use App\Models\Warehouse\WarehouseItem;
+use App\Models\Warehouse\WarehouseLocation;
+use App\Models\Warehouse\WarehouseStock;
+use App\Models\Warehouse\WarehouseStockMutation;
+
 class OliController extends Controller
 {
 
@@ -285,6 +291,36 @@ class OliController extends Controller
                 $oli->harga = $harga;
                 $oli->total = $total;
                 $oli->save();
+
+                $item = WarehouseItem::where('name', 'Oli')->where('type', $jenisOli)->first();
+                $location = WarehouseLocation::where('code', 'WH-001')->first();
+
+                if ($item) {
+                    $qtyKg = $jumlah * 180;
+
+                    $stock = WarehouseStock::where('warehouse_item_id', $item->id)->first();
+
+                    if ($stock) {
+                        $stock->quantity += $qtyKg;
+                        $stock->save();
+                    } else {
+                        // Kalau belum ada stok, buat baru
+                        WarehouseStock::create([
+                            'warehouse_item_id' => $item->id,
+                            'warehouse_location_id' => $location->id,
+                            'quantity' => $qtyKg,
+                        ]);
+
+                        WarehouseStockMutation::create([
+                            'warehouse_item_id' => $item->id,
+                            'warehouse_location_id' => $location->id,
+                            'quantity' => $qtyKg,
+                            'type' => 'in',
+                            'notes' => 'By Vendor',
+                            'source' => $pengirim,
+                        ]);
+                    }
+                }
 
                 // Tambah attachment untuk Slack
                 $attachments[] = [
