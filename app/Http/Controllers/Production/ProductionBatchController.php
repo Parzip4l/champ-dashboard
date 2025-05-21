@@ -42,6 +42,7 @@ class ProductionBatchController extends Controller
             $batch = ProductionBatch::create([
                 'batch_code' => $request->batch_code,
                 'produk' => $request->produk,
+                'tanggal' => $request->tanggal,
                 'tangki_masak' => $request->tangki_masak,
                 'status' => $request->status,
                 'hasil_status' => $request->hasil_status,
@@ -106,6 +107,7 @@ class ProductionBatchController extends Controller
                 'produk' => $request->produk,
                 'tangki_masak' => $request->tangki_masak,
                 'status' => $request->status,
+                'tanggal' => $request->tanggal,
                 'hasil_status' => $request->hasil_status,
                 'tangki_olah' => $request->tangki_olah,
                 'bahan_bakar_masak' => $request->bahan_bakar,

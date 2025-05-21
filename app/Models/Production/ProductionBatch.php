@@ -13,7 +13,7 @@ class ProductionBatch extends Model
     protected $fillable = [
         'batch_code', 'produk', 'tangki_masak', 'status', 'hasil_status',
         'tangki_olah', 'bahan_bakar_masak', 'qty_bahan_bakar_masak',
-        'bahan_bakar_olah', 'qty_bahan_bakar_olah'
+        'bahan_bakar_olah', 'qty_bahan_bakar_olah', 'tanggal'
     ];
 
     public function materials()

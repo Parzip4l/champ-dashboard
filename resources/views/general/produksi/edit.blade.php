@@ -32,6 +32,13 @@
                                     </div>
                                 </div>
 
+                                <div class="col-lg-2">
+                                    <div class="mb-3">
+                                        <label for="distributor-name" class="form-label">Tanggal Produksi</label>
+                                        <input type="date" id="tanggal" name="tanggal" class="form-control" placeholder="Batch Code"  value="{{ $batch->tanggal }}">
+                                    </div>
+                                </div>
+
                                 <div class="col-lg-3">
                                     <label for="produk" class="form-label">Produk</label>
                                     <div class="mb-3">
@@ -48,6 +55,7 @@
                                         </select>
                                     </div>
                                 </div>
+                                
 
                                 <div class="col-lg-3">
                                     <label for="tangki_masak" class="form-label">Tangki Masak</label>
