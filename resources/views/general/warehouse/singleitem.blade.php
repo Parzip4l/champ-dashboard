@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ['title' => 'Item Details'])
+@extends('layouts.vertical', ['title' => 'Detail Item'])
 
 @section('content')
 
@@ -12,15 +12,14 @@
                 <div class="row g-3">
                     <div class="col-lg-3 border-end">
                         <div class="">
-                            <h3 class="mb-1">{{ $item->name }} ({{ $item->code }}) </h3>
+                            <h2 class="mb-1">{{ $item->name }} ({{ $item->code }}) </h2>
                             @if($item->stocks->sum('quantity') < $item->minimum_qty)
                                 <div class="text-danger small mb-2 text-start">Stok kurang dari minimum!</div>
                             @endif
                             
                             <div class="mb-3">
-
                                 <div class="d-flex justify-content-between mb-2">
-                                    <span>Type</span>
+                                    <span>Tipe</span>
                                     <strong>{{ $item->type ?? '-' }}</strong>
                                 </div>
 
@@ -36,14 +35,17 @@
 
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Stok Barang</span>
-                                    <strong class="{{ $item->stocks->sum('quantity') < $item->minimum_qty ? 'text-danger' : '' }}">
-                                        {{ $item->stocks->sum('quantity') }} {{ $item->unit }}
+                                    <strong class="{{ $item->stocks->sum('quantity') < $item->minimum_qty ? 'text-danger' : 'text-success' }}">
+                                        {{ number_format($item->stocks->sum('quantity')) }} {{ $item->unit }}
                                     </strong>
                                 </div>
 
                                 <div class="d-flex justify-content-between">
-                                    <span>Minimum Stock</span>
-                                    <strong>{{ $item->minimum_qty }} {{ $item->unit }}</strong>
+                                    <span>Stok Minimum</span>
+                                    <strong>{{ number_format($item->minimum_qty) }} {{ $item->unit }}</strong>
+                                </div>
+                                <div class="mt-3">
+                                    <a href="{{ route('warehouse.items.edit', $item->id) }}" class="btn btn-primary w-100">Edit Data</a>
                                 </div>
                             </div>
                         </div>
@@ -75,8 +77,8 @@
                                             ])>
                                                 <td>{{ $mutation->created_at->format('d-m-Y H:i') }}</td>
                                                 <td>{{ ucfirst($mutation->type) }}</td>
-                                                <td>{{ $mutation->quantity_before }}</td>
-                                                <td>{{ $mutation->quantity_after }}</td>
+                                                <td>{{ number_format($mutation->quantity_before )}}</td>
+                                                <td>{{ number_format($mutation->quantity_after) }}</td>
                                                 <td>{{ $mutation->source }}</td>
                                                 <td>{{ $mutation->note }}</td>
                                             </tr>
@@ -125,77 +127,103 @@
 @endphp
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const labels = {!! json_encode($labels) !!};
-    const dataQty = {!! json_encode($dataQty) !!};
-    const minStock = {{ $minimumStock }};
-    const unit = "{{ $unit }}";
+    document.addEventListener('DOMContentLoaded', function () {
+        const labels = {!! json_encode($labels) !!};
+        const dataQty = {!! json_encode($dataQty) !!};
+        const minStock = {{ $minimumStock }};
+        const unit = "{{ $unit }}";
 
-    const colors = dataQty.map(qty => qty <= minStock ? '#dc3545' : '#0d6efd');
-
-    const options = {
-        chart: {
-            type: 'line',
-            height: 350,
-            toolbar: { show: false },
-            zoom: { enabled: false }
-        },
-        series: [{
-            name: 'Stok Barang',
-            data: dataQty
-        }],
-        xaxis: {
-            categories: labels,
-            title: { text: 'Tanggal' }
-        },
-        yaxis: {
-            title: { text: 'Qty' },
-            min: Math.min(...dataQty, minStock) - 10,
-            max: Math.max(...dataQty, minStock) + 10
-        },
-        markers: {
-            size: 5,
-            colors: colors,
-            strokeColors: '#fff',
-            strokeWidth: 2,
-            hover: { size: 7 }
-        },
-        tooltip: {
-            y: {
-                formatter: function (val) {
-                    return val + " " + unit;
+        const options = {
+            chart: {
+                type: 'line',
+                height: 350,
+                toolbar: { show: false },
+                zoom: { enabled: false }
+            },
+            series: [{
+                name: 'Stok Barang',
+                data: dataQty
+            }],
+            xaxis: {
+                categories: labels,
+                title: { text: 'Tanggal' }
+            },
+            yaxis: {
+                title: { text: 'Qty' },
+                min: Math.min(...dataQty, minStock) - 10,
+                max: Math.max(...dataQty, minStock) + 10,
+                labels: {
+                    formatter: function (val) {
+                        return Number(val).toLocaleString('id-ID', { maximumFractionDigits: 0 });
+                    }
                 }
+            },
+            markers: {
+                size: 6,
+                strokeColors: '#fff',
+                strokeWidth: 2,
+                hover: { size: 8 },
+                discrete: dataQty.map((val, idx) => ({
+                    seriesIndex: 0,
+                    dataPointIndex: idx,
+                    fillColor: val > minStock ? '#28a745' : '#dc3545',
+                    strokeColor: '#fff',
+                    size: 6
+                }))
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return Number(val).toLocaleString('id-ID', { maximumFractionDigits: 0 }) + " " + unit;
+                    }
+                }
+            },
+            annotations: {
+                yaxis: [{
+                    y: minStock,
+                    borderColor: '#ef5f5f',
+                    strokeDashArray: 5,
+                    label: {
+                        borderColor: '#f1c40f',
+                        style: {
+                            color: '#fff',
+                            background: '#f1c40f',
+                            fontSize: '12px',
+                            fontWeight: 600
+                        },
+                        text: 'Minimum Stok: ' + Number(minStock).toLocaleString('id-ID', { maximumFractionDigits: 0 }) + ' ' + unit,
+                        position: 'right',
+                        offsetY: 0
+                    }
+                }],
+                regions: [{
+                    y: minStock,
+                    y2: Math.min(...dataQty),
+                    fillColor: 'rgba(239, 95, 95, 0.15)', // kuning transparan
+                    opacity: 0.5
+                }]
+            },
+            stroke: {
+                curve: 'smooth',
+                width: 3,
+                colors: ['#FFC512']
+            },
+            legend: {
+                show: true,
+                labels: {
+                    colors: '#333'
+                },
+                markers: {
+                    fillColors: ['#28a745', '#dc3545']
+                },
+                customLegendItems: ['Stok > Minimum', 'Stok <= Minimum'],
             }
-        },
-        annotations: {
-            yaxis: [{
-                y: minStock,
-                borderColor: '#aaa',
-                strokeDashArray: 5,
-                label: {
-                    borderColor: '#aaa',
-                    style: {
-                        color: '#fff',
-                        background: '#aaa',
-                        fontSize: '12px',
-                        fontWeight: 600
-                    },
-                    text: 'Minimum Stok: ' + minStock + ' ' + unit,
-                    position: 'right',
-                    offsetY: 0
-                }
-            }]
-        },
-        stroke: {
-            curve: 'smooth',
-            width: 3
-        },
-        colors: ['#FFC512'],
-    };
+        };
 
-    const chart = new ApexCharts(document.querySelector("#stockChart"), options);
-    chart.render();
-});
+        const chart = new ApexCharts(document.querySelector("#stockChart"), options);
+        chart.render();
+    });
 </script>
+
 
 @endsection
