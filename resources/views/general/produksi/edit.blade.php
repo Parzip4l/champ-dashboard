@@ -323,7 +323,7 @@
                     </select>
                 </div>
                 <div class="col-md-3 mb-2">
-                    <input type="number" name="${kategori}_qty_${step}[]" class="form-control" min="0">
+                    <input type="number" name="${kategori}_qty_${step}[]" class="form-control" step="0.01" min="0">
                 </div>
                 <div class="col-md-3 mb-2">
                     <input type="text" name="${kategori}_ket_${step}[]" class="form-control">
