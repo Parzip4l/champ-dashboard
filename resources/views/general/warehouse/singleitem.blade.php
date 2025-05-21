@@ -92,29 +92,29 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div>
-                        <h3 class="d-flex align-items-center gap-2">Grafik Stok Barang </h3>
-                        <p class="mb-0 {{ $stokawal < $minimumStock ? 'text-danger' : 'text-success' }}">
-                            {{ $stockStatus }}
-                        </p>
-                    </div>
-                    <div class="avatar-md bg-light bg-opacity-50 rounded">
-                        <iconify-icon icon="solar:chart-2-bold-duotone" class="fs-32 text-primary avatar-title"></iconify-icon>
-                    </div>
+
+<div class="col-lg-12">
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                    <h3 class="d-flex align-items-center gap-2">Grafik Stok Barang </h3>
+                    <p class="mb-0 {{ $stokawal < $minimumStock ? 'text-danger' : 'text-success' }}">
+                        {{ $stockStatus }}
+                    </p>
                 </div>
-                
-                <div class="apex-charts">
-                    <div id="stockChart" style="height: 350px;"></div>
+                <div class="avatar-md bg-light bg-opacity-50 rounded">
+                    <iconify-icon icon="solar:chart-2-bold-duotone" class="fs-32 text-primary avatar-title"></iconify-icon>
                 </div>
+            </div>
+            
+            <div class="apex-charts">
+                <div id="stockChart" style="height: 350px;"></div>
             </div>
         </div>
     </div>
 </div>
+
 
 @endsection
 @section('script')
