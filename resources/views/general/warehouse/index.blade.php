@@ -107,9 +107,8 @@
                 </div>
             </div>
             <div class="card-footer border-top gap-1 hstack">
-                <a href="{{ route('distributor.show', $data->id) }}" class="btn btn-primary w-100">View</a>
-                <a href="{{ route('distributor.edit', $data->id) }}" class="btn btn-light w-100">Edit</a>
-                <button class="btn btn-danger w-100" onclick="confirmDelete({{ $data->id }})">Delete</button>
+                <a href="{{ route('warehouse.items.show', $data->id) }}" class="btn btn-primary w-100">View</a>
+                <a href="{{ route('warehouse.items.edit', $data->id) }}" class="btn btn-light w-100">Edit</a>
             </div>
         </div>
     </div>

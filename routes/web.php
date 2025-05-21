@@ -111,6 +111,10 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function () {
     Route::prefix('warehouse/items')->name('warehouse.items.')->group(function () {
         Route::get('create', [App\Http\Controllers\Warehouse\WarehouseController::class, 'create'])->name('create');
         Route::post('store', [App\Http\Controllers\Warehouse\WarehouseController::class, 'store'])->name('store');
+    
+        Route::get('{id}/edit', [App\Http\Controllers\Warehouse\WarehouseController::class, 'edit'])->name('edit');
+        Route::get('{id}/show', [App\Http\Controllers\Warehouse\WarehouseController::class, 'show'])->name('show');
+        Route::put('{id}', [App\Http\Controllers\Warehouse\WarehouseController::class, 'update'])->name('update');
     });
 
     // Oli

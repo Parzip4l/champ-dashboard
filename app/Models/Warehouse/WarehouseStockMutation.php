@@ -13,7 +13,9 @@ class WarehouseStockMutation extends Model
         'type',
         'quantity',
         'note',
-        'source'
+        'source',
+        'quantity_before',
+        'quantity_after'
     ];
 
     public function location()

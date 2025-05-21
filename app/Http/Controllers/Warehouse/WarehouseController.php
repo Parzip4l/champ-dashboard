@@ -56,7 +56,7 @@ class WarehouseController extends Controller
             'type'         => 'required|string|max:100',
         ]);
 
-        $locationId = 7; // Lokasi default input stok awal
+        $locationId = 1; // Lokasi default input stok awal
         $qty = $request->stokawal ?? 0;
 
         DB::beginTransaction();
@@ -112,6 +112,160 @@ class WarehouseController extends Controller
                 ->withInput();
         }
     }
+
+    public function edit($id)
+    {
+        $item = WarehouseItem::findOrFail($id);
+        $locations = WarehouseLocation::where('code','WH-001')->first();
+        $stock = WarehouseStock::where('warehouse_item_id', $id)
+                ->where('warehouse_location_id', $locations->id)
+                ->first();
+        $stokawal = $stock ? $stock->quantity : 0;
+
+        return view('general.warehouse.edit', compact('item', 'locations', 'stokawal'));
+    }
+
+    public function show($id)
+    {
+        $item = WarehouseItem::findOrFail($id);
+        $locations = WarehouseLocation::where('code', 'WH-001')->first();
+
+        $stock = WarehouseStock::where('warehouse_item_id', $id)
+            ->where('warehouse_location_id', $locations->id)
+            ->first();
+
+        $stokawal = $stock ? $stock->quantity : 0;
+        $minimumStock = $item->minimum_qty ?? 0;
+
+        // 5 mutasi terakhir
+        $mutations = WarehouseStockMutation::where('warehouse_item_id', $id)
+            ->where('warehouse_location_id', $locations->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        // Cek status stok
+        $stockStatus = $stokawal < $minimumStock
+            ? 'Stok di bawah minimum bulan ini!'
+            : 'Stok aman bulan ini.';
+
+        // Data grafik stok
+        $chartMutations = WarehouseStockMutation::where('warehouse_item_id', $id)
+            ->where('warehouse_location_id', $locations->id)
+            ->whereMonth('created_at', now()->month)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $labels = $chartMutations->map(fn($m) => $m->created_at->format('d M'))->toArray();
+        $dataQty = [];
+
+        $runningTotal = 0;
+        foreach ($chartMutations as $mutation) {
+            $qty = $mutation->type === 'in' ? $mutation->quantity : -$mutation->quantity;
+            $runningTotal += $qty;
+            $dataQty[] = $runningTotal;
+        }
+
+        $unit = $item->unit;
+
+        return view('general.warehouse.singleitem', compact(
+            'item', 'locations', 'stokawal', 'mutations', 'labels', 'dataQty', 'minimumStock', 'stockStatus','chartMutations','unit'
+        ));
+    }
+
+
+    
+    public function update(Request $request, $id)
+    {
+        $userName = auth()->user()->name ?? 'Unknown User';
+        $validated = $request->validate([
+            'name'         => 'required|string|max:255',
+            'category'     => 'required|string|max:255',
+            'unit'         => 'required|string|max:50',
+            'minimum_qty'  => 'required|numeric|min:0',
+            'type'         => 'required|string|max:100',
+            'stokawal'     => 'nullable|numeric|min:0',
+        ]);
+
+        $locations = WarehouseLocation::where('code','WH-001')->first();
+        $qty = $request->stokawal ?? 0;
+
+        DB::beginTransaction();
+
+        try {
+            $item = WarehouseItem::findOrFail($id);
+
+            // Update data item
+            $item->update([
+                'name'         => $request->name,
+                'type'         => $request->type,
+                'category'     => $request->category,
+                'unit'         => $request->unit,
+                'minimum_qty'  => $request->minimum_qty,
+                // kode biasanya tidak diubah saat update
+            ]);
+
+            // Update stok awal di lokasi default
+            $stock = WarehouseStock::where('warehouse_item_id', $id)
+            ->where('warehouse_location_id', $locations->id)
+            ->first();
+
+            if ($stock) {
+                $qtyBefore = $stock->quantity;
+                $diff = $qty - $qtyBefore;
+                $type = 'adjustment';
+                if ($diff != 0) {
+                    $stock->quantity = $qty;
+                    $stock->save();
+            
+                    WarehouseStockMutation::create([
+                        'warehouse_item_id'       => $id,
+                        'warehouse_location_id'   => $locations->id,
+                        'type'                    => $type,
+                        'quantity'                => abs($diff),
+                        'quantity_before'         => $qtyBefore,
+                        'quantity_after'          => $qty,
+                        'note'                    => "Penyesuaian stok saat edit item oleh {$userName}",
+                        'source'                  => 'system',
+                    ]);
+                }
+            } else {
+                if ($qty > 0) {
+                    WarehouseStock::create([
+                        'warehouse_item_id'       => $id,
+                        'warehouse_location_id'   => $locations->id,
+                        'quantity'                => $qty,
+                    ]);
+            
+                    WarehouseStockMutation::create([
+                        'warehouse_item_id'       => $id,
+                        'warehouse_location_id'   => $locations->id,
+                        'type'                    => 'in',
+                        'quantity'                => $qty,
+                        'quantity_before'         => 0,
+                        'quantity_after'          => $qty,
+                        'note'                    => "Stok dibuat saat edit item oleh {$userName}",
+                        'source'                  => 'system',
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return redirect()
+                ->route('warehouse.index')
+                ->with('success', 'Item berhasil diperbarui.');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('Gagal memperbarui item gudang: ' . $e->getMessage());
+
+            return redirect()
+                ->back()
+                ->withErrors(['message' => 'Terjadi kesalahan saat memperbarui. Silakan coba lagi.'])
+                ->withInput();
+        }
+    }
+
 
 
 }
