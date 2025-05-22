@@ -247,6 +247,18 @@ class ProductionBatchController extends Controller
             return redirect()->back()->with('error', 'Data packaging tidak lengkap.');
         }
 
+        // WarehuseData
+        $warehouseStocks = DB::table('warehouse_items as wi')
+            ->leftJoin('warehouse_stocks as ws', 'wi.id', '=', 'ws.warehouse_item_id')
+            ->select('wi.name', 'wi.type', DB::raw('SUM(ws.quantity) as total_qty'))
+            ->groupBy('wi.name', 'wi.type')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                // buat key seperti: oli-bahan atau emulsifier-bahan
+                $key = strtolower($item->name) . '-' . strtolower($item->type);
+                return [$key => $item->total_qty];
+            });
+
         // Hitung total target quantity berdasarkan input user
         $totalTargetQuantity = 0;
         foreach ($quantities as $index => $qty) {
@@ -301,13 +313,25 @@ class ProductionBatchController extends Controller
                 $ratio = $totalQty / $totalOutput;
                 $predictedQty = $ratio * $totalTargetQuantity;
         
-                list($kategori, $jenis, $tipe) = explode('-', $key);
+                [$kategori, $jenis, $tipe] = explode('-', $key);
+        
+                // Penyesuaian pencocokan key
+                if (strtolower($kategori) === 'oli') {
+                    $lookupKey = strtolower($kategori) . '-' . strtolower($tipe); // name = kategori
+                } else {
+                    $lookupKey = strtolower($jenis) . '-' . strtolower($tipe);    // name = jenis
+                }
+        
+                $stok = $warehouseStocks[$lookupKey] ?? 0;
+                $kekurangan = max(0, $predictedQty - $stok);
         
                 $predictedMaterials[] = [
-                    'nama' => $kategori,
+                    'kategori' => $kategori,
                     'jenis' => $jenis,
                     'tipe' => $tipe,
                     'predicted_qty' => round($predictedQty, 2),
+                    'stok_gudang' => round($stok, 2),
+                    'kekurangan' => round($kekurangan, 2),
                 ];
             }
         }
@@ -334,8 +358,42 @@ class ProductionBatchController extends Controller
             $totalFuelOlah += $batch->qty_bahan_bakar_olah;
         }
 
+        // Hitung prediksi fuel berdasarkan total target output
         $predictedFuelMasak = $totalOutput > 0 ? round($totalFuelMasak / $totalOutput * $totalTargetQuantity, 2) : 0;
         $predictedFuelOlah = $totalOutput > 0 ? round($totalFuelOlah / $totalOutput * $totalTargetQuantity, 2) : 0;
+
+        // Ambil stok solar dari warehouse
+        $solarItem = DB::table('warehouse_items')
+            ->whereRaw('LOWER(name) = ?', ['solar'])
+            ->first();
+
+        $solarStock = 0;
+        if ($solarItem) {
+            $solarStock = DB::table('warehouse_stocks')
+                ->where('warehouse_item_id', $solarItem->id)
+                ->sum('quantity');
+        }
+
+        // Total prediksi kebutuhan fuel (masak + olah)
+        $totalPredictedFuel = $predictedFuelMasak + $predictedFuelOlah;
+
+        // Hitung kekurangan solar
+        $solarKekurangan = $totalPredictedFuel > $solarStock 
+            ? round($totalPredictedFuel - $solarStock, 2) 
+            : 0;
+
+         // Cek apakah ada kekurangan bahan di predictedMaterials
+        $adaKekurangan = false;
+        foreach ($predictedMaterials as $item) {
+            if ($item['kekurangan'] > 0) {
+                $adaKekurangan = true;
+                break;
+            }
+        }
+        // Cek juga kekurangan solar
+        if ($solarKekurangan > 0) {
+            $adaKekurangan = true;
+        }
 
         return view('general.produksi.forecast2.index', [
             'predictedMaterials' => $predictedMaterials,
@@ -343,7 +401,11 @@ class ProductionBatchController extends Controller
             'targetQuantity' => $totalTargetQuantity,
             'predictedFuelMasak' => $predictedFuelMasak,
             'predictedFuelOlah' => $predictedFuelOlah,
+            'solarStock' => $solarStock,
+            'solarKekurangan' => $solarKekurangan,
+            'totalPredictedFuel' => $totalPredictedFuel,
             'packagingInfo' => $packagingInfo,
+            'adaKekurangan' => $adaKekurangan,
         ]);
     }
 
@@ -360,7 +422,7 @@ class ProductionBatchController extends Controller
 
         $periodFormat = $groupBy === 'daily' ? "%Y-%m-%d" : "%Y-%m";
 
-        // 🔹 Data Utama
+        // Data Utama
         $rawData = $this->getProductionData($produkFilter, $from, $to, $periodFormat);
         $breakdownData = $this->getBreakdownData($produkFilter, $from, $to);
 
