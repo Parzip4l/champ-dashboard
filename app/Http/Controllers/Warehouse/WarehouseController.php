@@ -94,6 +94,8 @@ class WarehouseController extends Controller
                     'warehouse_location_id'   => $locationId,
                     'type'                    => 'in',
                     'quantity'                => $qty,
+                    'quantity_before'         => 0,
+                    'quantity_after'          => $qty,
                     'note'                    => 'Stok awal saat input item',
                     'source'                  => 'system',
                 ]);

@@ -301,7 +301,8 @@ class OliController extends Controller
 
                     $stock = WarehouseStock::where('warehouse_item_id', $item->id)->first();
                     $stokbefore = $stock->quantity ?? 0;
-                    $diff = $qtyKg - $stokbefore;
+                    $diff = $qtyKg + $stokbefore;
+                    $stokakhir = $qtyKg + $stokbefore;
 
                     if ($stock) {
                         $stock->quantity += $qtyKg;
@@ -311,9 +312,9 @@ class OliController extends Controller
                             'warehouse_item_id'       => $item->id,
                             'warehouse_location_id'   => $location->id,
                             'type'                    => 'in',
-                            'quantity'                => abs($diff),
+                            'quantity'                => $qtyKg,
                             'quantity_before'         => $stokbefore,
-                            'quantity_after'          => $qtyKg,
+                            'quantity_after'          => $stokakhir,
                             'note'                    => "Penerimaan Oli",
                             'source'                  => 'system',
                         ]);
