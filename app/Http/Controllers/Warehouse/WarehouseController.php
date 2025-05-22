@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 // Models
 use App\Models\Warehouse\WarehouseItem;
@@ -266,6 +268,26 @@ class WarehouseController extends Controller
         }
     }
 
+    public function download(Request $request)
+    {
+        
+        $start = Carbon::parse($request->input('start_date'))->startOfDay();
+        $end = Carbon::parse($request->input('end_date'))->endOfDay();
+        $item = $request->input('item');
+        $itemid = $request->input('item_id');
 
+        $mutations = WarehouseStockMutation::whereBetween('created_at', [$start, $end])
+                ->where('warehouse_item_id', $itemid)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        $pdf = Pdf::loadView('general.warehouse.reportitem', [
+            'mutations' => $mutations,
+            'start' => $start,
+            'end' => $end,
+            'item' => $item,
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->stream('report_mutasi_' . $item . '_' . $start . '_to_' . $end . '.pdf');
+    }
 
 }

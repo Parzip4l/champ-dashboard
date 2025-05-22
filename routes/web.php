@@ -115,6 +115,7 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function () {
         Route::get('{id}/edit', [App\Http\Controllers\Warehouse\WarehouseController::class, 'edit'])->name('edit');
         Route::get('{id}/show', [App\Http\Controllers\Warehouse\WarehouseController::class, 'show'])->name('show');
         Route::put('{id}', [App\Http\Controllers\Warehouse\WarehouseController::class, 'update'])->name('update');
+        Route::get('/mutations/download', [App\Http\Controllers\Warehouse\WarehouseController::class, 'download'])->name('mutations.download');
     });
 
     // Oli

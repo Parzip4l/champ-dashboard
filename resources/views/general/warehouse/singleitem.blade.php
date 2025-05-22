@@ -87,12 +87,48 @@
                                 </table>
                             </div>
                             @endif
+                            <div class="mt-1">
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#downloadReportModal">
+                                    Download Report Mutasi
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
         </div>
     </div>
+    <!-- Modal Pilih Rentang Tanggal -->
+    <div class="modal fade" id="downloadReportModal" tabindex="-1" aria-labelledby="downloadReportLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form action="{{route('warehouse.items.mutations.download')}}" method="GET" target="_blank">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="downloadReportLabel">Pilih Rentang Tanggal</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="start_date" class="form-label">Tanggal Mulai</label>
+                            <input type="date" class="form-control" name="start_date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="end_date" class="form-label">Tanggal Akhir</label>
+                            <input type="date" class="form-control" name="end_date" required>
+                            <input type="hidden" name="item" value="{{ $item->name }} {{ $item->type }}">
+                            <input type="hidden" name="item_id" value="{{ $item->id }}">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Download PDF</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- End Modal -->
 </div>
+
+
 
 
 <div class="col-lg-12">
