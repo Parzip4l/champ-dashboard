@@ -63,7 +63,7 @@
                                             <th>Tanggal</th>
                                             <th>Tipe</th>
                                             <th>Qty Sebelumnya</th>
-                                            <th>Qty Setelahnya</th>
+                                            <th>Qty Masuk/Keluar</th>
                                             <th>Source</th>
                                             <th>Catatan</th>
                                         </tr>
@@ -136,10 +136,10 @@
         <div class="card-body">
             <div class="d-flex align-items-center justify-content-between mb-3">
                 <div>
-                    <h3 class="d-flex align-items-center gap-2">Grafik Stok Barang </h3>
-                    <p class="mb-0 {{ $stokawal < $minimumStock ? 'text-danger' : 'text-success' }}">
+                    <h3 class="d-flex align-items-center gap-2">Grafik Mutasi Barang </h3>
+                    <!-- <p class="mb-0 {{ $stokawal < $minimumStock ? 'text-danger' : 'text-success' }}">
                         {{ $stockStatus }}
-                    </p>
+                    </p> -->
                 </div>
                 <div class="avatar-md bg-light bg-opacity-50 rounded">
                     <iconify-icon icon="solar:chart-2-bold-duotone" class="fs-32 text-primary avatar-title"></iconify-icon>

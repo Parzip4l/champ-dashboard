@@ -293,16 +293,30 @@ class OliController extends Controller
                 $oli->save();
 
                 $item = WarehouseItem::where('name', 'Oli')->where('type', $jenisOli)->first();
+                $stockbefore =
                 $location = WarehouseLocation::where('code', 'WH-001')->first();
 
-                if ($item) {
+                if ($item && $location) {
                     $qtyKg = $jumlah * 180;
 
                     $stock = WarehouseStock::where('warehouse_item_id', $item->id)->first();
+                    $stokbefore = $stock->quantity ?? 0;
+                    $diff = $qtyKg - $stokbefore;
 
                     if ($stock) {
                         $stock->quantity += $qtyKg;
                         $stock->save();
+
+                        WarehouseStockMutation::create([
+                            'warehouse_item_id'       => $item->id,
+                            'warehouse_location_id'   => $location->id,
+                            'type'                    => 'in',
+                            'quantity'                => abs($diff),
+                            'quantity_before'         => $stokbefore,
+                            'quantity_after'          => $qtyKg,
+                            'note'                    => "Penerimaan Oli",
+                            'source'                  => 'system',
+                        ]);
                     } else {
                         // Kalau belum ada stok, buat baru
                         WarehouseStock::create([
@@ -315,9 +329,11 @@ class OliController extends Controller
                             'warehouse_item_id' => $item->id,
                             'warehouse_location_id' => $location->id,
                             'quantity' => $qtyKg,
+                            'quantity_before' => 0,
+                            'quantity_after' => $qtyKg,
                             'type' => 'in',
-                            'notes' => 'By Vendor',
-                            'source' => $pengirim,
+                            'note' => 'By Vendor',
+                            'source' => 'system',
                         ]);
                     }
                 }

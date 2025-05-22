@@ -158,13 +158,29 @@ class WarehouseController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
-        $labels = $chartMutations->map(fn($m) => $m->created_at->format('d M'))->toArray();
+        $stokAwal = WarehouseStockMutation::where('warehouse_item_id', $id)
+            ->where('warehouse_location_id', $locations->id)
+            ->where('created_at', '<', now()->startOfMonth())
+            ->orderBy('created_at', 'desc')
+            ->first()?->quantity_after ?? 0;
+        
+        // Inisialisasi
+        $labels = [];
         $dataQty = [];
-
-        $runningTotal = 0;
+        $runningTotal = $stokAwal;
+        
+        // Loop mutasi
         foreach ($chartMutations as $mutation) {
-            $qty = $mutation->type === 'in' ? $mutation->quantity : -$mutation->quantity;
-            $runningTotal += $qty;
+            $labels[] = $mutation->created_at->format('d M');
+        
+            if ($mutation->type === 'in') {
+                $runningTotal += $mutation->quantity;
+            } elseif ($mutation->type === 'out') {
+                $runningTotal -= $mutation->quantity;
+            } elseif ($mutation->type === 'adjustment') {
+                $runningTotal = $mutation->quantity; // adjustment langsung ubah total
+            }
+        
             $dataQty[] = $runningTotal;
         }
 
@@ -280,6 +296,7 @@ class WarehouseController extends Controller
                 ->where('warehouse_item_id', $itemid)
                 ->orderBy('created_at', 'desc')
                 ->get();
+
         $pdf = Pdf::loadView('general.warehouse.reportitem', [
             'mutations' => $mutations,
             'start' => $start,
