@@ -62,8 +62,9 @@
                                         <tr>
                                             <th>Tanggal</th>
                                             <th>Tipe</th>
+                                            <th>Quantity</th>
                                             <th>Qty Sebelumnya</th>
-                                            <th>Qty Masuk/Keluar</th>
+                                            <th>Qty Setelahnya</th>
                                             <th>Source</th>
                                             <th>Catatan</th>
                                         </tr>
@@ -77,6 +78,7 @@
                                             ])>
                                                 <td>{{ $mutation->created_at->format('d-m-Y H:i') }}</td>
                                                 <td>{{ ucfirst($mutation->type) }}</td>
+                                                <td>{{ number_format($mutation->quantity )}}</td>
                                                 <td>{{ number_format($mutation->quantity_before )}}</td>
                                                 <td>{{ number_format($mutation->quantity_after) }}</td>
                                                 <td>{{ $mutation->source }}</td>
