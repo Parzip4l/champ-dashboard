@@ -55,8 +55,8 @@
                                 <td>{{ $po->distributor->name ?? '-' }}</td>
                                 <td>
                                     <span class="badge 
-                                        @if($po->status === 'completed') bg-success 
-                                        @elseif($po->status === 'pending') bg-warning 
+                                        @if($po->status === 'received') bg-success 
+                                        @elseif($po->status === 'partial') bg-warning 
                                         @elseif($po->status === 'rejected') bg-danger 
                                         @else bg-secondary @endif">
                                         {{ ucfirst($po->status ?? 'pending') }}

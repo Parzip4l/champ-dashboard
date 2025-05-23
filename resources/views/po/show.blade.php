@@ -42,6 +42,9 @@
                         @if($purchaseOrder->status != 'received')
                         <button class="btn btn-success mb-1" data-bs-toggle="modal" data-bs-target="#receiveModal">Received</button>
                         @endif
+                        @if($purchaseOrder->status === 'partial' || $purchaseOrder->status === 'received')
+                            <button class="btn btn-danger mb-1" data-bs-toggle="modal" data-bs-target="#returnModal">Return</button>
+                        @endif
                         <a href="{{ route('purchase_orders.edit', $purchaseOrder->id) }}" class="btn btn-warning mb-1">Edit</a>
                         <a href="{{ route('purchase_orders.print', $purchaseOrder->id) }}" class="btn btn-outline-dark mb-1" target="_blank">Print PDF</a>
                     </div>
@@ -64,7 +67,7 @@
             </div>
         </div>
 
-        <!-- Modal -->
+        <!-- Modal Received -->
         <div class="modal fade" id="receiveModal" tabindex="-1" aria-labelledby="receiveModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <form method="POST" action="{{ route('purchase_orders.received', $purchaseOrder->id) }}">
@@ -122,6 +125,70 @@
             </div>
         </div>
 
+        <!-- Model Retun -->
+        <div class="modal fade" id="returnModal" tabindex="-1" aria-labelledby="returnModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <form method="POST" action="{{ route('purchase_orders.return', $purchaseOrder->id) }}">
+                    @csrf
+
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Return Barang PO #{{ $purchaseOrder->id }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="return_date">Tanggal Retur</label>
+                                <input type="date" class="form-control" name="return_date" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="note">Catatan Umum</label>
+                                <input type="text" class="form-control" name="note" placeholder="Opsional">
+                            </div>
+
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Barang</th>
+                                        <th>Diterima</th>
+                                        <th>Qty Retur</th>
+                                        <th>Alasan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($purchaseOrder->items as $i => $item)
+                                        @php
+                                            $received = $item->received_quantity ?? 0;
+                                        @endphp
+                                        <tr>
+                                            <td>
+                                                {{ $item->warehouseItem->name ?? 'Barang tidak ditemukan' }}
+                                                <input type="hidden" name="items[{{ $i }}][purchase_order_item_id]" value="{{ $item->id }}">
+                                                <input type="hidden" name="items[{{ $i }}][warehouse_item_id]" value="{{ $item->warehouse_item_id }}">
+                                            </td>
+                                            <td>{{ $received }}</td>
+                                            <td>
+                                                <input type="number" name="items[{{ $i }}][quantity]" min="0" max="{{ $received }}" class="form-control">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="items[{{ $i }}][reason]" class="form-control" placeholder="Opsional...">
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-danger">Simpan Return</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
 
         
         <div class="row">
@@ -147,7 +214,7 @@
                                 <span class="badge 
                                     @if($purchaseOrder->status === 'received') bg-success 
                                     @elseif($purchaseOrder->status === 'partial') bg-warning 
-                                    @elseif($purchaseOrder->status === 'rejected') bg-danger 
+                                    @elseif($purchaseOrder->status === 'returned') bg-danger 
                                     @else bg-secondary @endif">
                                     {{ ucfirst($purchaseOrder->status ?? 'pending') }}
                                 </span>

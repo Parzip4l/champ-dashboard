@@ -13,6 +13,8 @@ use App\Models\Po\PurchaseOrder;
 use App\Models\Po\PurchaseOrderItem;
 use App\Models\General\Distributor;
 use App\Exports\PurchaseOrdersExport;
+use App\Models\Po\PurchaseReturn;
+use App\Models\Po\PurchaseReturnItem;
 
 // warehouse
 use App\Models\Warehouse\WarehouseItem;
@@ -278,6 +280,91 @@ class PurchaseOrderController extends Controller
                 ->withInput();
         }
     }
+
+    // Return
+    public function returnItem(Request $request, $id)
+    {
+        $purchaseOrder = PurchaseOrder::with(['items'])->findOrFail($id);
+
+        $data = $request->validate([
+            'return_date' => 'required|date',
+            'note' => 'nullable|string',
+            'items' => 'required|array',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.purchase_order_item_id' => 'required|exists:purchase_order_items,id',
+            'items.*.warehouse_item_id' => 'required|exists:warehouse_items,id',
+            'items.*.reason' => 'nullable|string',
+        ]);
+
+        DB::transaction(function () use ($data, $purchaseOrder) {
+            $return = PurchaseReturn::create([
+                'purchase_order_id' => $purchaseOrder->id,
+                'return_date' => $data['return_date'],
+                'status' => 'returned',
+                'note' => $data['note'] ?? null,
+                'created_by' => auth()->id(),
+            ]);
+
+            $returnMap = collect();
+
+            foreach ($data['items'] as $item) {
+                PurchaseReturnItem::create([
+                    'purchase_return_id' => $return->id,
+                    'purchase_order_item_id' => $item['purchase_order_item_id'],
+                    'warehouse_item_id' => $item['warehouse_item_id'],
+                    'quantity' => $item['quantity'],
+                    'reason' => $item['reason'] ?? null,
+                ]);
+
+                // Update stok
+                $stock = WarehouseStock::where('warehouse_item_id', $item['warehouse_item_id'])->first();
+                $qtyBefore = $stock->quantity ?? 0;
+                $qtyAfter = $qtyBefore - $item['quantity'];
+                $stock->quantity = $qtyAfter;
+                $stock->save();
+
+                WarehouseStockMutation::create([
+                    'warehouse_item_id' => $item['warehouse_item_id'],
+                    'warehouse_location_id' => $stock->warehouse_location_id,
+                    'type' => 'out',
+                    'quantity' => $item['quantity'],
+                    'quantity_before' => $qtyBefore,
+                    'quantity_after' => $qtyAfter,
+                    'note' => 'Retur barang ke supplier dari PO #' . $purchaseOrder->id,
+                    'source' => 'purchase_return',
+                ]);
+
+                // Simpan akumulasi retur per item
+                $returnMap->put($item['purchase_order_item_id'], $returnMap->get($item['purchase_order_item_id'], 0) + $item['quantity']);
+            }
+
+            // Update status item (misalnya menandai jumlah yang diretur)
+            foreach ($returnMap as $itemId => $returnQty) {
+                $orderItem = PurchaseOrderItem::find($itemId);
+                $orderItem->returned_quantity = ($orderItem->returned_quantity ?? 0) + $returnQty;
+                $orderItem->received_quantity = max(0, ($orderItem->received_quantity ?? 0) - $returnQty);
+                $orderItem->save();
+            }
+
+            $purchaseOrder->load('items');
+
+            // Cek apakah semua item sudah diretur penuh
+            $allReturned = PurchaseOrderItem::where('purchase_order_id', $purchaseOrder->id)
+            ->get()
+            ->every(function ($item) {
+                return ($item->returned_quantity ?? 0) >= ($item->received_quantity ?? 0);
+            });
+
+            if ($allReturned) {
+                $purchaseOrder->status = 'returned';
+                $purchaseOrder->save();
+            }
+        });
+
+        return redirect()->back()->with('success', 'Retur pembelian berhasil disimpan.');
+    }
+
+
 
     public function export()
     {

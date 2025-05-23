@@ -110,6 +110,8 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function () {
     Route::get('purchase_orders/{purchase_order}/print', [App\Http\Controllers\Po\PurchaseOrderController::class, 'printPdf'])->name('purchase_orders.print');
     Route::get('purchase_orders/export', [App\Http\Controllers\Po\PurchaseOrderController::class, 'export'])->name('purchase_orders.export');
     Route::post('/purchase_orders/{purchaseOrder}/received', [App\Http\Controllers\Po\PurchaseOrderController::class, 'received'])->name('purchase_orders.received');
+    Route::post('/purchase_orders/{id}/return', [App\Http\Controllers\Po\PurchaseOrderController::class, 'returnItem'])->name('purchase_orders.return');
+
     Route::resource('purchase_orders', App\Http\Controllers\Po\PurchaseOrderController::class);
     
     // Warehouse
