@@ -192,8 +192,6 @@ class WarehouseController extends Controller
             'item', 'locations', 'stokawal', 'mutations', 'labels', 'dataQty', 'minimumStock', 'stockStatus','chartMutations','unit'
         ));
     }
-
-
     
     public function update(Request $request, $id)
     {

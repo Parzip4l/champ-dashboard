@@ -106,6 +106,12 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function () {
     Route::post('/maintenance/store', [App\Http\Controllers\Mnt\LogMaintenanceController::class, 'store'])->name('maintenance.store');
     Route::get('/maintenance/detail/{id}', [App\Http\Controllers\Mnt\LogMaintenanceController::class, 'show'])->name('maintenance.show');
 
+    // Purchase Order
+    Route::get('purchase_orders/{purchase_order}/print', [App\Http\Controllers\Po\PurchaseOrderController::class, 'printPdf'])->name('purchase_orders.print');
+    Route::get('purchase_orders/export', [App\Http\Controllers\Po\PurchaseOrderController::class, 'export'])->name('purchase_orders.export');
+    Route::post('/purchase_orders/{purchaseOrder}/received', [App\Http\Controllers\Po\PurchaseOrderController::class, 'received'])->name('purchase_orders.received');
+    Route::resource('purchase_orders', App\Http\Controllers\Po\PurchaseOrderController::class);
+    
     // Warehouse
     Route::get('/warehouse', [App\Http\Controllers\Warehouse\WarehouseController::class, 'index'])->name('warehouse.index');
     Route::prefix('warehouse/items')->name('warehouse.items.')->group(function () {
