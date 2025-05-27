@@ -32,7 +32,7 @@ class WarehouseController extends Controller
         }])
         ->when($category, fn($q) => $q->where('category', $category))
         ->when($search, fn($q) => $q->where('name', 'like', '%' . $search . '%'))
-        ->paginate(10);
+        ->paginate(25);
 
         if ($request->ajax()) {
             return view('general.warehouse.index', compact('items'))->renderSections()['locationsList'];
