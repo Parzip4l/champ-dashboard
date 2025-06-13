@@ -64,6 +64,7 @@
                                         <select name="tangki_masak" id="" class="form-control">
                                             <option value="1">Tangki Masak 1</option>
                                             <option value="2">Tangki Masak 2</option>
+                                            <option value="3">Tangki Masak 3</option>
                                         </select>
                                     </div>
                                 </div>
@@ -137,6 +138,7 @@
                                         <option value="">-- Pilih --</option>
                                         <option value="1">Tangki Olah 1</option>
                                         <option value="2">Tangki Olah 2</option>
+                                        <option value="3">Tangki Olah 3</option>
                                     </select>
                                 </div>
 

@@ -63,6 +63,7 @@
                                         <select name="tangki_masak" class="form-control">
                                             <option value="masak1" {{ $batch->tangki_masak == 'masak1' ? 'selected' : '' }}>Tangki Masak 1</option>
                                             <option value="masak2" {{ $batch->tangki_masak == 'masak2' ? 'selected' : '' }}>Tangki Masak 2</option>
+                                            <option value="masak3" {{ $batch->tangki_masak == 'masak3' ? 'selected' : '' }}>Tangki Masak 3</option>
                                         </select>
                                     </div>
                                 </div>
