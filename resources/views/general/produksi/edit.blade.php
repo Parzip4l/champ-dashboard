@@ -281,6 +281,7 @@
             var container = document.getElementById(kategori + '-container-' + step);
             var newRow = document.createElement('div');
             newRow.classList.add('row', 'mb-2');
+            let html = '';
 
             // Tentukan isi select jenis tergantung kategori
             let jenisOptions = `<option value="-">-</option>`;
@@ -317,22 +318,27 @@
                 `;
             }
 
-            newRow.innerHTML = `
-                <div class="col-md-2 mb-2">
-                    <select name="${kategori}_tipe_${step}[]" class="form-control">
-                        <option value="Bahan">Bahan</option>
-                        <option value="Service">Service</option>
-                        <option value="Minarex">Minarex</option>
-                        <option value="Trafo">Trafo</option>
-                    </select>
-                </div>
+            if (kategori === 'oli') {
+                html += `
+                    <div class="col-md-2 mb-2">
+                        <select name="${kategori}_tipe_${step}[]" class="form-control">
+                            <option value="Bahan">Bahan</option>
+                            <option value="Service">Service</option>
+                            <option value="Minarex">Minarex</option>
+                            <option value="Trafo">Trafo</option>
+                        </select>
+                    </div>
+                `;
+            }
+
+            html += `
                 <div class="col-md-2 mb-2">
                     <select name="${kategori}_jenis_${step}[]" class="form-control">
                         ${jenisOptions}
                     </select>
                 </div>
                 <div class="col-md-3 mb-2">
-                    <input type="number" name="${kategori}_qty_${step}[]" class="form-control" min="0">
+                    <input type="number" name="${kategori}_qty_${step}[]" class="form-control" step="0.01" min="0">
                 </div>
                 <div class="col-md-3 mb-2">
                     <input type="text" name="${kategori}_ket_${step}[]" class="form-control">
@@ -342,6 +348,7 @@
                 </div>
             `;
 
+            newRow.innerHTML = html;
             container.appendChild(newRow);
         }
 </script>

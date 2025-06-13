@@ -96,12 +96,12 @@
                                 <td> {{ $data->hasil_status }} </td>
                                 <td>
                                     <div class="d-flex gap-2">
+                                        <a href="{{ route('production_batches.edit', $data->id) }}" class="btn btn-soft-primary btn-sm">
+                                            <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
+                                        </a>
                                         @if($data->status == 'Open')
                                         <a href="#" class="btn btn-soft-success btn-sm" data-bs-toggle="modal" data-bs-target="#finishProductionModal" data-batch-id="{{ $data->id }}">
                                             <iconify-icon icon="solar:clipboard-check-linear" class="align-middle fs-18"></iconify-icon>
-                                        </a>
-                                        <a href="{{ route('production_batches.edit', $data->id) }}" class="btn btn-soft-primary btn-sm">
-                                            <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
                                         </a>
                                         <a href="#!" class="btn btn-soft-danger btn-sm" onclick="confirmDelete({{ $data->id }})">
                                             <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="align-middle fs-18"></iconify-icon>

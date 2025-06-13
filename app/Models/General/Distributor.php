@@ -14,5 +14,8 @@ class Distributor extends Model
         'city',
         'province',
         'address_details',
+        'category',
+        'is_active',
+        'notes',
     ];
 }

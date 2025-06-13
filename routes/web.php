@@ -104,7 +104,27 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function () {
     Route::get('/maintenance/form/{itemId}', [App\Http\Controllers\Mnt\LogMaintenanceController::class, 'create'])->name('maintenance.form');
     Route::get('/maintenance/get-checklist/{partId}', [App\Http\Controllers\Mnt\LogMaintenanceController::class, 'getChecklistByPart']);
     Route::post('/maintenance/store', [App\Http\Controllers\Mnt\LogMaintenanceController::class, 'store'])->name('maintenance.store');
-    Route::get('/maintenance/detail/{id}', [App\Http\Controllers\Mnt\LogMaintenanceController::class, 'show'])->name('maintenance.show');;
+    Route::get('/maintenance/detail/{id}', [App\Http\Controllers\Mnt\LogMaintenanceController::class, 'show'])->name('maintenance.show');
+
+    // Purchase Order
+    Route::get('purchase_orders/{purchase_order}/print', [App\Http\Controllers\Po\PurchaseOrderController::class, 'printPdf'])->name('purchase_orders.print');
+    Route::get('purchase_orders/export', [App\Http\Controllers\Po\PurchaseOrderController::class, 'export'])->name('purchase_orders.export');
+    Route::post('/purchase_orders/{purchaseOrder}/received', [App\Http\Controllers\Po\PurchaseOrderController::class, 'received'])->name('purchase_orders.received');
+    Route::post('/purchase_orders/{id}/return', [App\Http\Controllers\Po\PurchaseOrderController::class, 'returnItem'])->name('purchase_orders.return');
+
+    Route::resource('purchase_orders', App\Http\Controllers\Po\PurchaseOrderController::class);
+    
+    // Warehouse
+    Route::get('/warehouse', [App\Http\Controllers\Warehouse\WarehouseController::class, 'index'])->name('warehouse.index');
+    Route::prefix('warehouse/items')->name('warehouse.items.')->group(function () {
+        Route::get('create', [App\Http\Controllers\Warehouse\WarehouseController::class, 'create'])->name('create');
+        Route::post('store', [App\Http\Controllers\Warehouse\WarehouseController::class, 'store'])->name('store');
+    
+        Route::get('{id}/edit', [App\Http\Controllers\Warehouse\WarehouseController::class, 'edit'])->name('edit');
+        Route::get('{id}/show', [App\Http\Controllers\Warehouse\WarehouseController::class, 'show'])->name('show');
+        Route::put('{id}', [App\Http\Controllers\Warehouse\WarehouseController::class, 'update'])->name('update');
+        Route::get('/mutations/download', [App\Http\Controllers\Warehouse\WarehouseController::class, 'download'])->name('mutations.download');
+    });
 
     // Oli
     Route::get('/pencatatan-oli', [App\Http\Controllers\Produck\OliController::class, 'index'])->name('oli.index');
