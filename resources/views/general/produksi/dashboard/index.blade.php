@@ -2,6 +2,140 @@
 
 @section('content')
 <div class="row">
+    <div class="col-xxl-12">
+        <div class="row">
+
+            <div class="col-md-3">
+                <div class="card overflow-hidden">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="avatar-md bg-soft-primary rounded">
+                                    <iconify-icon icon="solar:inbox-in-broken" class="avatar-title fs-32 text-primary"></iconify-icon>
+                                </div>
+                            </div> 
+                            <div class="col-6 text-end">
+                                <p class="text-muted mb-0 text-truncate">Produksi Hari Ini</p>
+                                {{-- Tampilkan data dari controller --}}
+                                <h3 class="text-dark mt-1 mb-0">{{ number_format($produksiHariIni, 2) }} Ton</h3>
+                            </div> 
+                        </div> 
+                    </div> 
+                    <div class="card-footer py-2 bg-light bg-opacity-50">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                {{-- Logika untuk menampilkan panah & warna --}}
+                                @if($persentasePerubahanHarian > 0)
+                                    <span class="text-success"> <i class="bx bxs-up-arrow fs-12"></i> {{ number_format($persentasePerubahanHarian, 1) }}%</span>
+                                @elseif($persentasePerubahanHarian < 0)
+                                    <span class="text-danger"> <i class="bx bxs-down-arrow fs-12"></i> {{ number_format(abs($persentasePerubahanHarian), 1) }}%</span>
+                                @else
+                                    <span class="text-muted"> <i class="bx bx-minus fs-12"></i> 0%</span>
+                                @endif
+                                <span class="text-muted ms-1 fs-12">Dari Hari Kemarin</span>
+                            </div>
+                            <a href="#!" class="text-reset fw-semibold fs-12">View More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card overflow-hidden">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-3">
+                                <div class="avatar-md bg-soft-primary rounded">
+                                    <iconify-icon icon="solar:inbox-in-broken" class="avatar-title fs-32 text-primary"></iconify-icon>
+                                </div>
+                            </div> 
+                            <div class="col-9 text-end">
+                                <p class="text-muted mb-0 text-truncate">Produksi Bulan Ini</p>
+                                {{-- Tampilkan data dari controller --}}
+                                <h3 class="text-dark mt-1 mb-0">{{ number_format($produksiBulanIni, 2) }} Ton</h3>
+                            </div> 
+                        </div> 
+                    </div> 
+                    <div class="card-footer py-2 bg-light bg-opacity-50">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                {{-- Logika untuk menampilkan panah & warna --}}
+                                @if($persentasePerubahanBulanan > 0)
+                                    <span class="text-success"> <i class="bx bxs-up-arrow fs-12"></i> {{ number_format($persentasePerubahanBulanan, 1) }}%</span>
+                                @elseif($persentasePerubahanBulanan < 0)
+                                    <span class="text-danger"> <i class="bx bxs-down-arrow fs-12"></i> {{ number_format(abs($persentasePerubahanBulanan), 1) }}%</span>
+                                @else
+                                    <span class="text-muted"> <i class="bx bx-minus fs-12"></i> 0%</span>
+                                @endif
+                                <span class="text-muted ms-1 fs-12">Dari Bulan Lalu</span>
+                            </div>
+                            <a href="#!" class="text-reset fw-semibold fs-12">View More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card overflow-hidden">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="avatar-md bg-soft-primary rounded">
+                                    <iconify-icon icon="solar:inbox-in-broken" class="avatar-title fs-32 text-primary"></iconify-icon>
+                                </div>
+                            </div> <!-- end col -->
+                            <div class="col-6 text-end">
+                                <p class="text-muted mb-0 text-truncate">Total Kapasitas Produksi</p>
+                                <h3 class="text-dark mt-1 mb-0">499,4 ton</h3>
+                            </div> <!-- end col -->
+                        </div> <!-- end row-->
+                    </div> <!-- end card body -->
+                    <div class="card-footer py-2 bg-light bg-opacity-50">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <a href="#!" class="text-reset fw-semibold fs-12">Total Kapasitas Produksi 3 Tangki Dalam 1 Bulan</a>
+                        </div>
+                    </div>
+                </div> <!-- end card -->
+            </div> <!-- end col -->
+
+            <div class="col-md-3">
+                <div class="card overflow-hidden">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="avatar-md bg-soft-primary rounded">
+                                    <iconify-icon icon="solar:inbox-in-broken" class="avatar-title fs-32 text-primary"></iconify-icon>
+                                </div>
+                            </div> <!-- end col -->
+                            <div class="col-6 text-end">
+                                <p class="text-muted mb-0 text-truncate">Total Kapasitas Produksi</p>
+                                <h3 class="text-dark mt-1 mb-0">22,7 ton</h3>
+                            </div> <!-- end col -->
+                        </div> <!-- end row-->
+                    </div> <!-- end card body -->
+                    <div class="card-footer py-2 bg-light bg-opacity-50">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <a href="#!" class="text-reset fw-semibold fs-12">Total Kapasitas Produksi 3 Tangki Dalam 1 hari</a>
+                        </div>
+                    </div>
+                </div> <!-- end card -->
+            </div> <!-- end col -->
+
+
+        </div> <!-- end row -->
+    </div> <!-- end col -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Grafik Produksi Harian (30 Hari Terakhir)</h4>
+                </div>
+                <div class="card-body">
+                    <canvas id="productionLineChart" style="width:100%; height:350px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="col">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -94,7 +228,6 @@
 </div>
 
 <!-- Modal Bandingkan -->
-<!-- Modal Bandingkan -->
 <div class="modal fade" id="compareModal" tabindex="-1" aria-labelledby="compareModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
@@ -155,12 +288,38 @@
 
 @section('script')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/date-fns"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script>
     const ctx = document.getElementById('trendByProductChart').getContext('2d');
 
     const mainDatasets = @json($datasets);
     const compareDatasets = @json($compareDatasets ?? []);
     const allDatasets = mainDatasets.concat(compareDatasets);
+
+    // Definisikan warna statis (ubah atau tambah sesuai kebutuhan)
+    const staticColors = [
+        '#FF6384', // merah muda
+        '#36A2EB', // biru
+        '#FFCE56', // kuning
+        '#4BC0C0', // cyan
+        '#9966FF', // ungu
+        '#FF9F40', // oranye
+        '#8B0000', // merah gelap
+        '#008000', // hijau
+        '#000080', // biru navy
+        '#A52A2A'  // coklat
+    ];
+
+    // Tambahkan warna ke setiap dataset
+    allDatasets.forEach((dataset, index) => {
+        const color = staticColors[index % staticColors.length]; // loop jika dataset > warna
+        dataset.borderColor = color;
+        dataset.backgroundColor = color + '43'; // 33 = transparansi ~20%
+        dataset.fill = false; // agar tidak full fill area di bawah garis
+        dataset.tension = 0.3; // buat garis agak melengkung (opsional)
+        dataset.pointRadius = 3; // titik data
+    });
 
     const trendChart = new Chart(ctx, {
         type: 'line',
@@ -203,6 +362,7 @@
     });
 </script>
 
+
 @if (!empty($compareMode))
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -226,6 +386,97 @@
                 document.querySelectorAll('.compare-product').forEach(el => el.classList.remove('d-none'));
             } else if (this.value === 'date') {
                 document.querySelectorAll('.compare-date').forEach(el => el.classList.remove('d-none'));
+            }
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // 2. Ambil data dari controller (di-render oleh Blade)
+        const labels = @json($chartLabelskapasitas);
+        const data = @json($chartDatakapasitasTon);
+        const upperLimit = @json($nilaiBatasAtasKg);
+        const dataPersen = @json($chartDataketercapaian);
+        const upperLimitPercent = @json($persentaseBatasAtas);
+        const MaxProd = @json($maxCapacity);
+
+        const ctx = document.getElementById('productionLineChart').getContext('2d');
+        
+        // 3. Buat chart
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: `Kapasitas Maksimal (Ton)`,
+                        data: Array(labels.length).fill(MaxProd), // Buat array dengan nilai yang sama
+                        borderColor: 'rgb(255, 99, 132)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                        borderDash: [10, 5], // Buat garis putus-putus
+                        pointRadius: 0, // Sembunyikan titik pada garis batas
+                        fill: false,
+                    },
+                    {
+                        label: 'Produksi Aktual (Ton)',
+                        data: data,
+                        borderColor: 'rgb(54, 162, 235)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        tension: 0.1,
+                        fill: true,
+                    },
+                    {
+                        label: `Batas Atas (${upperLimitPercent}%)`,
+                        data: Array(labels.length).fill(upperLimit), // Buat array dengan nilai yang sama
+                        borderColor: '#fdcb6e',
+                        backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                        borderDash: [10, 5], // Buat garis putus-putus
+                        pointRadius: 0, // Sembunyikan titik pada garis batas
+                        fill: false,
+                    },
+                    
+                    {
+                        label: 'Persentase Produksi (%)',
+                        data: dataPersen,
+                        type: 'line',
+                        borderColor: '#55efc4',
+                        backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                        yAxisID: 'persen',
+                        tension: 0.3,
+                        fill: false,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            tooltipFormat: 'dd MMM yyyy'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Tanggal'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Jumlah Produksi (Kg)'
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                }
             }
         });
     });

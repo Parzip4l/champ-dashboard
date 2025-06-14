@@ -9,12 +9,19 @@ use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
+Use Carbon\Carbon;
 
 // Model
 use App\Models\Production\ProductionMaterialTank;
 use App\Models\Production\ProductionBatch;
 use App\Models\Production\ProductionMaterial;
 use App\Models\Production\ProductionPackaging;
+
+// Warehouse
+use App\Models\Warehouse\WarehouseItem;
+use App\Models\Warehouse\WarehouseLocation;
+use App\Models\Warehouse\WarehouseStock;
+use App\Models\Warehouse\WarehouseStockMutation;
 
 
 class ProductionBatchController extends Controller
@@ -183,26 +190,140 @@ class ProductionBatchController extends Controller
             'quantity.*' => 'required|numeric|min:1',
         ]);
 
-        // Temukan batch berdasarkan batch_id
-        $batch = ProductionBatch::findOrFail($request->batch_id);
-
-        // Perbarui hasil_status dan status produksi
-        $batch->hasil_status = $request->hasil_status;
-        $batch->status = 'Closed';
-        $batch->save();
-
-        // Simpan setiap kombinasi packaging, size, quantity
-        foreach ($request->packaging as $index => $pack) {
-            ProductionPackaging::create([
-                'production_batch_id' => $batch->id,
-                'packaging' => $pack,
-                'size' => $request->size[$index],
-                'quantity' => $request->quantity[$index],
-            ]);
+        // Validasi panjang array harus sama
+        if (
+            count($request->packaging) !== count($request->size) ||
+            count($request->size) !== count($request->quantity)
+        ) {
+            return back()->withErrors(['message' => 'Jumlah packaging, size, dan quantity harus sama.'])->withInput();
         }
 
-        return redirect()->route('production_batches.index')
-            ->with('success', 'Produksi selesai dan semua data packaging disimpan.');
+        DB::beginTransaction();
+
+        try {
+            $batch = ProductionBatch::findOrFail($request->batch_id);
+            $materials = ProductionMaterial::where('production_batch_id', $batch->id)->get();
+            $location = WarehouseLocation::where('code', 'WH-001')->firstOrFail();
+            $locationId = $location->id;
+
+            $itemCache = [];
+
+            // Validasi stok cukup
+            foreach ($materials as $material) {
+                $itemKey = strtolower($material->kategori) . '-' . ($material->tipe ?? $material->jenis);
+                
+                if (!isset($itemCache[$itemKey])) {
+                    if (strtolower($material->kategori) === 'oli') {
+                        $item = WarehouseItem::where('type', $material->tipe)->first();
+                    } elseif (strtolower($material->kategori) === 'kapur') {
+                        $item = WarehouseItem::where('name', $material->kategori)->first();
+                    } else {
+                        $item = WarehouseItem::where('type', $material->jenis)->first();
+                    }
+
+                    if (!$item) {
+                        throw new \Exception("Item gudang untuk bahan {$material->jenis} (kategori: {$material->kategori}) tidak ditemukan.");
+                    }
+
+                    $itemCache[$itemKey] = $item;
+                } else {
+                    $item = $itemCache[$itemKey];
+                }
+
+                $stock = WarehouseStock::where('warehouse_item_id', $item->id)
+                    ->where('warehouse_location_id', $locationId)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$stock || $stock->quantity < $material->qty) {
+                    throw new \Exception("Stok tidak cukup untuk bahan {$material->jenis}. Dibutuhkan {$material->qty}, tersedia " . ($stock->quantity ?? 0));
+                }
+            }
+
+             // === Validasi stok kemasan ===
+            foreach ($request->packaging as $index => $pack) {
+                $size = $request->size[$index];
+                $qty = $request->quantity[$index];
+                $key = "{$pack} {$size}Kg";
+                if (!isset($itemCache[$key])) {
+                    $item = WarehouseItem::where('name', $key)->first();
+                    dd($item);
+                    if (!$item) {
+                        throw new \Exception("Item kemasan {$pack} ukuran {$size} tidak ditemukan di data gudang.");
+                    }
+
+                    $itemCache[$key] = $item;
+                } else {
+                    $item = $itemCache[$key];
+                }
+
+                $stock = WarehouseStock::where('warehouse_item_id', $item->id)
+                    ->where('warehouse_location_id', $locationId)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$stock || $stock->quantity < $qty) {
+                    throw new \Exception("Stok kemasan {$pack} ukuran {$size} tidak cukup. Dibutuhkan {$qty}, tersedia " . ($stock->quantity ?? 0));
+                }
+            }
+
+            // Kurangi stok
+            foreach ($materials as $material) {
+                $itemKey = strtolower($material->kategori) . '-' . ($material->tipe ?? $material->jenis);
+                $item = $itemCache[$itemKey];
+
+                $stock = WarehouseStock::where('warehouse_item_id', $item->id)
+                    ->where('warehouse_location_id', $locationId)
+                    ->lockForUpdate()
+                    ->first();
+
+                $beforeQty = $stock->quantity;
+                $afterQty = $beforeQty - $material->qty;
+
+                $stock->update(['quantity' => $afterQty]);
+
+                WarehouseStockMutation::create([
+                    'warehouse_item_id'     => $item->id,
+                    'warehouse_location_id' => $locationId,
+                    'type'                  => 'out',
+                    'quantity'              => $material->qty,
+                    'quantity_before'       => $beforeQty,
+                    'quantity_after'        => $afterQty,
+                    'note'                  => 'Pengurangan bahan untuk produksi Batch #' . $batch->batch_code,
+                    'source'                => 'production',
+                ]);
+            }
+
+            // Simpan packaging hasil produksi
+            foreach ($request->packaging as $index => $pack) {
+                ProductionPackaging::create([
+                    'production_batch_id' => $batch->id,
+                    'packaging'           => $pack,
+                    'size'                => $request->size[$index],
+                    'quantity'            => $request->quantity[$index],
+                ]);
+            }
+
+            // Update status produksi
+            $batch->update([
+                'hasil_status' => $request->hasil_status,
+                'status'       => 'Closed',
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('production_batches.index')
+                ->with('success', 'Produksi selesai. Stok bahan dikurangi dan data packaging disimpan.');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('Gagal menyelesaikan produksi: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect()->back()
+                ->withErrors(['message' => 'Gagal menyelesaikan produksi: ' . $e->getMessage()])
+                ->withInput();
+        }
     }
 
 
@@ -480,6 +601,86 @@ class ProductionBatchController extends Controller
             ];
         }
 
+        // Kapasitas Produksi
+
+        $today = Carbon::today();
+        $yesterday = Carbon::yesterday();
+
+        // Ambil total QTY dari material yang diproduksi hari ini
+        $produksiHariIni = ProductionMaterial::whereHas('batch', function ($query) use ($today) {
+            $query->whereDate('tanggal', $today);
+        })->sum('qty');
+
+        // Ambil total QTY dari material yang diproduksi kemarin
+        $produksiKemarin = ProductionMaterial::whereHas('batch', function ($query) use ($yesterday) {
+            $query->whereDate('tanggal', $yesterday);
+        })->sum('qty');
+
+        // Hitung persentase perubahan harian
+        // Hindari pembagian dengan nol jika kemarin tidak ada produksi
+        if ($produksiKemarin > 0) {
+            $persentasePerubahanHarian = (($produksiHariIni - $produksiKemarin) / $produksiKemarin) * 100;
+        } else {
+            // Jika kemarin 0, dan hari ini ada produksi, anggap naik 100%. Jika sama-sama 0, tidak ada perubahan.
+            $persentasePerubahanHarian = $produksiHariIni > 0 ? 100 : 0;
+        }
+
+
+        // --- 2. Kalkulasi Produksi Bulan Ini & Bulan Lalu ---
+        $startOfThisMonth = Carbon::now()->startOfMonth();
+        $startOfLastMonth = Carbon::now()->subMonthNoOverflow()->startOfMonth();
+        $endOfLastMonth = Carbon::now()->subMonthNoOverflow()->endOfMonth();
+
+        // Ambil total QTY bulan ini
+        $produksiBulanIni = ProductionMaterial::whereHas('batch', function ($query) use ($startOfThisMonth) {
+            $query->where('tanggal', '>=', $startOfThisMonth);
+        })->sum('qty');
+
+        // Ambil total QTY bulan lalu
+        $produksiBulanLalu = ProductionMaterial::whereHas('batch', function ($query) use ($startOfLastMonth, $endOfLastMonth) {
+            $query->whereBetween('tanggal', [$startOfLastMonth, $endOfLastMonth]);
+        })->sum('qty');
+
+        // Hitung persentase perubahan bulanan
+        if ($produksiBulanLalu > 0) {
+            $persentasePerubahanBulanan = (($produksiBulanIni - $produksiBulanLalu) / $produksiBulanLalu) * 100;
+        } else {
+            $persentasePerubahanBulanan = $produksiBulanIni > 0 ? 100 : 0;
+        }
+
+        // Grafik Kapasitas
+        $kapasitasHarianKg = 23; // Contoh: Ton
+        $persentaseBatasAtas = 75; // Contoh: 80%
+        $nilaiBatasAtasKg = $kapasitasHarianKg * ($persentaseBatasAtas / 100);
+
+        // 2. Ambil data produksi 30 hari terakhir
+        $produksiPerHari = ProductionMaterial::select(
+            DB::raw('DATE(production_batches.tanggal) as tanggal_produksi'),
+            DB::raw('SUM(qty) as total_qty')
+        )
+        ->join('production_batches', 'production_materials.production_batch_id', '=', 'production_batches.id')
+        ->where('production_batches.tanggal', '>=', Carbon::now()->subDays(30))
+        ->groupBy('tanggal_produksi')
+        ->orderBy('tanggal_produksi', 'asc')
+        ->get();
+
+        // Format untuk Chart.js
+        $chartLabelskapasitas = [];
+        $chartDatakapasitasTon = [];
+        $chartDataketercapaian = [];
+
+        foreach ($produksiPerHari as $data) {
+            $chartLabelskapasitas[] = $data->tanggal_produksi;
+            $ton = round($data->total_qty / 1000, 2); // Konversi ke Ton
+            $chartDatakapasitasTon[] = $ton;
+            $persen = round(($data->total_qty / $kapasitasHarianKg) * 100, 2);
+            $chartDataketercapaian[] = $persen;
+        }
+
+        // 3. Format data untuk Chart.js
+        $chartLabelskapasitas = $produksiPerHari->pluck('tanggal_produksi');
+        $chartDatakapasitas = $produksiPerHari->pluck('total_qty');
+
         return view('general.produksi.dashboard.index', [
             'labels' => $labels,
             'datasets' => $datasets,
@@ -492,6 +693,21 @@ class ProductionBatchController extends Controller
             'compareMode' => $compareMode,
             'compareLabels' => $compareLabels,
             'compareDatasets' => $compareDatasets,
+            'produksiHariIni' => $produksiHariIni / 1000,
+            'persentasePerubahanHarian' => $persentasePerubahanHarian,
+            'produksiBulanIni' => $produksiBulanIni / 1000,
+            'persentasePerubahanBulanan' => $persentasePerubahanBulanan,
+            'produksiBulanLalu' => $produksiBulanLalu / 1000,
+
+            // Data untuk chart
+            'chartLabels' => $chartLabelskapasitas,
+            'chartData' => $chartDatakapasitas,
+            'nilaiBatasAtasKg' => $nilaiBatasAtasKg,
+            'persentaseBatasAtas' => $persentaseBatasAtas,
+            'chartLabelskapasitas' => $chartLabelskapasitas,
+            'chartDatakapasitasTon' => $chartDatakapasitasTon,
+            'chartDataketercapaian' => $chartDataketercapaian,
+            'maxCapacity' => $kapasitasHarianKg,
         ]);
     }
 
