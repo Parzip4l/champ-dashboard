@@ -18,7 +18,7 @@ class SendWeeklyProductionReport extends Command
     {
         Log::info("⏳ Memulai proses laporan produksi mingguan...");
 
-        $slackChannel = Slack::where('channel', 'testing')->first(); // Ganti ke channel aktual
+        $slackChannel = Slack::where('channel', 'general')->first(); // Ganti ke channel aktual
         if (!$slackChannel) {
             Log::error('❌ Webhook Slack tidak ditemukan untuk channel "Production Monitoring".');
             return;
